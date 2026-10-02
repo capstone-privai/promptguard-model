@@ -1,0 +1,27 @@
+attention_implementation: eager
+batch_size: 4
+character_features: false
+class_weights: null
+data_path: runs/ettin-smoke/synthetic_candidates_v1.jsonl.gz
+deployment_recall_target: 0.99
+deterministic: true
+device: cpu
+epochs: 1
+learning_rate: 2.0e-05
+local_files_only: false
+model_name: jhu-clsp/ettin-encoder-68m
+model_version: SYNTHETIC-ettin68m-w256-cli
+output_dir: runs/ettin-cli-w256
+recall_targets:
+- 0.95
+- 0.99
+revision: ac19ae4bc51093b31c475665ac872a936d056cc2
+sampling: none
+seed: 42
+split_ratios:
+- 0.8
+- 0.1
+- 0.1
+weight_decay: 0.01
+window_size: 256
+revision_model_name: jhu-clsp/ettin-encoder-68m

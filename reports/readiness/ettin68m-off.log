@@ -1,0 +1,29 @@
+Some weights of ModernBertForSequenceClassification were not initialized from the model checkpoint at jhu-clsp/ettin-encoder-68m and are newly initialized: ['classifier.bias', 'classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+You're using a PreTrainedTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a PreTrainedTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+{
+  "purpose": "synthetic compatibility only; no performance/threshold conclusions",
+  "model_name": "jhu-clsp/ettin-encoder-68m",
+  "character_features": false,
+  "stages": {
+    "tokenizer": "passed",
+    "load": "passed",
+    "tokenize": "passed",
+    "forward": "passed",
+    "backward": "passed",
+    "optimizer_step": "passed",
+    "save": "passed",
+    "reload": "passed",
+    "inference": "passed"
+  },
+  "device": "cpu",
+  "resolved_revision": "ac19ae4bc51093b31c475665ac872a936d056cc2",
+  "architecture": "ModernBertForSequenceClassification",
+  "parameters": 68409858,
+  "feature_dimension": 0,
+  "max_score_delta_after_reload_and_reorder": 3.3974647521972656e-06,
+  "prediction_count": 10,
+  "status": "passed"
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "model-bundle-v1",
+  "model_version": "SYNTHETIC-ettin68m-w256-cli",
+  "backbone": "jhu-clsp/ettin-encoder-68m",
+  "revision": "ac19ae4bc51093b31c475665ac872a936d056cc2",
+  "resolved_revision": "ac19ae4bc51093b31c475665ac872a936d056cc2",
+  "window_size": 256,
+  "seed": 42,
+  "best_epoch": 1,
+  "thresholds": {
+    "0.95": 0.9999974966049194,
+    "0.99": 0.9999974966049194
+  },
+  "deployment_recall_target": 0.99,
+  "dataset_fingerprint": "8852c5980b9b73ff5e0bb13c29a19b76407fb811441c5aaa5db453c87ff0ba9e",
+  "provisional_records": 40,
+  "torch_version": "2.14.1+cpu",
+  "transformers_version": "4.57.6",
+  "python": "3.12.14",
+  "device": "cpu",
+  "candidate_truncation_counts": {
+    "train": 0,
+    "validation": 0
+  }
+}

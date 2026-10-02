@@ -1,0 +1,5 @@
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+You're using a PreTrainedTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+{"group_overlap": false, "splits": {"train": {"records": 32, "groups": 16, "labels": {"MASK": 16, "KEEP": 16}, "types": {"TOKEN": 32}}, "validation": {"records": 4, "groups": 2, "labels": {"MASK": 2, "KEEP": 2}, "types": {"TOKEN": 4}}, "test": {"records": 4, "groups": 2, "labels": {"MASK": 2, "KEEP": 2}, "types": {"TOKEN": 4}}}}
+{"epoch": 1, "train_loss": 1.4787567988969386, "validation_loss": 1.4032312631607056}
+Synthetic pipeline run completed; NOT real credential performance.

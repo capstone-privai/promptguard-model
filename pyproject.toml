@@ -1,0 +1,34 @@
+[project]
+name = "privai-credential-model"
+version = "0.1.0"
+description = "PrivAI candidate-v1 credential classification Phase 0"
+requires-python = ">=3.11,<3.14"
+dependencies = ["torch>=2.6,<3", "transformers>=4.51,<5", "PyYAML>=6,<7", "numpy>=1.26,<3", "scikit-learn>=1.4,<2", "psutil>=5.9,<8"]
+
+[project.optional-dependencies]
+baselines = [
+    "credsweeper==1.18.5",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/privai_model"]
+
+# CPU wheels on Linux keep local Phase 0 portable; macOS uses ordinary PyPI wheels.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

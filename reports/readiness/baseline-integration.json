@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "synthetic_records": 18,
+  "unique_predictions": 18,
+  "ml_validator_initialized": true,
+  "evaluator_connected": true,
+  "evaluator_modified": false,
+  "output": "binary prediction",
+  "performance_claim": false
+}

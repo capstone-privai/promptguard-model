@@ -1,0 +1,118 @@
+{
+  "schema_version": "split-v1",
+  "seed": 42,
+  "ratios": [
+    0.8,
+    0.1,
+    0.1
+  ],
+  "dataset_fingerprint": "8852c5980b9b73ff5e0bb13c29a19b76407fb811441c5aaa5db453c87ff0ba9e",
+  "group_assignment": {
+    "synthetic-group:9": "train",
+    "synthetic-group:13": "train",
+    "synthetic-group:4": "train",
+    "synthetic-group:12": "train",
+    "synthetic-group:17": "train",
+    "synthetic-group:3": "train",
+    "synthetic-group:5": "train",
+    "synthetic-group:8": "train",
+    "synthetic-group:14": "train",
+    "synthetic-group:2": "train",
+    "synthetic-group:7": "train",
+    "synthetic-group:18": "train",
+    "synthetic-group:1": "train",
+    "synthetic-group:19": "train",
+    "synthetic-group:10": "train",
+    "synthetic-group:6": "train",
+    "synthetic-group:15": "validation",
+    "synthetic-group:16": "validation",
+    "synthetic-group:0": "test",
+    "synthetic-group:11": "test"
+  },
+  "candidate_ids": {
+    "train": [
+      "synthetic:10:0",
+      "synthetic:10:1",
+      "synthetic:12:0",
+      "synthetic:12:1",
+      "synthetic:13:0",
+      "synthetic:13:1",
+      "synthetic:14:0",
+      "synthetic:14:1",
+      "synthetic:17:0",
+      "synthetic:17:1",
+      "synthetic:18:0",
+      "synthetic:18:1",
+      "synthetic:19:0",
+      "synthetic:19:1",
+      "synthetic:1:0",
+      "synthetic:1:1",
+      "synthetic:2:0",
+      "synthetic:2:1",
+      "synthetic:3:0",
+      "synthetic:3:1",
+      "synthetic:4:0",
+      "synthetic:4:1",
+      "synthetic:5:0",
+      "synthetic:5:1",
+      "synthetic:6:0",
+      "synthetic:6:1",
+      "synthetic:7:0",
+      "synthetic:7:1",
+      "synthetic:8:0",
+      "synthetic:8:1",
+      "synthetic:9:0",
+      "synthetic:9:1"
+    ],
+    "validation": [
+      "synthetic:15:0",
+      "synthetic:15:1",
+      "synthetic:16:0",
+      "synthetic:16:1"
+    ],
+    "test": [
+      "synthetic:0:0",
+      "synthetic:0:1",
+      "synthetic:11:0",
+      "synthetic:11:1"
+    ]
+  },
+  "statistics": {
+    "group_overlap": false,
+    "splits": {
+      "train": {
+        "records": 32,
+        "groups": 16,
+        "labels": {
+          "MASK": 16,
+          "KEEP": 16
+        },
+        "types": {
+          "TOKEN": 32
+        }
+      },
+      "validation": {
+        "records": 4,
+        "groups": 2,
+        "labels": {
+          "MASK": 2,
+          "KEEP": 2
+        },
+        "types": {
+          "TOKEN": 4
+        }
+      },
+      "test": {
+        "records": 4,
+        "groups": 2,
+        "labels": {
+          "MASK": 2,
+          "KEEP": 2
+        },
+        "types": {
+          "TOKEN": 4
+        }
+      }
+    }
+  }
+}

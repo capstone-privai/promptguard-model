@@ -1,0 +1,27 @@
+model_name: answerdotai/ModernBERT-base
+revision_model_name: answerdotai/ModernBERT-base
+revision: 8949b909ec900327062f0ebf497f51aef5e6f0c8
+model_version: modernbert-base-w256-v0
+data_path: data/raw/creddata_candidates_v1.jsonl.gz
+output_dir: runs/modernbert-base-w256-v0
+seed: 42
+split_ratios:
+- 0.8
+- 0.1
+- 0.1
+window_size: 256
+batch_size: 8
+epochs: 3
+learning_rate: 2.0e-05
+weight_decay: 0.01
+device: auto
+attention_implementation: eager
+local_files_only: false
+deterministic: true
+class_weights: null
+sampling: none
+character_features: false
+recall_targets:
+- 0.95
+- 0.99
+deployment_recall_target: 0.99

@@ -1,0 +1,9 @@
+{
+  "system": "Linux",
+  "machine": "x86_64",
+  "torch": "2.14.1+cpu",
+  "cpu_ok": true,
+  "mps_built": false,
+  "mps_available": false,
+  "mps_initialized": false
+}

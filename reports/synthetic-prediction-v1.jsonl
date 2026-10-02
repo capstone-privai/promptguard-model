@@ -1,0 +1,4 @@
+{"schema_version": "prediction-v1", "candidate_id": "synthetic:1:1", "model_version": "SYNTHETIC-ettin68m-smoke", "p_mask": 0.9999990463256836, "threshold": 0.9999990463256836, "action": "MASK", "latency_ms": 59.349724500009415}
+{"schema_version": "prediction-v1", "candidate_id": "synthetic:1:0", "model_version": "SYNTHETIC-ettin68m-smoke", "p_mask": 4.6062464207352605e-06, "threshold": 0.9999990463256836, "action": "KEEP", "latency_ms": 59.349724500009415}
+{"schema_version": "prediction-v1", "candidate_id": "synthetic:0:1", "model_version": "SYNTHETIC-ettin68m-smoke", "p_mask": 0.9999990463256836, "threshold": 0.9999990463256836, "action": "MASK", "latency_ms": 43.97735599997077}
+{"schema_version": "prediction-v1", "candidate_id": "synthetic:0:0", "model_version": "SYNTHETIC-ettin68m-smoke", "p_mask": 4.6062464207352605e-06, "threshold": 0.9999990463256836, "action": "KEEP", "latency_ms": 43.97735599997077}

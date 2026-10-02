@@ -1,0 +1,11 @@
+{
+  "method": "CredSweeper",
+  "version": "1.18.5",
+  "output": "binary prediction",
+  "use_ml": true,
+  "ml_threshold": "medium",
+  "match_policy": "reported value span contains input candidate span",
+  "score_note": "ML scores do not cover every rule or rejected candidate; not exposed as complete probabilities",
+  "scope": "candidate-local supplied line/context, not whole repository scanning",
+  "runtime_adapter": "serial plain-list CredentialManager, no IPC; upstream rules/filters/ML unchanged"
+}

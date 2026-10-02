@@ -1,0 +1,27 @@
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+You're using a PreTrainedTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+You're using a PreTrainedTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+{
+  "purpose": "synthetic compatibility only; no performance/threshold conclusions",
+  "model_name": "jhu-clsp/ettin-encoder-150m",
+  "character_features": true,
+  "stages": {
+    "tokenizer": "passed",
+    "load": "passed",
+    "tokenize": "passed",
+    "forward": "passed",
+    "backward": "passed",
+    "optimizer_step": "passed",
+    "save": "passed",
+    "reload": "passed",
+    "inference": "passed"
+  },
+  "device": "cpu",
+  "resolved_revision": "45d08642849e5c5701b162671ac811b7654bfd9f",
+  "architecture": "FeatureFusionClassifier",
+  "parameters": 149019678,
+  "feature_dimension": 14,
+  "max_score_delta_after_reload_and_reorder": 2.980232238769531e-07,
+  "prediction_count": 10,
+  "status": "passed"
+}

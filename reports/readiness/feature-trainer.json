@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "backbone": "jhu-clsp/ettin-encoder-68m",
+  "feature_dimension": 14,
+  "predictions": 10,
+  "test_evaluated": false,
+  "purpose": "synthetic trainer compatibility only"
+}

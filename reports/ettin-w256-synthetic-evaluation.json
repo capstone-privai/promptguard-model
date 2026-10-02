@@ -1,0 +1,233 @@
+{
+  "notice": "Provisional dataset pipeline validation; not final PrivAI performance.",
+  "best_epoch": 1,
+  "threshold_source": "validation",
+  "thresholds": {
+    "0.95": 0.9999974966049194,
+    "0.99": 0.9999974966049194
+  },
+  "validation": {
+    "0.95": {
+      "records": 4,
+      "threshold": 0.9999974966049194,
+      "recall": 1.0,
+      "precision": 1.0,
+      "false_positive_count": 0,
+      "false_negative_count": 0,
+      "true_positive_count": 2,
+      "true_negative_count": 2,
+      "average_precision": 1.0,
+      "pr_auc_trapezoid": 1.0,
+      "provisional_records": 4,
+      "by_type": {
+        "TOKEN": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      },
+      "by_channel": {
+        "tool_output": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      },
+      "by_dataset": {
+        "synthetic-smoke-only": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      }
+    },
+    "0.99": {
+      "records": 4,
+      "threshold": 0.9999974966049194,
+      "recall": 1.0,
+      "precision": 1.0,
+      "false_positive_count": 0,
+      "false_negative_count": 0,
+      "true_positive_count": 2,
+      "true_negative_count": 2,
+      "average_precision": 1.0,
+      "pr_auc_trapezoid": 1.0,
+      "provisional_records": 4,
+      "by_type": {
+        "TOKEN": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      },
+      "by_channel": {
+        "tool_output": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      },
+      "by_dataset": {
+        "synthetic-smoke-only": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      }
+    }
+  },
+  "test": {
+    "0.95": {
+      "records": 4,
+      "threshold": 0.9999974966049194,
+      "recall": 1.0,
+      "precision": 1.0,
+      "false_positive_count": 0,
+      "false_negative_count": 0,
+      "true_positive_count": 2,
+      "true_negative_count": 2,
+      "average_precision": 1.0,
+      "pr_auc_trapezoid": 1.0,
+      "provisional_records": 4,
+      "by_type": {
+        "TOKEN": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      },
+      "by_channel": {
+        "tool_output": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      },
+      "by_dataset": {
+        "synthetic-smoke-only": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      }
+    },
+    "0.99": {
+      "records": 4,
+      "threshold": 0.9999974966049194,
+      "recall": 1.0,
+      "precision": 1.0,
+      "false_positive_count": 0,
+      "false_negative_count": 0,
+      "true_positive_count": 2,
+      "true_negative_count": 2,
+      "average_precision": 1.0,
+      "pr_auc_trapezoid": 1.0,
+      "provisional_records": 4,
+      "by_type": {
+        "TOKEN": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      },
+      "by_channel": {
+        "tool_output": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      },
+      "by_dataset": {
+        "synthetic-smoke-only": {
+          "records": 4,
+          "threshold": 0.9999974966049194,
+          "recall": 1.0,
+          "precision": 1.0,
+          "false_positive_count": 0,
+          "false_negative_count": 0,
+          "true_positive_count": 2,
+          "true_negative_count": 2,
+          "average_precision": 1.0,
+          "pr_auc_trapezoid": 1.0
+        }
+      }
+    }
+  }
+}

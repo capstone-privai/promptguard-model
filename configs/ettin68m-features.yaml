@@ -1,0 +1,27 @@
+model_name: jhu-clsp/ettin-encoder-68m
+revision_model_name: jhu-clsp/ettin-encoder-68m
+revision: ac19ae4bc51093b31c475665ac872a936d056cc2
+model_version: ettin68m-w256-features-v1
+data_path: data/raw/creddata_candidates_v1.jsonl.gz
+output_dir: runs/ettin68m-w256-features-v1
+seed: 42
+split_ratios:
+- 0.8
+- 0.1
+- 0.1
+window_size: 256
+batch_size: 8
+epochs: 3
+learning_rate: 2.0e-05
+weight_decay: 0.01
+device: auto
+attention_implementation: eager
+local_files_only: false
+deterministic: true
+class_weights: null
+sampling: none
+character_features: true
+recall_targets:
+- 0.95
+- 0.99
+deployment_recall_target: 0.99

@@ -1,0 +1,53 @@
+{
+  "device": "cpu",
+  "model_version": "SYNTHETIC-ettin68m-smoke",
+  "timing_scope": "tokenization + padding + device transfer + forward + serialization; excludes model load",
+  "memory_scope": "process RSS snapshots; not peak memory; null if process inspection unavailable",
+  "torch_num_threads": 2,
+  "results": [
+    {
+      "window_size": 64,
+      "batch_size": 1,
+      "requested_batch_size": 1,
+      "mean_latency_ms": 82.00530133331085,
+      "median_latency_ms": 80.17563800001426,
+      "p95_latency_ms": 87.44984399993427,
+      "throughput_candidates_per_second": 12.194333582599693,
+      "rss_before_bytes": null,
+      "rss_after_bytes": null
+    },
+    {
+      "window_size": 64,
+      "batch_size": 4,
+      "requested_batch_size": 4,
+      "mean_latency_ms": 200.70755066660695,
+      "median_latency_ms": 197.71220299992365,
+      "p95_latency_ms": 207.8290529999549,
+      "throughput_candidates_per_second": 19.92949436488493,
+      "rss_before_bytes": null,
+      "rss_after_bytes": null
+    },
+    {
+      "window_size": 256,
+      "batch_size": 1,
+      "requested_batch_size": 1,
+      "mean_latency_ms": 126.017050000011,
+      "median_latency_ms": 123.23972000001504,
+      "p95_latency_ms": 132.81131700000515,
+      "throughput_candidates_per_second": 7.935434133713754,
+      "rss_before_bytes": null,
+      "rss_after_bytes": null
+    },
+    {
+      "window_size": 256,
+      "batch_size": 4,
+      "requested_batch_size": 4,
+      "mean_latency_ms": 393.37468999997327,
+      "median_latency_ms": 404.8199769999883,
+      "p95_latency_ms": 419.29348600001504,
+      "throughput_candidates_per_second": 10.16842237613272,
+      "rss_before_bytes": null,
+      "rss_after_bytes": null
+    }
+  ]
+}

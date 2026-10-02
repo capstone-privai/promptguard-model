@@ -1,0 +1,30 @@
+Some weights of ModernBertForSequenceClassification were not initialized from the model checkpoint at jhu-clsp/mmBERT-small and are newly initialized: ['classifier.bias', 'classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+You're using a PreTrainedTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+The tokenizer you are loading from 'runs/readiness-mmbert-off/model' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+You're using a PreTrainedTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+{
+  "purpose": "synthetic compatibility only; no performance/threshold conclusions",
+  "model_name": "jhu-clsp/mmBERT-small",
+  "character_features": false,
+  "stages": {
+    "tokenizer": "passed",
+    "load": "passed",
+    "tokenize": "passed",
+    "forward": "passed",
+    "backward": "passed",
+    "optimizer_step": "passed",
+    "save": "passed",
+    "reload": "passed",
+    "inference": "passed"
+  },
+  "device": "cpu",
+  "resolved_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "architecture": "ModernBertForSequenceClassification",
+  "parameters": 140643458,
+  "feature_dimension": 0,
+  "max_score_delta_after_reload_and_reorder": 3.934837877750397e-08,
+  "prediction_count": 10,
+  "status": "passed"
+}
