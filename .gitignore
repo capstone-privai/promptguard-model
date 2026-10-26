@@ -11,3 +11,5 @@ runs/
 *.safetensors
 *.pt
 *.pth
+data/span-*/
+*.bin

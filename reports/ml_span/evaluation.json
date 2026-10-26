@@ -1,0 +1,559 @@
+{
+  "records": 80,
+  "gold_spans": 40,
+  "rule_only": {
+    "tp": 16,
+    "fp": 0,
+    "fn": 24,
+    "precision": 1.0,
+    "recall": 0.4,
+    "f1": 0.5714285714285714,
+    "f2": 0.45454545454545453
+  },
+  "ml_only": {
+    "tp": 32,
+    "fp": 0,
+    "fn": 8,
+    "precision": 1.0,
+    "recall": 0.8,
+    "f1": 0.8888888888888888,
+    "f2": 0.8333333333333334
+  },
+  "candidate_union": {
+    "tp": 40,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "f2": 1.0
+  },
+  "merged_mask_intervals": {
+    "tp": 40,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "f2": 1.0
+  },
+  "rule_miss_count": 24,
+  "rule_miss_recall": 1.0,
+  "ml_added_true_positives": 24,
+  "ml_induced_false_positives": 0,
+  "ml_overlap_recall": 0.8,
+  "combined_coverage_recall": 1.0,
+  "notice": "Independent synthetic held-out families; NOT public PromptGuard hold-out performance",
+  "threshold": 0.9,
+  "threshold_source": "validation",
+  "best_epoch": 1,
+  "rule_metadata": {
+    "method": "CredSweeper",
+    "version": "1.18.5",
+    "output": "whole-text character spans",
+    "use_ml": false,
+    "ml_threshold": "disabled",
+    "match_policy": "exact character spans; containment reported separately",
+    "score_note": "ML scores do not cover every rule or rejected candidate; not exposed as complete probabilities",
+    "scope": "local CredSweeper proxy; NOT deployed PromptGuard ensemble",
+    "runtime_adapter": "serial plain-list CredentialManager, no IPC; upstream rules/filters/ML unchanged",
+    "config_sha256": "e5fe1e4969b6fe13909609b453d14e4f85c5fb42cee0c2e38c405891fda5d0a0",
+    "gitleaks": "NOT EVALUATED",
+    "custom_rules": "NOT EVALUATED",
+    "mapping_policy": "value offsets, no string search"
+  },
+  "rule_dataset_stats": {
+    "train": {
+      "records": 424,
+      "gold": 184,
+      "exact_hits": 72,
+      "coverage_hits": 72,
+      "latency": {
+        "unit": "ms/input",
+        "calls": 424,
+        "mean": 0.21639583016776498,
+        "p50": 0.13197900261729956,
+        "p95": 0.3379170084372163,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    },
+    "validation": {
+      "records": 64,
+      "gold": 32,
+      "exact_hits": 24,
+      "coverage_hits": 24,
+      "latency": {
+        "unit": "ms/input",
+        "calls": 64,
+        "mean": 0.1400559217472619,
+        "p50": 0.12606300151674077,
+        "p95": 0.24691699945833534,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    },
+    "test": {
+      "records": 80,
+      "gold": 40,
+      "exact_hits": 16,
+      "coverage_hits": 16,
+      "latency": {
+        "unit": "ms/input",
+        "calls": 80,
+        "mean": 0.12187188694952056,
+        "p50": 0.11004099360434338,
+        "p95": 0.239792003412731,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    }
+  },
+  "ml_latency": {
+    "unit": "ms/input",
+    "calls": 80,
+    "mean": 15.36098752385442,
+    "p50": 12.064582995662931,
+    "p95": 15.967958999681287,
+    "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+  },
+  "parameters": 140642691,
+  "checkpoint_bytes": 596997487,
+  "elapsed_seconds": 203.69042383300257,
+  "device": "cpu",
+  "token_metrics": {
+    "tp": 485,
+    "fp": 0,
+    "fn": 125,
+    "precision": 1.0,
+    "recall": 0.7950819672131147,
+    "f1": 0.8858447488584474,
+    "f2": 0.8290598290598291,
+    "policy": "binary secret token, deduplicated absolute offsets, argmax before span threshold"
+  },
+  "by_source": {
+    "code": {
+      "records": 16,
+      "gold_spans": 8,
+      "rule_only": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "ml_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 8,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "candidate_union": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 0.0,
+      "combined_coverage_recall": 1.0
+    },
+    "configuration": {
+      "records": 16,
+      "gold_spans": 8,
+      "rule_only": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "ml_only": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "log": {
+      "records": 16,
+      "gold_spans": 8,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 8,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 8,
+      "rule_miss_recall": 1.0,
+      "ml_added_true_positives": 8,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "prompt": {
+      "records": 16,
+      "gold_spans": 8,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 8,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 8,
+      "rule_miss_recall": 1.0,
+      "ml_added_true_positives": 8,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "tool_output": {
+      "records": 16,
+      "gold_spans": 8,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 8,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 8,
+      "rule_miss_recall": 1.0,
+      "ml_added_true_positives": 8,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    }
+  },
+  "by_language": {
+    "en": {
+      "records": 64,
+      "gold_spans": 32,
+      "rule_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 16,
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "f2": 0.5555555555555556
+      },
+      "ml_only": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 8,
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1": 0.8571428571428571,
+        "f2": 0.7894736842105263
+      },
+      "candidate_union": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 16,
+      "rule_miss_recall": 1.0,
+      "ml_added_true_positives": 16,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 0.75,
+      "combined_coverage_recall": 1.0
+    },
+    "mixed": {
+      "records": 16,
+      "gold_spans": 8,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 8,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 8,
+      "rule_miss_recall": 1.0,
+      "ml_added_true_positives": 8,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    }
+  },
+  "by_kind": {
+    "hard_negative": {
+      "records": 40,
+      "gold_spans": 0,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "ml_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "candidate_union": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "merged_mask_intervals": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": null,
+      "combined_coverage_recall": null
+    },
+    "positive": {
+      "records": 40,
+      "gold_spans": 40,
+      "rule_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 24,
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714285714285714,
+        "f2": 0.45454545454545453
+      },
+      "ml_only": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 8,
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8888888888888888,
+        "f2": 0.8333333333333334
+      },
+      "candidate_union": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 24,
+      "rule_miss_recall": 1.0,
+      "ml_added_true_positives": 24,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 0.8,
+      "combined_coverage_recall": 1.0
+    }
+  },
+  "metadata_corrections": [
+    "Inherited candidate-baseline match_policy description corrected; predictions and metrics unchanged.",
+    "Latency p95 in training report is sorted sample index floor(0.95*n), zero-based; dedicated benchmark uses nearest-rank."
+  ],
+  "rule_no_overlap_miss_count": 24,
+  "rule_no_overlap_miss_recall": 1.0,
+  "rule_coverage_miss_count": 24,
+  "rule_coverage_miss_recall": 1.0
+}

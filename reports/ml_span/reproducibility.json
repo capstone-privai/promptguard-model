@@ -1,0 +1,11 @@
+{
+  "dataset_hashes": {
+    "data/span-synthetic-v1/train.jsonl": "430c6fc035e9479a9e8c0b05f25ed1d33d3e2e9b938ab587e70a2db23757ff83",
+    "data/span-synthetic-v1/test.jsonl": "41414cb853a9c9d4d6329d9e21faf67945922abb97cbfa67bfb049f76eccfc25",
+    "data/span-synthetic-v1/validation.jsonl": "485bd81155ca3553228058fcc96ecd898b8b15b610f113ca8fb01caf4ebdf891"
+  },
+  "tokenizer_reload_identical_records": 568,
+  "split_leakage": false,
+  "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "checkpoint_sha256": "721c20821be0b734095ff526baa154c32dfc845896386fc946516485158fb6a5"
+}

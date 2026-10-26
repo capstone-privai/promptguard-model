@@ -1,0 +1,12 @@
+{
+  "train": {
+    "gold_spans": 184,
+    "exactly_representable_in_a_window": 181,
+    "boundary_or_window_unrepresentable": 3
+  },
+  "validation": {
+    "gold_spans": 32,
+    "exactly_representable_in_a_window": 32,
+    "boundary_or_window_unrepresentable": 0
+  }
+}
