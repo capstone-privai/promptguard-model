@@ -1,0 +1,104 @@
+{
+  "notice": "Repeated development set, already reviewed before refinement; frozen original threshold 0.9, no tuning. Informational regression check only.",
+  "threshold": 0.9,
+  "original": {
+    "records": 80,
+    "gold_spans": 40,
+    "rule_only": {
+      "tp": 16,
+      "fp": 0,
+      "fn": 24,
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1": 0.5714285714285714,
+      "f2": 0.45454545454545453
+    },
+    "ml_only": {
+      "tp": 32,
+      "fp": 0,
+      "fn": 8,
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8888888888888888,
+      "f2": 0.8333333333333334
+    },
+    "candidate_union": {
+      "tp": 40,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0
+    },
+    "merged_mask_intervals": {
+      "tp": 40,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0
+    },
+    "rule_miss_count": 24,
+    "rule_miss_recall": 1.0,
+    "rule_no_overlap_miss_count": 24,
+    "rule_no_overlap_miss_recall": 1.0,
+    "rule_coverage_miss_count": 24,
+    "rule_coverage_miss_recall": 1.0,
+    "ml_added_true_positives": 24,
+    "ml_induced_false_positives": 0,
+    "ml_overlap_recall": 0.8,
+    "combined_coverage_recall": 1.0
+  },
+  "refined": {
+    "records": 80,
+    "gold_spans": 40,
+    "rule_only": {
+      "tp": 16,
+      "fp": 0,
+      "fn": 24,
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1": 0.5714285714285714,
+      "f2": 0.45454545454545453
+    },
+    "ml_only": {
+      "tp": 32,
+      "fp": 0,
+      "fn": 8,
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8888888888888888,
+      "f2": 0.8333333333333334
+    },
+    "candidate_union": {
+      "tp": 40,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0
+    },
+    "merged_mask_intervals": {
+      "tp": 40,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0
+    },
+    "rule_miss_count": 24,
+    "rule_miss_recall": 1.0,
+    "rule_no_overlap_miss_count": 24,
+    "rule_no_overlap_miss_recall": 1.0,
+    "rule_coverage_miss_count": 24,
+    "rule_coverage_miss_recall": 1.0,
+    "ml_added_true_positives": 24,
+    "ml_induced_false_positives": 0,
+    "ml_overlap_recall": 0.8,
+    "combined_coverage_recall": 1.0
+  }
+}

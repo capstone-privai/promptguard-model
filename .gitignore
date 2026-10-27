@@ -13,3 +13,6 @@ runs/
 *.pth
 data/span-*/
 *.bin
+
+data/span-refinement-*/
+data/span-code-refinement-*/

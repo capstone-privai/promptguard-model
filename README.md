@@ -340,3 +340,6 @@ uv run python scripts/evaluate.py --data data/raw/agent_candidates_v1.jsonl.gz \
 합성 데이터와 누출 방지는 [RULE_MISS_DATASET](docs/ml_span/RULE_MISS_DATASET.md),
 실험 결과는 [ML_C_RESULTS](docs/ml_span/ML_C_RESULTS.md),
 통합 설계는 [ML_C_RUNTIME_INTEGRATION](docs/ml_span/ML_C_RUNTIME_INTEGRATION.md)를 참고하세요.
+
+코드 family 16종을 추가해 기존 체크포인트를 미세조정하는 개발 실험은
+[ML_C_REFINEMENT](docs/ml_span/ML_C_REFINEMENT.md)를 참고하세요.

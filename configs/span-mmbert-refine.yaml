@@ -1,0 +1,18 @@
+model_name: runs/span-mmbert-v2/model
+backbone_id: jhu-clsp/mmBERT-small (refined from span-mmbert-v2)
+backbone_revision: abc32620dd4f6ab06f5fbe905dc25f310618e09f
+local_files_only: true
+data_dir: data/span-refinement-v1
+output_dir: runs/span-mmbert-refine-v1
+seed: 77
+epochs: 3
+patience: 2
+batch_size: 4
+learning_rate: 0.000005
+weight_decay: 0.01
+class_weights: [1.0, 2.0, 2.0]
+max_length: 512
+stride: 128
+thresholds: [0.3, 0.5, 0.7, 0.9]
+device: cpu
+threads: 4

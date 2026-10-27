@@ -35,6 +35,23 @@ TEMPLATES = [
  ('escaped','en','tool_output','{"output":"authentication password:\\n«V»\\n"}','{"output":"public identifier:\\n«V»\\n"}'),
  ('no_variable','en','prompt','Use the next line to prove access to the service.\n«V»\nKeep it confidential.','Use the next line to locate the public report.\n«V»\nIt is an identifier.'),
  ('ko_attached','ko','prompt','접속용 암호는 «V»입니다.','공개용 번호는 «V»입니다.'),
+ # Code-first families target the prior model's complete code-source misses.
+ ('py_env_default','en','code','os.environ.get("SERVICE_PASSWORD", "«V»")','os.environ.get("PUBLIC_BUILD_ID", "«V»")'),
+ ('py_mapping','en','code','settings.update({"auth": {"credential": "«V»"}})','settings.update({"trace": {"request_id": "«V»"}})'),
+ ('py_header','en','code','headers["X-Auth-Token"] = "«V»"','headers["X-Correlation-ID"] = "«V»"'),
+ ('py_exception','en','code','logger.debug("login failed; credential %s", "«V»")','logger.debug("trace failed; request %s", "«V»")'),
+ ('js_template','en','code','const endpoint = `postgres://worker:${"«V»"}@db.internal.invalid/app`;','const endpoint = `https://trace.invalid/${"«V»"}`;'),
+ ('js_process','en','code','process.env["AUTH_SECRET"] = "«V»";','process.env["PUBLIC_TRACE_ID"] = "«V»";'),
+ ('go_config','en','code','cfg := map[string]string{"client_secret": "«V»"}','cfg := map[string]string{"request_id": "«V»"}'),
+ ('java_prop','en','code','properties.put("service.password", "«V»");','properties.put("build.requestId", "«V»");'),
+ ('sql_conn','en','code','connect("mysql://app:" + "«V»" + "@sql.invalid/db")','trace("https://trace.invalid/" + "«V»")'),
+ ('terraform','en','configuration','variable "service_password" { default = "«V»" }','variable "public_build_id" { default = "«V»" }'),
+ ('docker_env','en','configuration','environment:\n  APP_LOGIN_PASSWORD: "«V»"','environment:\n  APP_TRACE_REQUEST_ID: "«V»"'),
+ ('pem_block','en','configuration','PRIVATE_KEY = """\n«V»\n"""','PUBLIC_ARTIFACT_ID = """\n«V»\n"""'),
+ ('raw_log_line','mixed','log','auth middleware denied login; credential payload=«V»','trace middleware indexed request; public id=«V»'),
+ ('shell_config','en','shell','export WORKER_AUTH_SECRET=«V»','export WORKER_TRACE_ID=«V»'),
+ ('jsonl_event','mixed','tool_output','{"event":"login","detail":"암호 «V»"}','{"event":"trace","detail":"요청 번호 «V»"}'),
+ ('config_no_key','en','configuration','# use this private login value below\n«V»','# use this public tracking value below\n«V»'),
 ]
 NEGATIVES=[('uuid','request_uuid = «V»'),('commit','git revision «V»'),('hash','artifact sha256 «V»'),
  ('placeholder','password = YOUR_PASSWORD_«V»'),('masked','password = [REDACTED_«V»]'),
@@ -50,7 +67,7 @@ def render(pattern,values):
         spans.append(dict(start=a,end=len(text),secret_type='SECRET'));cursor=match.end()
     return text+pattern[cursor:],spans
 
-def generate(per_family=12,seed=713,exclusions=None):
+def generate(per_family=12,seed=713,exclusions=None,include_families=None):
     if per_family<1: raise ValueError('positive generation size required')
     rng=random.Random(seed);rows=[]
     rand=lambda n: ''.join(rng.choices(string.ascii_letters+string.digits,k=n))
@@ -66,6 +83,7 @@ def generate(per_family=12,seed=713,exclusions=None):
             if digest(canonical_template(row)) in exclusions['template_sha256']: return
         rows.append(row)
     for family,language,source,pos,neg in TEMPLATES:
+        if include_families and family not in include_families: continue
         for i in range(per_family):
             # The SAME value is used in both semantic roles; never an issued key.
             value=[rand(18),rand(8)+'!'+rand(5),'internal-'+rand(23),rand(32)][i%4]
@@ -75,6 +93,7 @@ def generate(per_family=12,seed=713,exclusions=None):
             vals={'V':value,'W':rand(17)}
             for label,pattern in ((True,pos),(False,neg)): add(family,source,language,pattern,vals,label,i,int(label))
     for family,pattern in NEGATIVES:
+        if include_families and 'negative_'+family not in include_families: continue
         for i in range(per_family):
             value=rand(24)
             if family in ('hash','commit'): value=''.join(rng.choices('0123456789abcdef',k=64 if family=='hash' else 40))

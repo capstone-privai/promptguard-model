@@ -1,0 +1,44 @@
+[
+  {
+    "epoch": 1,
+    "loss": 0.01273362680608952,
+    "threshold": 0.9,
+    "validation": {
+      "tp": 16,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0
+    }
+  },
+  {
+    "epoch": 2,
+    "loss": 0.0002581502130450456,
+    "threshold": 0.9,
+    "validation": {
+      "tp": 16,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0
+    }
+  },
+  {
+    "epoch": 3,
+    "loss": 9.437463457237748e-07,
+    "threshold": 0.9,
+    "validation": {
+      "tp": 16,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0
+    }
+  }
+]

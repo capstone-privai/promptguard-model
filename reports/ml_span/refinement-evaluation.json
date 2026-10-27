@@ -1,0 +1,491 @@
+{
+  "records": 96,
+  "gold_spans": 48,
+  "rule_only": {
+    "tp": 32,
+    "fp": 0,
+    "fn": 16,
+    "precision": 1.0,
+    "recall": 0.6666666666666666,
+    "f1": 0.8,
+    "f2": 0.7142857142857143
+  },
+  "ml_only": {
+    "tp": 48,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "f2": 1.0
+  },
+  "candidate_union": {
+    "tp": 48,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "f2": 1.0
+  },
+  "merged_mask_intervals": {
+    "tp": 48,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "f2": 1.0
+  },
+  "rule_miss_count": 16,
+  "rule_miss_recall": 1.0,
+  "rule_no_overlap_miss_count": 16,
+  "rule_no_overlap_miss_recall": 1.0,
+  "rule_coverage_miss_count": 16,
+  "rule_coverage_miss_recall": 1.0,
+  "ml_added_true_positives": 16,
+  "ml_induced_false_positives": 0,
+  "ml_overlap_recall": 1.0,
+  "combined_coverage_recall": 1.0,
+  "notice": "Independent synthetic held-out families; NOT public PromptGuard hold-out performance",
+  "threshold": 0.9,
+  "threshold_source": "validation",
+  "best_epoch": 1,
+  "rule_metadata": {
+    "method": "CredSweeper",
+    "version": "1.18.5",
+    "output": "whole-text character spans",
+    "use_ml": false,
+    "ml_threshold": "disabled",
+    "match_policy": "exact character spans; containment reported separately",
+    "score_note": "ML scores do not cover every rule or rejected candidate; not exposed as complete probabilities",
+    "scope": "local CredSweeper proxy; NOT deployed PromptGuard ensemble",
+    "runtime_adapter": "serial plain-list CredentialManager, no IPC; upstream rules/filters/ML unchanged",
+    "config_sha256": "e5fe1e4969b6fe13909609b453d14e4f85c5fb42cee0c2e38c405891fda5d0a0",
+    "gitleaks": "NOT EVALUATED",
+    "custom_rules": "NOT EVALUATED",
+    "mapping_policy": "value offsets, no string search"
+  },
+  "rule_dataset_stats": {
+    "train": {
+      "records": 808,
+      "gold": 376,
+      "exact_hits": 136,
+      "coverage_hits": 136,
+      "latency": {
+        "unit": "ms/input",
+        "calls": 808,
+        "mean": 0.2686578789345533,
+        "p50": 0.18520849698688835,
+        "p95": 0.449041006504558,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    },
+    "validation": {
+      "records": 32,
+      "gold": 16,
+      "exact_hits": 16,
+      "coverage_hits": 16,
+      "latency": {
+        "unit": "ms/input",
+        "calls": 32,
+        "mean": 0.25008324928421644,
+        "p50": 0.24152049445547163,
+        "p95": 0.3623329976107925,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    },
+    "test": {
+      "records": 96,
+      "gold": 48,
+      "exact_hits": 32,
+      "coverage_hits": 32,
+      "latency": {
+        "unit": "ms/input",
+        "calls": 96,
+        "mean": 0.23441632371638357,
+        "p50": 0.18079149594996125,
+        "p95": 0.4200000112177804,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    }
+  },
+  "ml_latency": {
+    "unit": "ms/input",
+    "calls": 96,
+    "mean": 23.081701427751494,
+    "p50": 19.568353993236087,
+    "p95": 29.397874997812323,
+    "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+  },
+  "parameters": 140642691,
+  "checkpoint_bytes": 596997627,
+  "elapsed_seconds": 581.0420529169933,
+  "device": "cpu",
+  "token_metrics": {
+    "tp": 735,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "f2": 1.0,
+    "policy": "binary secret token, deduplicated absolute offsets, argmax before span threshold"
+  },
+  "by_source": {
+    "code": {
+      "records": 32,
+      "gold_spans": 16,
+      "rule_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "ml_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "rule_no_overlap_miss_count": 0,
+      "rule_no_overlap_miss_recall": null,
+      "rule_coverage_miss_count": 0,
+      "rule_coverage_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "configuration": {
+      "records": 32,
+      "gold_spans": 16,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 16,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 16,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 16,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 16,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 16,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "log": {
+      "records": 32,
+      "gold_spans": 16,
+      "rule_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "ml_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "rule_no_overlap_miss_count": 0,
+      "rule_no_overlap_miss_recall": null,
+      "rule_coverage_miss_count": 0,
+      "rule_coverage_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    }
+  },
+  "by_language": {
+    "en": {
+      "records": 64,
+      "gold_spans": 32,
+      "rule_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 16,
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "f2": 0.5555555555555556
+      },
+      "ml_only": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 16,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 16,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 16,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 16,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "mixed": {
+      "records": 32,
+      "gold_spans": 16,
+      "rule_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "ml_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "rule_no_overlap_miss_count": 0,
+      "rule_no_overlap_miss_recall": null,
+      "rule_coverage_miss_count": 0,
+      "rule_coverage_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    }
+  },
+  "by_kind": {
+    "hard_negative": {
+      "records": 48,
+      "gold_spans": 0,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "ml_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "candidate_union": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "merged_mask_intervals": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "rule_no_overlap_miss_count": 0,
+      "rule_no_overlap_miss_recall": null,
+      "rule_coverage_miss_count": 0,
+      "rule_coverage_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": null,
+      "combined_coverage_recall": null
+    },
+    "positive": {
+      "records": 48,
+      "gold_spans": 48,
+      "rule_only": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 16,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8,
+        "f2": 0.7142857142857143
+      },
+      "ml_only": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 16,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 16,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 16,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 16,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    }
+  }
+}
