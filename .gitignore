@@ -16,3 +16,6 @@ data/span-*/
 
 data/span-refinement-*/
 data/span-code-refinement-*/
+
+# Local ONNX Runtime telemetry identifier created during model scans.
+/:memory:.ses

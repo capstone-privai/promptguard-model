@@ -17,6 +17,23 @@ from .evaluation import evaluate,predict_rows,measures
 from .rules import RuleSpanDetector
 
 
+class LengthGroupedBatches:
+    """Shuffle equal-length examples and batch order without padding short rows to long rows."""
+    def __init__(self,rows,batch_size,seed):
+        self.lengths=[len(r['input_ids']) for r in rows]
+        self.batch_size=batch_size
+        self.generator=torch.Generator().manual_seed(seed)
+
+    def __len__(self):
+        return (len(self.lengths)+self.batch_size-1)//self.batch_size
+
+    def __iter__(self):
+        indices=torch.randperm(len(self.lengths),generator=self.generator).tolist()
+        indices.sort(key=lambda i:self.lengths[i])
+        batches=[indices[i:i+self.batch_size] for i in range(0,len(indices),self.batch_size)]
+        for i in torch.randperm(len(batches),generator=self.generator).tolist():yield batches[i]
+
+
 def create_model(config):
     kwargs=dict(local_files_only=config.get('local_files_only',True))
     if config.get('revision'): kwargs['revision']=config['revision']
@@ -81,8 +98,11 @@ def train(config):
         batch=tokenizer.pad([{k:v for k,v in r.items() if k!='labels'} for r in rows],return_tensors='pt')
         batch['labels']=torch.tensor([r['labels']+[-100]*(batch['input_ids'].shape[1]-len(r['labels'])) for r in rows])
         return batch
-    loader=DataLoader(training,batch_size=config['batch_size'],shuffle=True,collate_fn=collate,
-        generator=torch.Generator().manual_seed(config['seed']))
+    if config.get('length_grouped_batches',False):
+        loader=DataLoader(training,batch_sampler=LengthGroupedBatches(training,config['batch_size'],config['seed']),collate_fn=collate)
+    else:
+        loader=DataLoader(training,batch_size=config['batch_size'],shuffle=True,collate_fn=collate,
+            generator=torch.Generator().manual_seed(config['seed']))
     optimizer=torch.optim.AdamW(model.parameters(),lr=config['learning_rate'],weight_decay=config.get('weight_decay',.01))
     weights=config.get('class_weights')
     if weights is not None and (len(weights)!=3 or any(not 0<float(w)<float('inf') for w in weights)):
@@ -93,7 +113,7 @@ def train(config):
     start=time.perf_counter()
     for epoch in range(1,config['epochs']+1):
         model.train();loss_sum=0
-        for batch in loader:
+        for batch_index,batch in enumerate(loader,1):
             batch={k:v.to(device) for k,v in batch.items()};labels=batch.pop('labels')
             optimizer.zero_grad(set_to_none=True)
             logits=model(**batch).logits
@@ -101,6 +121,11 @@ def train(config):
             if not torch.isfinite(loss): raise RuntimeError('nonfinite loss')
             loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),1.0);optimizer.step()
             loss_sum+=loss.item()
+            interval=config.get('progress_every_batches',100)
+            if interval>0 and batch_index%interval==0:
+                print(json.dumps(dict(event='training_progress',epoch=epoch,batch=batch_index,
+                    batches=len(loader),mean_loss=loss_sum/batch_index,
+                    elapsed_seconds=round(time.perf_counter()-start,1))),flush=True)
         adapter=MLSpanDetector(tokenizer=tokenizer,model=model,device=str(device),max_length=config['max_length'],stride=config['stride'])
         predictions,_=predict_rows(adapter,splits['validation'])
         choices=[]

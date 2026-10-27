@@ -343,3 +343,5 @@ uv run python scripts/evaluate.py --data data/raw/agent_candidates_v1.jsonl.gz \
 
 코드 family 16종을 추가해 기존 체크포인트를 미세조정하는 개발 실험은
 [ML_C_REFINEMENT](docs/ml_span/ML_C_REFINEMENT.md)를 참고하세요.
+
+추가 문맥·문자 경계 학습 실험은 [Context v4](docs/ml_span/ML_C_CONTEXT_V4.md)를 참고하십시오. 가중치와 학습 JSONL은 로컬에만 저장됩니다.

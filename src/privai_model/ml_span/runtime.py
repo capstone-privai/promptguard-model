@@ -43,10 +43,12 @@ def mask_intervals(text,findings):
 class MLSpanDetector:
     def __init__(self,checkpoint=None,device='cpu',*,tokenizer=None,model=None,max_length=512,stride=128,threshold=0.5):
         try:
+            boundary_config=None
             if checkpoint is not None:
                 meta=json.loads((Path(checkpoint)/'span_bundle.json').read_text())
                 if meta['schema_version']!='ml-span-bundle-v1': raise ValueError()
                 max_length,stride,threshold=meta['max_length'],meta['stride'],meta['threshold']
+                boundary_config=meta.get('boundary_refiner')
                 tokenizer=AutoTokenizer.from_pretrained(checkpoint,local_files_only=True)
                 model=AutoModelForTokenClassification.from_pretrained(checkpoint,local_files_only=True,attn_implementation='eager')
             threshold_check(threshold)
@@ -55,6 +57,14 @@ class MLSpanDetector:
             self.device=resolve_device(device)
             self.model=model.to(self.device).eval();self.tokenizer=tokenizer
             self.max_length=max_length;self.stride=stride;self.threshold=threshold
+            self.boundary_refiner=None
+            if boundary_config is not None:
+                from .boundary import BoundaryRefiner
+                if boundary_config.get('schema_version')!='character-boundary-v1': raise ValueError()
+                # Fixed relative filename: bundle metadata cannot select another path.
+                threshold_check(boundary_config['threshold'])
+                self.boundary_refiner=BoundaryRefiner(Path(checkpoint)/'boundary.pt',
+                    threshold=boundary_config['threshold'],device=self.device)
             windows(tokenizer,'',max_length,stride)
         except Exception:
             raise RuntimeError('ML span model initialization failed') from None
@@ -71,6 +81,10 @@ class MLSpanDetector:
                     batch={k:torch.tensor([v],device=self.device) for k,v in window['inputs'].items()}
                     probs=self.model(**batch).logits.softmax(-1)[0].cpu().tolist()
                     predictions.append((window['offsets'],probs))
-            return [s for s in aggregate(text,predictions) if s['score']>=threshold]
+            spans=aggregate(text,predictions)
+            if self.boundary_refiner is not None:
+                spans=self.boundary_refiner.refine(text,spans)
+                validate_spans(text,spans,True)
+            return [s for s in spans if s['score']>=threshold]
         except Exception:
             raise RuntimeError('ML span inference failed; caller must fail closed') from None
