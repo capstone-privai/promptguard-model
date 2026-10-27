@@ -72,3 +72,8 @@ CPU 4 threads, 모델 초기화 제외. Test 80개 평균: Rule **0.122 ms**, ML
 공개 gold/Source 전체, 동일 detector 버전·extra rules·filter 옵션·개별 ballots가 있어야 해당 효과를 검증할 수 있다.
 다음 평가는 더 많은 독립 semantic family와 일반 음성, 순수 한국어/멀티라인/장문을 보유한 새로운 hold-out을 고정한 뒤 수행해야 한다.
 이번 synthetic test를 보고 수정한 모델을 같은 test에서 평가하면 개발 평가로 표시한다.
+
+
+## Context v3 follow-up
+
+See [context-v3 experiment](ML_C_CONTEXT_V3.md) for 1,320-row training, four-family validation and four-family synthetic hold-out. New ML recovers 96/96 Rule misses with zero induced FP on that synthetic hold-out. This does not measure the public evaluation page. Previous development sets remain excluded from training.

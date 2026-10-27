@@ -1,0 +1,33 @@
+{
+  "seed": 20261028,
+  "new_families": {
+    "train": [
+      "curl_auth",
+      "ko_handoff",
+      "log_rotation",
+      "ruby_auth",
+      "rust_auth",
+      "toml_auth",
+      "tool_nested",
+      "two_accounts"
+    ],
+    "validation": [
+      "audit_auth",
+      "ko_ticket",
+      "php_auth",
+      "properties_auth"
+    ],
+    "test": [
+      "csharp_auth",
+      "event_auth",
+      "hcl_auth",
+      "ko_runbook"
+    ]
+  },
+  "counts": {
+    "train": 1320,
+    "validation": 256,
+    "test": 256
+  },
+  "notice": "Previous train only replay; previous validation/test excluded. Fixed new families assigned before training. Synthetic data only."
+}

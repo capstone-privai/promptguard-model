@@ -144,7 +144,8 @@ def test_span_smoke_end_to_end(tmp_path):
     detector=MLSpanDetector(model_dir)
     text='암호: abcXYZ123!'
     assert detector.scan_text(text)==MLSpanDetector(model_dir).scan_text(text)
-    assert result['records']==10 and result['parameters']>0
+    expected_records = len((tmp_path/'smoke/data/test.jsonl').read_text().splitlines())
+    assert result['records'] == expected_records > 0 and result['parameters'] > 0
     assert (model_dir/'model.safetensors').exists()
 
 

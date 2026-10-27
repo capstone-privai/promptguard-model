@@ -46,3 +46,8 @@ Rule-Hit/Miss는 `RuleSpanDetector`의 실제 결과로 gold별 exact/coverage h
 전체 rule 라벨은 run의 `*-rule-labels.jsonl`, 통계는 `evaluation.json`에 기록한다.
 현재는 표본 규모에서 전체 혼합 학습을 하고 rule 라벨은 감사·평가 strata로 사용한다. 데이터 가중치로 사용하지 않는다.
 Gitleaks/Custom Rules와 deployed ensemble은 로컬 실험에서 `NOT EVALUATED`다.
+
+
+## Context v3 follow-up
+
+See [context-v3 experiment](ML_C_CONTEXT_V3.md) for 1,320-row training, four-family validation and four-family synthetic hold-out. New ML recovers 96/96 Rule misses with zero induced FP on that synthetic hold-out. This does not measure the public evaluation page. Previous development sets remain excluded from training.
