@@ -1,0 +1,21 @@
+{
+  "schema_version": "ml-span-bundle-v1",
+  "max_length": 512,
+  "stride": 128,
+  "threshold": 0.9996943789993322,
+  "threshold_source": "synthetic validation F2 constrained by reference precision and recall",
+  "backbone": "jhu-clsp/mmBERT-small (context-v9 audit recovery from context-v8)",
+  "revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "label_mapping": {
+    "0": "O",
+    "1": "B-SECRET",
+    "2": "I-SECRET"
+  },
+  "best_epoch": 1,
+  "production_ready": false,
+  "boundary_refiner": {
+    "schema_version": "character-boundary-v1",
+    "threshold": 0.8
+  },
+  "calibration_reference": "runs/span-mmbert-context-v8-calibrated/model"
+}
