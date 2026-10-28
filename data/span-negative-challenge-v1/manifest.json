@@ -1,0 +1,7 @@
+{
+  "seed": 7717,
+  "records": 96,
+  "families": 12,
+  "gold_spans": 0,
+  "role": "Unseen negative-only stress evaluation. Excluded from training, threshold selection and acceptance gate. Placeholders/references are not literal credentials."
+}

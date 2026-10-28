@@ -1,0 +1,44 @@
+{
+  "seed": 20261103,
+  "per_family": 32,
+  "rejected_by_public_exclusions": 0,
+  "families": {
+    "train": [
+      "multiline_v7_packet",
+      "multiline_v7_envelope",
+      "multiline_v7_ko",
+      "multiline_v7_before",
+      "multiline_v7_reply",
+      "multiline_v7_rotation",
+      "v7_suffix_record",
+      "v7_suffix_ko",
+      "v7_caption",
+      "v7_assignment",
+      "v7_use",
+      "v7_mixed",
+      "v7_xml",
+      "v7_reverse",
+      "v7_two",
+      "v7_header"
+    ],
+    "validation": [
+      "multiline_v7_val_transport",
+      "v7_val_suffix",
+      "v7_val_two",
+      "v7_val_docs"
+    ],
+    "test": [
+      "multiline_v7_test_archive",
+      "v7_test_suffix",
+      "v7_test_pair",
+      "v7_test_lookup"
+    ]
+  },
+  "counts": {
+    "train": 4456,
+    "validation": 256,
+    "test": 256
+  },
+  "fingerprint": "fe66df1d00d9cca3dee84aec153b52a5bfe2a559601927d792c2af593052ee87",
+  "notice": "Synthetic only. Previous tests are development. Independent family assignments frozen before training."
+}

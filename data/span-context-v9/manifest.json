@@ -1,0 +1,34 @@
+{
+  "seed": 20261105,
+  "per_family": 24,
+  "rejected_by_public_exclusions": 0,
+  "families": {
+    "train": [
+      "v9_audit_warning",
+      "v9_audit_exposed",
+      "v9_audit_table",
+      "v9_audit_event",
+      "v9_audit_after",
+      "v9_audit_mixed",
+      "v9_audit_inline",
+      "v9_audit_pair"
+    ],
+    "validation": [
+      "v9_val_audit_note",
+      "v9_val_audit_record"
+    ],
+    "test": [
+      "v9_test_audit_document",
+      "v9_test_audit_item"
+    ]
+  },
+  "counts": {
+    "train": 2056,
+    "validation": 384,
+    "test": 384
+  },
+  "replay_rows": 1672,
+  "replay_families": 110,
+  "fingerprint": "b16fd6ae019c8cb224ebf83006e04f90bbb1878fb84ca4bf47f77fe3e72418ec",
+  "notice": "Focused synthetic audit recovery plus bounded all-family replay. Old evaluations excluded. v8 hold-out retained without using its results for this revision."
+}
