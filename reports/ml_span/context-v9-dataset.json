@@ -1,0 +1,29 @@
+{
+  "train": {
+    "rows": 2056,
+    "gold_spans": 1104,
+    "families": 118,
+    "kinds": {
+      "hard_negative": 1072,
+      "positive": 984
+    }
+  },
+  "validation": {
+    "rows": 384,
+    "gold_spans": 192,
+    "families": 8,
+    "kinds": {
+      "positive": 192,
+      "hard_negative": 192
+    }
+  },
+  "test": {
+    "rows": 384,
+    "gold_spans": 192,
+    "families": 8,
+    "kinds": {
+      "positive": 192,
+      "hard_negative": 192
+    }
+  }
+}

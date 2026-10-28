@@ -1,0 +1,83 @@
+{
+  "reference": {
+    "tp": 150,
+    "fp": 17,
+    "fn": 42,
+    "precision": 0.8982035928143712,
+    "recall": 0.78125,
+    "f1": 0.8356545961002786,
+    "f2": 0.8021390374331551
+  },
+  "choices": [
+    {
+      "threshold": 0.99,
+      "metric": {
+        "tp": 157,
+        "fp": 28,
+        "fn": 35,
+        "precision": 0.8486486486486486,
+        "recall": 0.8177083333333334,
+        "f1": 0.8328912466843501,
+        "f2": 0.8237145855194123
+      },
+      "eligible": false
+    },
+    {
+      "threshold": 0.995,
+      "metric": {
+        "tp": 157,
+        "fp": 24,
+        "fn": 35,
+        "precision": 0.8674033149171271,
+        "recall": 0.8177083333333334,
+        "f1": 0.8418230563002681,
+        "f2": 0.827186512118019
+      },
+      "eligible": false
+    },
+    {
+      "threshold": 0.999,
+      "metric": {
+        "tp": 155,
+        "fp": 22,
+        "fn": 37,
+        "precision": 0.8757062146892656,
+        "recall": 0.8072916666666666,
+        "f1": 0.8401084010840109,
+        "f2": 0.8201058201058201
+      },
+      "eligible": false
+    },
+    {
+      "threshold": 0.9995,
+      "metric": {
+        "tp": 151,
+        "fp": 20,
+        "fn": 41,
+        "precision": 0.8830409356725146,
+        "recall": 0.7864583333333334,
+        "f1": 0.8319559228650137,
+        "f2": 0.8040468583599574
+      },
+      "eligible": false
+    },
+    {
+      "threshold": 0.9999,
+      "metric": {
+        "tp": 146,
+        "fp": 13,
+        "fn": 46,
+        "precision": 0.9182389937106918,
+        "recall": 0.7604166666666666,
+        "f1": 0.8319088319088319,
+        "f2": 0.7874865156418555
+      },
+      "eligible": false
+    }
+  ],
+  "selected": null,
+  "policy": "Validation only: precision, recall and F2 must not decrease versus reference; maximize F2, precision, threshold.",
+  "validation_only": true,
+  "reference_checkpoint": "runs/span-mmbert-context-v8-calibrated/model",
+  "candidate_checkpoint": "runs/span-mmbert-context-v9-boundary/model"
+}

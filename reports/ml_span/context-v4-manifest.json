@@ -1,0 +1,92 @@
+{
+  "seed": 20261029,
+  "per_family": 24,
+  "rejected_by_public_exclusions": 0,
+  "families": {
+    "train": [
+      "http_client",
+      "curl_header",
+      "proxy_auth",
+      "ko_auth_help",
+      "grpc_auth",
+      "rust_header",
+      "ko_rotation",
+      "two_services",
+      "audit_pair",
+      "sql_mixed",
+      "unicode_access",
+      "tool_credentials",
+      "multiline_note",
+      "long_worker",
+      "numeric_access",
+      "password_comment",
+      "auth_catalog",
+      "repeat_login"
+    ],
+    "validation": [
+      "fetch_metadata",
+      "ko_sealed_note",
+      "multiline_config",
+      "long_monitor",
+      "backup_access",
+      "public_password_docs"
+    ],
+    "test": [
+      "http_transcript",
+      "ko_pair_instructions",
+      "multiline_tool",
+      "long_support",
+      "db_two_logins",
+      "public_auth_audit"
+    ]
+  },
+  "composition": {
+    "train": {
+      "records": 2184,
+      "gold_spans": 1216,
+      "families": 70,
+      "positive": 1048,
+      "sources": {
+        "configuration": 352,
+        "prompt": 368,
+        "tool_output": 176,
+        "log": 288,
+        "markdown": 80,
+        "negative": 88,
+        "code": 624,
+        "shell": 160,
+        "file_read": 48
+      }
+    },
+    "validation": {
+      "records": 288,
+      "gold_spans": 168,
+      "families": 6,
+      "positive": 144,
+      "sources": {
+        "code": 48,
+        "prompt": 48,
+        "configuration": 48,
+        "tool_output": 48,
+        "shell": 48,
+        "markdown": 48
+      }
+    },
+    "test": {
+      "records": 288,
+      "gold_spans": 192,
+      "families": 6,
+      "positive": 144,
+      "sources": {
+        "file_read": 48,
+        "prompt": 48,
+        "tool_output": 48,
+        "markdown": 48,
+        "configuration": 48,
+        "log": 48
+      }
+    }
+  },
+  "fingerprint": "a411267c7f52b7ec35ae9f2db0af45b36b45d8769c982cc0f1709189021ddd5c",
+  "notice": "Fresh independent synthetic families. All prior validation/test families excluded from train across entire checkpoint lineage. Fixed assignment before training. Public page value/template hash exclusions applied, not semantic similarity proof."
+}

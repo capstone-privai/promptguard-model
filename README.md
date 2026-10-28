@@ -330,3 +330,20 @@ uv run python scripts/evaluate.py --data data/raw/agent_candidates_v1.jsonl.gz \
 5. 최종 결과를 얻은 뒤 Phase 2 오류 분석을 진행합니다. 이번 작업에서는 실제 오류 분석이나 성능 우열 결론을 수행하지 않았습니다. evaluator는 그대로 모델 독립이며 다른 baseline도 동일 ID+score/prediction 형식으로 연결할 수 있습니다.
 
 세훈 연동의 정확한 입출력·에러·batch·checkpoint 계약은 `docs/INFERENCE_CONTRACT.md`에 정리했습니다.
+
+## ML C안: 독립 Secret Span Detection
+
+기존 candidate-v1 KEEP/MASK 모델과 별도로 전체 text → BIO → character span 모델을 추가했습니다.
+실행·실험 설정은 [ML_C_TRAINING](docs/ml_span/ML_C_TRAINING.md),
+입출력은 [ML_C_SPEC](docs/ml_span/ML_C_SPEC.md),
+공개 평가 미탐 분석은 [RULE_MISS_ANALYSIS](docs/ml_span/RULE_MISS_ANALYSIS.md),
+합성 데이터와 누출 방지는 [RULE_MISS_DATASET](docs/ml_span/RULE_MISS_DATASET.md),
+실험 결과는 [ML_C_RESULTS](docs/ml_span/ML_C_RESULTS.md),
+통합 설계는 [ML_C_RUNTIME_INTEGRATION](docs/ml_span/ML_C_RUNTIME_INTEGRATION.md)를 참고하세요.
+
+코드 family 16종을 추가해 기존 체크포인트를 미세조정하는 개발 실험은
+[ML_C_REFINEMENT](docs/ml_span/ML_C_REFINEMENT.md)를 참고하세요.
+
+추가 문맥·문자 경계 학습 실험은 [Context v4](docs/ml_span/ML_C_CONTEXT_V4.md)를 참고하십시오. 가중치와 학습 JSONL은 로컬에만 저장됩니다.
+
+문맥 미탐 보완과 퇴보 검사 후속 실험: [Context v8](docs/ml_span/ML_C_CONTEXT_V8.md), [Context v9](docs/ml_span/ML_C_CONTEXT_V9.md). 개선된 합성 평가 수치와 미해결 유형, 전면 교체 기준 미통과 결과를 함께 기록했습니다.

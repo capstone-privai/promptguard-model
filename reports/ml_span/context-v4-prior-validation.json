@@ -1,0 +1,70 @@
+{
+  "records": 288,
+  "gold_spans": 168,
+  "ml_only": {
+    "tp": 74,
+    "fp": 154,
+    "fn": 94,
+    "precision": 0.32456140350877194,
+    "recall": 0.44047619047619047,
+    "f1": 0.37373737373737376,
+    "f2": 0.4111111111111111
+  },
+  "by_family": {
+    "context4_backup_access": {
+      "tp": 36,
+      "fp": 28,
+      "fn": 12,
+      "precision": 0.5625,
+      "recall": 0.75,
+      "f1": 0.6428571428571429,
+      "f2": 0.703125
+    },
+    "context4_fetch_metadata": {
+      "tp": 5,
+      "fp": 22,
+      "fn": 19,
+      "precision": 0.18518518518518517,
+      "recall": 0.20833333333333334,
+      "f1": 0.19607843137254902,
+      "f2": 0.2032520325203252
+    },
+    "context4_ko_sealed_note": {
+      "tp": 20,
+      "fp": 27,
+      "fn": 4,
+      "precision": 0.425531914893617,
+      "recall": 0.8333333333333334,
+      "f1": 0.5633802816901409,
+      "f2": 0.6993006993006993
+    },
+    "context4_long_monitor": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 24,
+      "precision": null,
+      "recall": 0.0,
+      "f1": 0.0,
+      "f2": 0.0
+    },
+    "context4_multiline_config": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 24,
+      "precision": null,
+      "recall": 0.0,
+      "f1": 0.0,
+      "f2": 0.0
+    },
+    "context4_public_password_docs": {
+      "tp": 13,
+      "fp": 77,
+      "fn": 11,
+      "precision": 0.14444444444444443,
+      "recall": 0.5416666666666666,
+      "f1": 0.22807017543859648,
+      "f2": 0.34946236559139787
+    }
+  },
+  "notice": "ML-only validation diagnostic. Rules were not evaluated in this preliminary comparison. Not a Rule-miss measurement."
+}

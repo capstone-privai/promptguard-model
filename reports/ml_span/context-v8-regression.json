@@ -1,0 +1,182 @@
+{
+  "model": "candidate",
+  "validation_selected": true,
+  "regression_passed": false,
+  "eligible": false,
+  "checks": [
+    {
+      "name": "original retention",
+      "dataset": "original_development",
+      "family": null,
+      "bounds": {
+        "tp": {
+          "min": 40
+        },
+        "fp": {
+          "max": 0
+        }
+      },
+      "observed": {
+        "tp": 40,
+        "fp": 0
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "v1 retention",
+      "dataset": "v1_development",
+      "family": null,
+      "bounds": {
+        "tp": {
+          "min": 48
+        },
+        "fp": {
+          "max": 0
+        }
+      },
+      "observed": {
+        "tp": 48,
+        "fp": 0
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "v3 retention",
+      "dataset": "v3_development",
+      "family": null,
+      "bounds": {
+        "tp": {
+          "min": 128
+        },
+        "fp": {
+          "max": 0
+        }
+      },
+      "observed": {
+        "tp": 128,
+        "fp": 0
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "audit recall restoration",
+      "dataset": "v4_development",
+      "family": "context4_public_auth_audit",
+      "bounds": {
+        "tp": {
+          "min": 22
+        },
+        "fp": {
+          "max": 1
+        }
+      },
+      "observed": {
+        "tp": 5,
+        "fp": 1
+      },
+      "passed": false,
+      "failures": [
+        "tp: below minimum"
+      ]
+    },
+    {
+      "name": "multiline tool recovery",
+      "dataset": "v4_development",
+      "family": "context4_multiline_tool",
+      "bounds": {
+        "tp": {
+          "min": 1
+        },
+        "fp": {
+          "max": 24
+        }
+      },
+      "observed": {
+        "tp": 24,
+        "fp": 0
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "mixed trailing-role recovery",
+      "dataset": "v7_development",
+      "family": "context4_v7_test_suffix",
+      "bounds": {
+        "tp": {
+          "min": 1
+        },
+        "fp": {
+          "max": 1
+        }
+      },
+      "observed": {
+        "tp": 20,
+        "fp": 8
+      },
+      "passed": false,
+      "failures": [
+        "fp: above maximum"
+      ]
+    },
+    {
+      "name": "v7 retention",
+      "dataset": "v7_development",
+      "family": null,
+      "bounds": {
+        "tp": {
+          "min": 85
+        },
+        "fp": {
+          "max": 9
+        }
+      },
+      "observed": {
+        "tp": 133,
+        "fp": 18
+      },
+      "passed": false,
+      "failures": [
+        "fp: above maximum"
+      ]
+    },
+    {
+      "name": "v6 retention",
+      "dataset": "v6_development",
+      "family": null,
+      "bounds": {
+        "tp": {
+          "min": 67
+        },
+        "fp": {
+          "max": 3
+        }
+      },
+      "observed": {
+        "tp": 69,
+        "fp": 3
+      },
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "negative challenge retention",
+      "dataset": "negative_challenge",
+      "family": null,
+      "bounds": {
+        "fp": {
+          "max": 7
+        }
+      },
+      "observed": {
+        "fp": 0
+      },
+      "passed": true,
+      "failures": []
+    }
+  ],
+  "notice": "Development regression gate, not production certification. Test results are not used for these bounds."
+}

@@ -1,0 +1,58 @@
+{
+  "seed": 20261104,
+  "per_family": 24,
+  "rejected_by_public_exclusions": 0,
+  "families": {
+    "train": [
+      "v8_audit_exposure",
+      "v8_audit_event",
+      "v8_audit_ko",
+      "v8_audit_report",
+      "v8_suffix_description",
+      "v8_suffix_caption",
+      "v8_suffix_usage",
+      "v8_suffix_record",
+      "v8_suffix_meaning",
+      "v8_suffix_two",
+      "multiline_v8_path",
+      "multiline_v8_read",
+      "multiline_v8_stream",
+      "multiline_v8_comment",
+      "multiline_v8_first",
+      "multiline_v8_pair"
+    ],
+    "validation": [
+      "v8_val_audit",
+      "v8_val_review",
+      "v8_val_suffix",
+      "v8_val_session",
+      "multiline_v8_val_blob",
+      "multiline_v8_val_ko"
+    ],
+    "test": [
+      "v8_test_audit",
+      "v8_test_review",
+      "v8_test_suffix",
+      "v8_test_session",
+      "multiline_v8_test_object",
+      "multiline_v8_test_ko"
+    ]
+  },
+  "counts": {
+    "train": 5224,
+    "validation": 288,
+    "test": 288
+  },
+  "fingerprint": "b16731627ea192df6e2aaaa7859b0e7235f4edea5422b121594d8d32e4cdc6dd",
+  "replay": "span-context-v7/train",
+  "historical_eval": [
+    "span-synthetic-v1",
+    "span-refinement-v1",
+    "span-refinement-v3",
+    "span-context-v4",
+    "span-context-v6",
+    "span-context-v7"
+  ],
+  "variable_multiline": true,
+  "notice": "All previous tests are development only. New families assigned before training. Synthetic values only."
+}

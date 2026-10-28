@@ -1,0 +1,410 @@
+{
+  "fresh": {
+    "previous": {
+      "records": 256,
+      "gold_spans": 128,
+      "rule_only": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 96,
+        "precision": 1.0,
+        "recall": 0.25,
+        "f1": 0.4,
+        "f2": 0.29411764705882354
+      },
+      "ml_only": {
+        "tp": 127,
+        "fp": 35,
+        "fn": 1,
+        "precision": 0.7839506172839507,
+        "recall": 0.9921875,
+        "f1": 0.8758620689655172,
+        "f2": 0.9421364985163204
+      },
+      "candidate_union": {
+        "tp": 127,
+        "fp": 35,
+        "fn": 1,
+        "precision": 0.7839506172839507,
+        "recall": 0.9921875,
+        "f1": 0.8758620689655172,
+        "f2": 0.9421364985163204
+      },
+      "merged_mask_intervals": {
+        "tp": 127,
+        "fp": 35,
+        "fn": 1,
+        "precision": 0.7839506172839507,
+        "recall": 0.9921875,
+        "f1": 0.8758620689655172,
+        "f2": 0.9421364985163204
+      },
+      "rule_miss_count": 96,
+      "rule_miss_recall": 0.9895833333333334,
+      "rule_no_overlap_miss_count": 96,
+      "rule_no_overlap_miss_recall": 0.9895833333333334,
+      "rule_coverage_miss_count": 96,
+      "rule_coverage_miss_recall": 0.9895833333333334,
+      "ml_added_true_positives": 95,
+      "ml_induced_false_positives": 35,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 0.9921875,
+      "threshold": 0.9,
+      "ml_latency": {
+        "unit": "ms/input",
+        "calls": 256,
+        "mean": 20.56269401953159,
+        "p50": 20.346333498309832,
+        "p95": 24.00816600129474,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      },
+      "rule_latency": {
+        "unit": "ms/input",
+        "calls": 256,
+        "mean": 0.20862776136709726,
+        "p50": 0.17049999587470666,
+        "p95": 0.4742909950437024,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    },
+    "new": {
+      "records": 256,
+      "gold_spans": 128,
+      "rule_only": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 96,
+        "precision": 1.0,
+        "recall": 0.25,
+        "f1": 0.4,
+        "f2": 0.29411764705882354
+      },
+      "ml_only": {
+        "tp": 128,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 128,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 128,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 96,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 96,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 96,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 96,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0,
+      "threshold": 0.9,
+      "ml_latency": {
+        "unit": "ms/input",
+        "calls": 256,
+        "mean": 20.439826328356503,
+        "p50": 20.138500003668014,
+        "p95": 24.250250004115514,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      },
+      "rule_latency": {
+        "unit": "ms/input",
+        "calls": 256,
+        "mean": 0.20862776136709726,
+        "p50": 0.17049999587470666,
+        "p95": 0.4742909950437024,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    }
+  },
+  "development": {
+    "previous": {
+      "records": 96,
+      "gold_spans": 48,
+      "rule_only": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 16,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8,
+        "f2": 0.7142857142857143
+      },
+      "ml_only": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 16,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 16,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 16,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 16,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0,
+      "threshold": 0.9,
+      "ml_latency": {
+        "unit": "ms/input",
+        "calls": 96,
+        "mean": 19.479391469455248,
+        "p50": 18.65606250066776,
+        "p95": 23.28733299509622,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      },
+      "rule_latency": {
+        "unit": "ms/input",
+        "calls": 96,
+        "mean": 0.259424500654859,
+        "p50": 0.19947900000261143,
+        "p95": 0.48679200699552894,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    },
+    "new": {
+      "records": 96,
+      "gold_spans": 48,
+      "rule_only": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 16,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8,
+        "f2": 0.7142857142857143
+      },
+      "ml_only": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 16,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 16,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 16,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 16,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0,
+      "threshold": 0.9,
+      "ml_latency": {
+        "unit": "ms/input",
+        "calls": 96,
+        "mean": 19.788160989719472,
+        "p50": 19.013500001165085,
+        "p95": 23.63475000311155,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      },
+      "rule_latency": {
+        "unit": "ms/input",
+        "calls": 96,
+        "mean": 0.259424500654859,
+        "p50": 0.19947900000261143,
+        "p95": 0.48679200699552894,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    }
+  },
+  "original_development": {
+    "previous": {
+      "records": 80,
+      "gold_spans": 40,
+      "rule_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 24,
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714285714285714,
+        "f2": 0.45454545454545453
+      },
+      "ml_only": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 8,
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8888888888888888,
+        "f2": 0.8333333333333334
+      },
+      "candidate_union": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 24,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 24,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 24,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 24,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 0.8,
+      "combined_coverage_recall": 1.0,
+      "threshold": 0.9,
+      "ml_latency": {
+        "unit": "ms/input",
+        "calls": 80,
+        "mean": 19.635098875551193,
+        "p50": 18.992395504028536,
+        "p95": 22.85337500507012,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      },
+      "rule_latency": {
+        "unit": "ms/input",
+        "calls": 80,
+        "mean": 0.20647133733291412,
+        "p50": 0.18033350352197886,
+        "p95": 0.42070800554938614,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    },
+    "new": {
+      "records": 80,
+      "gold_spans": 40,
+      "rule_only": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 24,
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714285714285714,
+        "f2": 0.45454545454545453
+      },
+      "ml_only": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 8,
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8888888888888888,
+        "f2": 0.8333333333333334
+      },
+      "candidate_union": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 24,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 24,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 24,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 24,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 0.8,
+      "combined_coverage_recall": 1.0,
+      "threshold": 0.9,
+      "ml_latency": {
+        "unit": "ms/input",
+        "calls": 80,
+        "mean": 19.76400001331058,
+        "p50": 19.16895850445144,
+        "p95": 23.652250005397946,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      },
+      "rule_latency": {
+        "unit": "ms/input",
+        "calls": 80,
+        "mean": 0.20647133733291412,
+        "p50": 0.18033350352197886,
+        "p95": 0.42070800554938614,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    }
+  }
+}

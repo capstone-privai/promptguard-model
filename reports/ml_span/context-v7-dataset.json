@@ -1,0 +1,86 @@
+{
+  "train": {
+    "rows": 4456,
+    "gold": 2536,
+    "families": 94,
+    "kinds": {
+      "hard_negative": 2272,
+      "positive": 2184
+    },
+    "sources": {
+      "configuration": 624,
+      "prompt": 848,
+      "tool_output": 464,
+      "log": 656,
+      "markdown": 304,
+      "negative": 88,
+      "code": 992,
+      "shell": 208,
+      "file_read": 272
+    },
+    "formats": {
+      "legacy": 1320,
+      "alnum": 302,
+      "punctuated": 302,
+      "hex": 302,
+      "base64": 302,
+      "url_safe": 302,
+      "dotted": 302,
+      "numeric": 398,
+      "unicode": 302,
+      "multiline": 624
+    }
+  },
+  "validation": {
+    "rows": 256,
+    "gold": 160,
+    "families": 4,
+    "kinds": {
+      "positive": 128,
+      "hard_negative": 128
+    },
+    "sources": {
+      "log": 64,
+      "markdown": 64,
+      "configuration": 64,
+      "prompt": 64
+    },
+    "formats": {
+      "multiline": 64,
+      "alnum": 24,
+      "punctuated": 24,
+      "hex": 24,
+      "base64": 24,
+      "url_safe": 24,
+      "dotted": 24,
+      "numeric": 24,
+      "unicode": 24
+    }
+  },
+  "test": {
+    "rows": 256,
+    "gold": 160,
+    "families": 4,
+    "kinds": {
+      "positive": 128,
+      "hard_negative": 128
+    },
+    "sources": {
+      "file_read": 64,
+      "tool_output": 64,
+      "markdown": 64,
+      "prompt": 64
+    },
+    "formats": {
+      "multiline": 64,
+      "alnum": 24,
+      "punctuated": 24,
+      "hex": 24,
+      "base64": 24,
+      "url_safe": 24,
+      "dotted": 24,
+      "numeric": 24,
+      "unicode": 24
+    }
+  }
+}

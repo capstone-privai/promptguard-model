@@ -1,0 +1,30 @@
+[
+  {
+    "epoch": 1,
+    "loss": 0.007848611114114432,
+    "threshold": 0.9,
+    "validation": {
+      "tp": 128,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0
+    }
+  },
+  {
+    "epoch": 2,
+    "loss": 3.6069423022551636e-07,
+    "threshold": 0.9,
+    "validation": {
+      "tp": 128,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0
+    }
+  }
+]

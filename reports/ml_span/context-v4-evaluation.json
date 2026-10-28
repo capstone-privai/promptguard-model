@@ -1,0 +1,641 @@
+{
+  "records": 288,
+  "gold_spans": 192,
+  "rule_only": {
+    "tp": 72,
+    "fp": 72,
+    "fn": 120,
+    "precision": 0.5,
+    "recall": 0.375,
+    "f1": 0.42857142857142855,
+    "f2": 0.39473684210526316
+  },
+  "ml_only": {
+    "tp": 150,
+    "fp": 130,
+    "fn": 42,
+    "precision": 0.5357142857142857,
+    "recall": 0.78125,
+    "f1": 0.635593220338983,
+    "f2": 0.7156488549618321
+  },
+  "candidate_union": {
+    "tp": 162,
+    "fp": 202,
+    "fn": 30,
+    "precision": 0.44505494505494503,
+    "recall": 0.84375,
+    "f1": 0.5827338129496403,
+    "f2": 0.715547703180212
+  },
+  "merged_mask_intervals": {
+    "tp": 150,
+    "fp": 196,
+    "fn": 42,
+    "precision": 0.43352601156069365,
+    "recall": 0.78125,
+    "f1": 0.5576208178438662,
+    "f2": 0.6732495511669659
+  },
+  "rule_miss_count": 120,
+  "rule_miss_recall": 0.75,
+  "rule_no_overlap_miss_count": 120,
+  "rule_no_overlap_miss_recall": 0.75,
+  "rule_coverage_miss_count": 120,
+  "rule_coverage_miss_recall": 0.75,
+  "ml_added_true_positives": 90,
+  "ml_induced_false_positives": 130,
+  "ml_overlap_recall": 1.0,
+  "combined_coverage_recall": 0.859375,
+  "notice": "Independent synthetic held-out families; NOT public PromptGuard hold-out performance",
+  "threshold": 0.8,
+  "threshold_source": "validation",
+  "best_epoch": 3,
+  "rule_metadata": {
+    "method": "CredSweeper",
+    "version": "1.18.5",
+    "output": "whole-text character spans",
+    "use_ml": false,
+    "ml_threshold": "disabled",
+    "match_policy": "exact character spans; containment reported separately",
+    "score_note": "ML scores do not cover every rule or rejected candidate; not exposed as complete probabilities",
+    "scope": "local CredSweeper proxy; NOT deployed PromptGuard ensemble",
+    "runtime_adapter": "serial plain-list CredentialManager, no IPC; upstream rules/filters/ML unchanged",
+    "config_sha256": "e5fe1e4969b6fe13909609b453d14e4f85c5fb42cee0c2e38c405891fda5d0a0",
+    "gitleaks": "NOT EVALUATED",
+    "custom_rules": "NOT EVALUATED",
+    "mapping_policy": "value offsets, no string search"
+  },
+  "rule_dataset_stats": {
+    "train": {
+      "records": 2184,
+      "gold": 1216,
+      "exact_hits": 532,
+      "coverage_hits": 532,
+      "latency": {
+        "unit": "ms/input",
+        "calls": 2184,
+        "mean": 0.33142330907499495,
+        "p50": 0.21293800818966702,
+        "p95": 0.6270000012591481,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    },
+    "validation": {
+      "records": 288,
+      "gold": 168,
+      "exact_hits": 96,
+      "coverage_hits": 96,
+      "latency": {
+        "unit": "ms/input",
+        "calls": 288,
+        "mean": 0.739074514260412,
+        "p50": 0.34720800613285974,
+        "p95": 3.2743750052759424,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    },
+    "test": {
+      "records": 288,
+      "gold": 192,
+      "exact_hits": 72,
+      "coverage_hits": 72,
+      "latency": {
+        "unit": "ms/input",
+        "calls": 288,
+        "mean": 0.8005781488565036,
+        "p50": 0.37893799890298396,
+        "p95": 3.57354199513793,
+        "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+      }
+    }
+  },
+  "ml_latency": {
+    "unit": "ms/input",
+    "calls": 288,
+    "mean": 93.09895991928998,
+    "p50": 38.9237704948755,
+    "p95": 465.2932090102695,
+    "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+  },
+  "parameters": 140642691,
+  "checkpoint_bytes": 596997626,
+  "elapsed_seconds": 1861.8571891660104,
+  "device": "cpu",
+  "token_metrics": {
+    "tp": 4599,
+    "fp": 1822,
+    "fn": 659,
+    "precision": 0.7162435757670145,
+    "recall": 0.8746671738303538,
+    "f1": 0.7875674287182122,
+    "f2": 0.8376133755873675,
+    "policy": "binary secret token, deduplicated absolute offsets, argmax before span threshold"
+  },
+  "by_source": {
+    "configuration": {
+      "records": 48,
+      "gold_spans": 48,
+      "rule_only": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "ml_only": {
+        "tp": 36,
+        "fp": 12,
+        "fn": 12,
+        "precision": 0.75,
+        "recall": 0.75,
+        "f1": 0.75,
+        "f2": 0.75
+      },
+      "candidate_union": {
+        "tp": 48,
+        "fp": 12,
+        "fn": 0,
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1": 0.8888888888888888,
+        "f2": 0.9523809523809523
+      },
+      "merged_mask_intervals": {
+        "tp": 36,
+        "fp": 12,
+        "fn": 12,
+        "precision": 0.75,
+        "recall": 0.75,
+        "f1": 0.75,
+        "f2": 0.75
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "rule_no_overlap_miss_count": 0,
+      "rule_no_overlap_miss_recall": null,
+      "rule_coverage_miss_count": 0,
+      "rule_coverage_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 12,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "file_read": {
+      "records": 48,
+      "gold_spans": 24,
+      "rule_only": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "ml_only": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "candidate_union": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "merged_mask_intervals": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "rule_no_overlap_miss_count": 0,
+      "rule_no_overlap_miss_recall": null,
+      "rule_coverage_miss_count": 0,
+      "rule_coverage_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 0,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "log": {
+      "records": 48,
+      "gold_spans": 24,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 24,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 21,
+        "fp": 29,
+        "fn": 3,
+        "precision": 0.42,
+        "recall": 0.875,
+        "f1": 0.5675675675675675,
+        "f2": 0.7191780821917808
+      },
+      "candidate_union": {
+        "tp": 21,
+        "fp": 29,
+        "fn": 3,
+        "precision": 0.42,
+        "recall": 0.875,
+        "f1": 0.5675675675675675,
+        "f2": 0.7191780821917808
+      },
+      "merged_mask_intervals": {
+        "tp": 21,
+        "fp": 29,
+        "fn": 3,
+        "precision": 0.42,
+        "recall": 0.875,
+        "f1": 0.5675675675675675,
+        "f2": 0.7191780821917808
+      },
+      "rule_miss_count": 24,
+      "rule_miss_recall": 0.875,
+      "rule_no_overlap_miss_count": 24,
+      "rule_no_overlap_miss_recall": 0.875,
+      "rule_coverage_miss_count": 24,
+      "rule_coverage_miss_recall": 0.875,
+      "ml_added_true_positives": 21,
+      "ml_induced_false_positives": 29,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "markdown": {
+      "records": 48,
+      "gold_spans": 24,
+      "rule_only": {
+        "tp": 0,
+        "fp": 48,
+        "fn": 24,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 21,
+        "fp": 26,
+        "fn": 3,
+        "precision": 0.44680851063829785,
+        "recall": 0.875,
+        "f1": 0.5915492957746479,
+        "f2": 0.7342657342657343
+      },
+      "candidate_union": {
+        "tp": 21,
+        "fp": 74,
+        "fn": 3,
+        "precision": 0.22105263157894736,
+        "recall": 0.875,
+        "f1": 0.35294117647058826,
+        "f2": 0.5497382198952879
+      },
+      "merged_mask_intervals": {
+        "tp": 21,
+        "fp": 74,
+        "fn": 3,
+        "precision": 0.22105263157894736,
+        "recall": 0.875,
+        "f1": 0.35294117647058826,
+        "f2": 0.5497382198952879
+      },
+      "rule_miss_count": 24,
+      "rule_miss_recall": 0.875,
+      "rule_no_overlap_miss_count": 24,
+      "rule_no_overlap_miss_recall": 0.875,
+      "rule_coverage_miss_count": 24,
+      "rule_coverage_miss_recall": 0.875,
+      "ml_added_true_positives": 21,
+      "ml_induced_false_positives": 26,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 0.875
+    },
+    "prompt": {
+      "records": 48,
+      "gold_spans": 48,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 48,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 48,
+        "fp": 4,
+        "fn": 0,
+        "precision": 0.9230769230769231,
+        "recall": 1.0,
+        "f1": 0.96,
+        "f2": 0.9836065573770492
+      },
+      "candidate_union": {
+        "tp": 48,
+        "fp": 4,
+        "fn": 0,
+        "precision": 0.9230769230769231,
+        "recall": 1.0,
+        "f1": 0.96,
+        "f2": 0.9836065573770492
+      },
+      "merged_mask_intervals": {
+        "tp": 48,
+        "fp": 4,
+        "fn": 0,
+        "precision": 0.9230769230769231,
+        "recall": 1.0,
+        "f1": 0.96,
+        "f2": 0.9836065573770492
+      },
+      "rule_miss_count": 48,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 48,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 48,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 48,
+      "ml_induced_false_positives": 4,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    },
+    "tool_output": {
+      "records": 48,
+      "gold_spans": 24,
+      "rule_only": {
+        "tp": 0,
+        "fp": 24,
+        "fn": 24,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 0,
+        "fp": 59,
+        "fn": 24,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "candidate_union": {
+        "tp": 0,
+        "fp": 83,
+        "fn": 24,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "merged_mask_intervals": {
+        "tp": 0,
+        "fp": 77,
+        "fn": 24,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "rule_miss_count": 24,
+      "rule_miss_recall": 0.0,
+      "rule_no_overlap_miss_count": 24,
+      "rule_no_overlap_miss_recall": 0.0,
+      "rule_coverage_miss_count": 24,
+      "rule_coverage_miss_recall": 0.0,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 59,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 0.0
+    }
+  },
+  "by_language": {
+    "en": {
+      "records": 240,
+      "gold_spans": 144,
+      "rule_only": {
+        "tp": 72,
+        "fp": 72,
+        "fn": 72,
+        "precision": 0.5,
+        "recall": 0.5,
+        "f1": 0.5,
+        "f2": 0.5
+      },
+      "ml_only": {
+        "tp": 102,
+        "fp": 126,
+        "fn": 42,
+        "precision": 0.4473684210526316,
+        "recall": 0.7083333333333334,
+        "f1": 0.5483870967741935,
+        "f2": 0.6343283582089553
+      },
+      "candidate_union": {
+        "tp": 114,
+        "fp": 198,
+        "fn": 30,
+        "precision": 0.36538461538461536,
+        "recall": 0.7916666666666666,
+        "f1": 0.5,
+        "f2": 0.6418918918918919
+      },
+      "merged_mask_intervals": {
+        "tp": 102,
+        "fp": 192,
+        "fn": 42,
+        "precision": 0.3469387755102041,
+        "recall": 0.7083333333333334,
+        "f1": 0.4657534246575342,
+        "f2": 0.5862068965517241
+      },
+      "rule_miss_count": 72,
+      "rule_miss_recall": 0.5833333333333334,
+      "rule_no_overlap_miss_count": 72,
+      "rule_no_overlap_miss_recall": 0.5833333333333334,
+      "rule_coverage_miss_count": 72,
+      "rule_coverage_miss_recall": 0.5833333333333334,
+      "ml_added_true_positives": 42,
+      "ml_induced_false_positives": 126,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 0.8125
+    },
+    "mixed": {
+      "records": 48,
+      "gold_spans": 48,
+      "rule_only": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 48,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 48,
+        "fp": 4,
+        "fn": 0,
+        "precision": 0.9230769230769231,
+        "recall": 1.0,
+        "f1": 0.96,
+        "f2": 0.9836065573770492
+      },
+      "candidate_union": {
+        "tp": 48,
+        "fp": 4,
+        "fn": 0,
+        "precision": 0.9230769230769231,
+        "recall": 1.0,
+        "f1": 0.96,
+        "f2": 0.9836065573770492
+      },
+      "merged_mask_intervals": {
+        "tp": 48,
+        "fp": 4,
+        "fn": 0,
+        "precision": 0.9230769230769231,
+        "recall": 1.0,
+        "f1": 0.96,
+        "f2": 0.9836065573770492
+      },
+      "rule_miss_count": 48,
+      "rule_miss_recall": 1.0,
+      "rule_no_overlap_miss_count": 48,
+      "rule_no_overlap_miss_recall": 1.0,
+      "rule_coverage_miss_count": 48,
+      "rule_coverage_miss_recall": 1.0,
+      "ml_added_true_positives": 48,
+      "ml_induced_false_positives": 4,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 1.0
+    }
+  },
+  "by_kind": {
+    "hard_negative": {
+      "records": 144,
+      "gold_spans": 0,
+      "rule_only": {
+        "tp": 0,
+        "fp": 24,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "ml_only": {
+        "tp": 0,
+        "fp": 49,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "candidate_union": {
+        "tp": 0,
+        "fp": 73,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "merged_mask_intervals": {
+        "tp": 0,
+        "fp": 73,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "f2": 0.0
+      },
+      "rule_miss_count": 0,
+      "rule_miss_recall": null,
+      "rule_no_overlap_miss_count": 0,
+      "rule_no_overlap_miss_recall": null,
+      "rule_coverage_miss_count": 0,
+      "rule_coverage_miss_recall": null,
+      "ml_added_true_positives": 0,
+      "ml_induced_false_positives": 49,
+      "ml_overlap_recall": null,
+      "combined_coverage_recall": null
+    },
+    "positive": {
+      "records": 144,
+      "gold_spans": 192,
+      "rule_only": {
+        "tp": 72,
+        "fp": 48,
+        "fn": 120,
+        "precision": 0.6,
+        "recall": 0.375,
+        "f1": 0.46153846153846156,
+        "f2": 0.40540540540540543
+      },
+      "ml_only": {
+        "tp": 150,
+        "fp": 81,
+        "fn": 42,
+        "precision": 0.6493506493506493,
+        "recall": 0.78125,
+        "f1": 0.7092198581560284,
+        "f2": 0.7507507507507507
+      },
+      "candidate_union": {
+        "tp": 162,
+        "fp": 129,
+        "fn": 30,
+        "precision": 0.5567010309278351,
+        "recall": 0.84375,
+        "f1": 0.6708074534161491,
+        "f2": 0.7648725212464589
+      },
+      "merged_mask_intervals": {
+        "tp": 150,
+        "fp": 123,
+        "fn": 42,
+        "precision": 0.5494505494505495,
+        "recall": 0.78125,
+        "f1": 0.6451612903225806,
+        "f2": 0.7204610951008645
+      },
+      "rule_miss_count": 120,
+      "rule_miss_recall": 0.75,
+      "rule_no_overlap_miss_count": 120,
+      "rule_no_overlap_miss_recall": 0.75,
+      "rule_coverage_miss_count": 120,
+      "rule_coverage_miss_recall": 0.75,
+      "ml_added_true_positives": 90,
+      "ml_induced_false_positives": 81,
+      "ml_overlap_recall": 1.0,
+      "combined_coverage_recall": 0.859375
+    }
+  }
+}

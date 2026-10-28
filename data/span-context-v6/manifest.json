@@ -1,0 +1,36 @@
+{
+  "seed": 20261102,
+  "per_family": 24,
+  "rejected_by_public_exclusions": 0,
+  "families": {
+    "train": [
+      "multiline_training_a",
+      "multiline_training_b",
+      "multiline_training_c",
+      "purpose_training_a",
+      "purpose_training_b",
+      "bearer_training_a",
+      "bearer_training_b",
+      "purpose_training_c"
+    ],
+    "validation": [
+      "multiline_validate_a",
+      "purpose_validate_a",
+      "bearer_validate_a",
+      "purpose_validate_b"
+    ],
+    "test": [
+      "multiline_sealed_a",
+      "purpose_sealed_a",
+      "bearer_sealed_a",
+      "purpose_sealed_b"
+    ]
+  },
+  "counts": {
+    "train": 3432,
+    "validation": 192,
+    "test": 192
+  },
+  "fingerprint": "c6763a4988cb1d0ec578632d60b7aaa649aba9561dae42feb84332b318e228db",
+  "notice": "Earlier tests are development only; new families assigned before training. Synthetic only."
+}

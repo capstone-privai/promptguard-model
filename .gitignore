@@ -11,3 +11,22 @@ runs/
 *.safetensors
 *.pt
 *.pth
+data/span-*/
+!data/span-*/
+!data/span-*/**
+*.bin
+
+data/span-refinement-*/
+data/span-code-refinement-*/
+!data/span-refinement-*/
+!data/span-refinement-*/**
+!data/span-code-refinement-*/
+!data/span-code-refinement-*/**
+
+# Local ONNX Runtime telemetry identifier created during model scans.
+/:memory:.ses
+
+# Publish the selected, calibrated v9 inference bundle; keep training runs local.
+!models/
+!models/span-detector-v9/
+!models/span-detector-v9/**

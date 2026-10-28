@@ -1,0 +1,11 @@
+{
+  "seed": 20261031,
+  "added": 864,
+  "counts": {
+    "train": 3048,
+    "validation": 288,
+    "test": 288
+  },
+  "fingerprint": "8d67dda1bd8b224e75ddaa360ae974b9bd1cdb905ae212193eae6b4a1dc28431",
+  "policy": "V4 validation reused for development selection. V4 test not consulted to design this candidate. Context-only paraphrases, fresh synthetic values, same train families; no holdout families moved into training."
+}
