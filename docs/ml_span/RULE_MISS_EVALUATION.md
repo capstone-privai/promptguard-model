@@ -77,3 +77,9 @@ CPU 4 threads, 모델 초기화 제외. Test 80개 평균: Rule **0.122 ms**, ML
 ## Context v3 follow-up
 
 See [context-v3 experiment](ML_C_CONTEXT_V3.md) for 1,320-row training, four-family validation and four-family synthetic hold-out. New ML recovers 96/96 Rule misses with zero induced FP on that synthetic hold-out. This does not measure the public evaluation page. Previous development sets remain excluded from training.
+
+## Context v7: 추가 학습 결과
+
+동일한 신규 합성 시험 입력 256개/정답 Span 160개에서 v6 대비 v7의 ML 정확 탐지는 25→85개, 오탐은 63→9개였다. Rule 단독은 32 TP / 32 FP / 128 FN, v7 ML은 85 TP / 9 FP / 75 FN, Union은 96 TP / 41 FP / 64 FN이다. Rule이 놓친 128개 중 64개를 ML이 추가 탐지하여 Rule-Miss Recall은 50%, Combined Recall은 60%다. ML로 인해 추가된 FP는 9개다. ML 평균 지연은 v6 22.48ms, v7 22.71ms로 유사했다.
+
+이전 v6 개발 평가에서도 TP 54→67, FP 20→3으로 개선됐지만, v4 개발 평가는 TP 150→143, FP 58→37로 재현율이 퇴보했다. 특히 감사 로그 양성 탐지가 감소했다. 따라서 전면 교체를 정당화하는 결과로 해석하지 않는다. 혼합 언어 후행 설명과 일부 여러 줄 값의 미탐도 남아 있다. 공개 PromptGuard 배포 앙상블 성능은 여전히 측정하지 않았다. 전체 family별 결과와 한계: [v7 실험](ML_C_CONTEXT_V7.md), [원시 비교 지표](../../reports/ml_span/context-v7-comparison.json).

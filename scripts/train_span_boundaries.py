@@ -1,4 +1,5 @@
 """Train a small optional character head on gold token-expanded synthetic boundaries."""
+import argparse
 import json
 from pathlib import Path
 import torch
@@ -26,12 +27,12 @@ def samples(rows,tokenizer):
     return tensors(xs),torch.tensor(ys),unsupported
 
 
-def train():
-    root=Path('runs/span-boundary-v1')
+def train(output='runs/span-boundary-v1',data_dir='data/span-context-v4',tokenizer='runs/span-mmbert-context-v3/model'):
+    root=Path(output)
     if root.exists():raise FileExistsError(root)
     root.mkdir();torch.set_num_threads(1);torch.manual_seed(872)
-    tok=AutoTokenizer.from_pretrained('runs/span-mmbert-context-v3/model',local_files_only=True)
-    data=Path('data/span-context-v4')
+    tok=AutoTokenizer.from_pretrained(tokenizer,local_files_only=True)
+    data=Path(data_dir)
     tx,ty,tu=samples(load(data/'train.jsonl'),tok)
     vx,vy,vu=samples(load(data/'validation.jsonl'),tok)
     model=BoundaryModel();optimizer=torch.optim.AdamW(model.parameters(),lr=.002,weight_decay=.01)
@@ -60,4 +61,9 @@ def train():
             write_json(root/'selection.json',dict(history[-1],train_samples=len(ty),train_unrepresentable=tu,validation_unrepresentable=vu,policy='Validation character boundary score only; full detector validation acceptance still required'))
         write_json(root/'history.json',history)
     print(json.dumps(json.loads((root/'selection.json').read_text())))
-if __name__=='__main__':train()
+if __name__=='__main__':
+    p=argparse.ArgumentParser()
+    p.add_argument('--output',default='runs/span-boundary-v1')
+    p.add_argument('--data-dir',default='data/span-context-v4')
+    p.add_argument('--tokenizer',default='runs/span-mmbert-context-v3/model')
+    a=p.parse_args();train(a.output,a.data_dir,a.tokenizer)

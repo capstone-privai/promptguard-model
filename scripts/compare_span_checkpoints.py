@@ -52,7 +52,7 @@ def comparison(rows,rule_predictions,checkpoints):
     return report
 
 
-def run(previous,candidate,data_dir,output,unrefined=None,alternative=None):
+def run(previous,candidate,data_dir,output,unrefined=None,alternative=None,development=None):
     torch.set_num_threads(4)
     checkpoints={'previous':previous,'candidate':candidate}
     if unrefined is not None: checkpoints['without_boundary']=unrefined
@@ -76,6 +76,11 @@ def run(previous,candidate,data_dir,output,unrefined=None,alternative=None):
         'v1_development':'data/span-refinement-v1/test.jsonl',
         'original_development':'data/span-synthetic-v1/test.jsonl',
         'negative_challenge':'data/span-negative-challenge-v1/test.jsonl'}
+    for entry in development or []:
+        name,path=entry.split('=',1)
+        if not name.endswith('_development') or name in datasets:
+            raise ValueError('unique *_development dataset name required')
+        datasets[name]=path
     for name,path in datasets.items():
         rows=load(Path(path));rp,lat=predict_rows(rules,rows,True)
         report['datasets'][name]=comparison(rows,rp,checkpoints)
@@ -88,4 +93,5 @@ if __name__=='__main__':
     p.add_argument('--data-dir',required=True);p.add_argument('--output',required=True)
     p.add_argument('--unrefined')
     p.add_argument('--alternative')
-    a=p.parse_args();run(a.previous,a.candidate,a.data_dir,a.output,a.unrefined,a.alternative)
+    p.add_argument('--development',action='append',default=[],metavar='NAME_development=PATH')
+    a=p.parse_args();run(a.previous,a.candidate,a.data_dir,a.output,a.unrefined,a.alternative,a.development)

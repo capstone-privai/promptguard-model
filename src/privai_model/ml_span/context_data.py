@@ -57,8 +57,9 @@ def render(pattern, values, positive):
     return text+pattern[cursor:],gold,valuespans
 
 
-def generate_context(per_family=24, seed=20261029, exclusions=None):
+def generate_context(per_family=24, seed=20261029, exclusions=None, *, families=None, variable_multiline=False):
     if per_family<1: raise ValueError('positive generation size required')
+    families = FAMILIES if families is None else families
     rng=random.Random(seed)
     rand=lambda n: ''.join(rng.choices(string.ascii_letters+string.digits,k=n))
     def value(kind):
@@ -70,12 +71,15 @@ def generate_context(per_family=24, seed=20261029, exclusions=None):
         if kind=='dotted': return rand(10)+'.'+rand(16)+'.'+rand(12)
         if kind=='numeric': return ''.join(rng.choices(string.digits,k=16))
         if kind=='unicode': return rand(8)+'가상'+rand(10)+'!'
-        if kind=='multiline': return rand(28)+'\n'+rand(28)+'\n'+rand(28)
+        if kind=='multiline':
+            if variable_multiline:
+                return '\n'.join(rand(rng.randrange(12,49)) for _ in range(rng.randrange(2,6)))
+            return rand(28)+'\n'+rand(28)+'\n'+rand(28)
         raise ValueError(kind)
     kinds=['alnum','punctuated','hex','base64','url_safe','dotted','numeric','unicode']
     splits={s:[] for s in ('train','validation','test')}
     rejected=0
-    for family,split,source,language,pos,neg in FAMILIES:
+    for family,split,source,language,pos,neg in families:
         for i in range(per_family):
             kind='multiline' if family.startswith('multiline_') else kinds[i%len(kinds)]
             if family=='numeric_access': kind='numeric'
@@ -99,4 +103,4 @@ def generate_context(per_family=24, seed=20261029, exclusions=None):
                 rejected+=len(pair);continue
             splits[split].extend(pair)
     return splits,dict(seed=seed,per_family=per_family,rejected_by_public_exclusions=rejected,
-        families={s:[f[0] for f in FAMILIES if f[1]==s] for s in splits})
+        families={s:[f[0] for f in families if f[1]==s] for s in splits})

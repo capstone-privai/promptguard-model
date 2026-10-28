@@ -12,14 +12,14 @@ from privai_model.ml_span.evaluation import predict_rows,evaluate
 
 
 def main(checkpoint='runs/span-mmbert-context-v4/model',data_dir='data/span-context-v4',
-         output='runs/span-mmbert-context-v4-boundary/model',report_path='reports/ml_span/context-v4-boundary-validation.json'):
+         output='runs/span-mmbert-context-v4-boundary/model',report_path='reports/ml_span/context-v4-boundary-validation.json',boundary_dir='runs/span-boundary-v1'):
     torch.set_num_threads(4)
     rows=load(Path(data_dir)/'validation.jsonl')
     root=Path(checkpoint)
     model=MLSpanDetector(root)
     base,lat=predict_rows(model,rows)
-    config=json.loads(Path('runs/span-boundary-v1/selection.json').read_text())
-    refiner=BoundaryRefiner('runs/span-boundary-v1/boundary.pt',config['threshold'])
+    config=json.loads((Path(boundary_dir)/'selection.json').read_text())
+    refiner=BoundaryRefiner(Path(boundary_dir)/'boundary.pt',config['threshold'])
     corrected={r['id']:refiner.refine(r['text'],base[r['id']]) for r in rows}
     empty={r['id']:[] for r in rows}
     old=evaluate(rows,empty,base,model.threshold)['ml_only']
@@ -31,7 +31,7 @@ def main(checkpoint='runs/span-mmbert-context-v4/model',data_dir='data/span-cont
         output=Path(output)
         if output.exists():raise FileExistsError(output)
         shutil.copytree(root,output)
-        shutil.copyfile('runs/span-boundary-v1/boundary.pt',output/'boundary.pt')
+        shutil.copyfile(Path(boundary_dir)/'boundary.pt',output/'boundary.pt')
         meta=json.loads((output/'span_bundle.json').read_text())
         meta['boundary_refiner']=dict(schema_version='character-boundary-v1',threshold=config['threshold'])
         write_json(output/'span_bundle.json',meta)
@@ -48,4 +48,5 @@ if __name__=='__main__':
     p.add_argument('--data-dir',default='data/span-context-v4')
     p.add_argument('--output',default='runs/span-mmbert-context-v4-boundary/model')
     p.add_argument('--report',default='reports/ml_span/context-v4-boundary-validation.json')
-    a=p.parse_args();main(a.checkpoint,a.data_dir,a.output,a.report)
+    p.add_argument('--boundary-dir',default='runs/span-boundary-v1')
+    a=p.parse_args();main(a.checkpoint,a.data_dir,a.output,a.report,a.boundary_dir)

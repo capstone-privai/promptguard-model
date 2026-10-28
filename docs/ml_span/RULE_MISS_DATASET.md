@@ -51,3 +51,7 @@ Gitleaks/Custom Rules와 deployed ensemble은 로컬 실험에서 `NOT EVALUATED
 ## Context v3 follow-up
 
 See [context-v3 experiment](ML_C_CONTEXT_V3.md) for 1,320-row training, four-family validation and four-family synthetic hold-out. New ML recovers 96/96 Rule misses with zero induced FP on that synthetic hold-out. This does not measure the public evaluation page. Previous development sets remain excluded from training.
+
+## Context v7 후속 학습
+
+새 문맥 24개 유형을 16/4/4개의 학습/검증/시험 family로 사전 배정했다. 1,024개 합성 학습 입력을 추가해 누적 학습 4,456개, 검증/시험 각각 256개로 구성했다. 값 뒤의 용도 설명, 공개 인증 문서 식별자, 한국어·영어 혼합 문장, 여러 Secret, 2~5줄의 가변 길이 값을 포함한다. 양성/음성 쌍은 같은 값과 형태를 공유한다. 기존 Rule-Hit 및 음성 입력을 유지하며 과거 평가의 값·템플릿·family/origin과 학습 간 교집합을 검사했다. 이 유형들은 합성 개발 평가에서 확인한 약점에 대한 대응으로, 공개 평가에서 추가로 검증한 미탐 유형이라고 주장하지 않는다. [생성·선택 절차](ML_C_CONTEXT_V7.md), [분포 통계](../../reports/ml_span/context-v7-dataset.json).
