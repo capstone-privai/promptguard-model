@@ -1,0 +1,55 @@
+{
+  "train": {
+    "rows": 5224,
+    "gold_spans": 2968,
+    "families": 110,
+    "kind": {
+      "hard_negative": 2656,
+      "positive": 2568
+    },
+    "source": {
+      "configuration": 720,
+      "prompt": 944,
+      "tool_output": 656,
+      "log": 848,
+      "markdown": 400,
+      "negative": 88,
+      "code": 992,
+      "shell": 208,
+      "file_read": 368
+    }
+  },
+  "validation": {
+    "rows": 288,
+    "gold_spans": 144,
+    "families": 6,
+    "kind": {
+      "positive": 144,
+      "hard_negative": 144
+    },
+    "source": {
+      "log": 48,
+      "tool_output": 96,
+      "file_read": 48,
+      "prompt": 48,
+      "markdown": 48
+    }
+  },
+  "test": {
+    "rows": 288,
+    "gold_spans": 144,
+    "families": 6,
+    "kind": {
+      "positive": 144,
+      "hard_negative": 144
+    },
+    "source": {
+      "log": 48,
+      "markdown": 48,
+      "tool_output": 48,
+      "configuration": 48,
+      "file_read": 48,
+      "prompt": 48
+    }
+  }
+}

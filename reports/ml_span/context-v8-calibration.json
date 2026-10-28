@@ -1,0 +1,109 @@
+{
+  "reference": {
+    "tp": 88,
+    "fp": 14,
+    "fn": 56,
+    "precision": 0.8627450980392157,
+    "recall": 0.6111111111111112,
+    "f1": 0.7154471544715447,
+    "f2": 0.6489675516224189
+  },
+  "choices": [
+    {
+      "threshold": 0.5,
+      "metric": {
+        "tp": 106,
+        "fp": 71,
+        "fn": 38,
+        "precision": 0.5988700564971752,
+        "recall": 0.7361111111111112,
+        "f1": 0.660436137071651,
+        "f2": 0.703851261620186
+      },
+      "eligible": false
+    },
+    {
+      "threshold": 0.7,
+      "metric": {
+        "tp": 106,
+        "fp": 39,
+        "fn": 38,
+        "precision": 0.7310344827586207,
+        "recall": 0.7361111111111112,
+        "f1": 0.7335640138408305,
+        "f2": 0.7350901525658807
+      },
+      "eligible": false
+    },
+    {
+      "threshold": 0.8,
+      "metric": {
+        "tp": 106,
+        "fp": 25,
+        "fn": 38,
+        "precision": 0.8091603053435115,
+        "recall": 0.7361111111111112,
+        "f1": 0.7709090909090909,
+        "f2": 0.7496463932107497
+      },
+      "eligible": false
+    },
+    {
+      "threshold": 0.9,
+      "metric": {
+        "tp": 106,
+        "fp": 19,
+        "fn": 38,
+        "precision": 0.848,
+        "recall": 0.7361111111111112,
+        "f1": 0.7881040892193308,
+        "f2": 0.7560627674750356
+      },
+      "eligible": false
+    },
+    {
+      "threshold": 0.95,
+      "metric": {
+        "tp": 105,
+        "fp": 14,
+        "fn": 39,
+        "precision": 0.8823529411764706,
+        "recall": 0.7291666666666666,
+        "f1": 0.7984790874524715,
+        "f2": 0.7553956834532374
+      },
+      "eligible": true
+    },
+    {
+      "threshold": 0.98,
+      "metric": {
+        "tp": 102,
+        "fp": 11,
+        "fn": 42,
+        "precision": 0.9026548672566371,
+        "recall": 0.7083333333333334,
+        "f1": 0.7937743190661478,
+        "f2": 0.7402031930333817
+      },
+      "eligible": true
+    }
+  ],
+  "selected": {
+    "threshold": 0.95,
+    "metric": {
+      "tp": 105,
+      "fp": 14,
+      "fn": 39,
+      "precision": 0.8823529411764706,
+      "recall": 0.7291666666666666,
+      "f1": 0.7984790874524715,
+      "f2": 0.7553956834532374
+    },
+    "eligible": true
+  },
+  "policy": "Validation only: precision, recall and F2 must not decrease versus reference; maximize F2, precision, threshold.",
+  "validation_only": true,
+  "reference_checkpoint": "runs/span-mmbert-context-v7-boundary/model",
+  "candidate_checkpoint": "runs/span-mmbert-context-v8-boundary/model",
+  "checkpoint": "runs/span-mmbert-context-v8-calibrated/model"
+}

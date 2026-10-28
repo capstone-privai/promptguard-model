@@ -1,0 +1,172 @@
+{
+  "config": {
+    "model_name": "runs/span-mmbert-context-v7/model",
+    "backbone_id": "jhu-clsp/mmBERT-small (context-v8 warm-start from context-v7)",
+    "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+    "local_files_only": true,
+    "data_dir": "data/span-context-v8",
+    "output_dir": "runs/span-mmbert-context-v8",
+    "seed": 95,
+    "epochs": 2,
+    "patience": 2,
+    "batch_size": 32,
+    "length_grouped_batches": true,
+    "progress_every_batches": 100,
+    "learning_rate": 1e-06,
+    "weight_decay": 0.01,
+    "class_weights": [
+      1.0,
+      2.0,
+      2.0
+    ],
+    "max_length": 512,
+    "stride": 128,
+    "thresholds": [
+      0.5,
+      0.7,
+      0.8,
+      0.9,
+      0.95,
+      0.98
+    ],
+    "device": "cpu",
+    "threads": 4
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 0.017382915606495884,
+      "threshold": 0.8,
+      "validation": {
+        "tp": 100,
+        "fp": 24,
+        "fn": 44,
+        "precision": 0.8064516129032258,
+        "recall": 0.6944444444444444,
+        "f1": 0.746268656716418,
+        "f2": 0.7142857142857143
+      }
+    },
+    {
+      "epoch": 2,
+      "loss": 0.00011770513149562454,
+      "threshold": 0.9,
+      "validation": {
+        "tp": 104,
+        "fp": 21,
+        "fn": 40,
+        "precision": 0.832,
+        "recall": 0.7222222222222222,
+        "f1": 0.7732342007434945,
+        "f2": 0.7417974322396577
+      }
+    }
+  ],
+  "alignment": {
+    "train": {
+      "gold_spans": 2968,
+      "exactly_representable_in_a_window": 2789,
+      "boundary_or_window_unrepresentable": 179
+    },
+    "validation": {
+      "gold_spans": 144,
+      "exactly_representable_in_a_window": 135,
+      "boundary_or_window_unrepresentable": 9
+    }
+  },
+  "bundle": {
+    "schema_version": "ml-span-bundle-v1",
+    "max_length": 512,
+    "stride": 128,
+    "threshold": 0.95,
+    "threshold_source": "synthetic validation F2 constrained by reference precision and recall",
+    "backbone": "jhu-clsp/mmBERT-small (context-v8 warm-start from context-v7)",
+    "revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+    "label_mapping": {
+      "0": "O",
+      "1": "B-SECRET",
+      "2": "I-SECRET"
+    },
+    "best_epoch": 2,
+    "production_ready": false,
+    "boundary_refiner": {
+      "schema_version": "character-boundary-v1",
+      "threshold": 0.8
+    },
+    "calibration_reference": "runs/span-mmbert-context-v7-boundary/model"
+  },
+  "dataset_manifest": {
+    "seed": 20261104,
+    "per_family": 24,
+    "rejected_by_public_exclusions": 0,
+    "families": {
+      "train": [
+        "v8_audit_exposure",
+        "v8_audit_event",
+        "v8_audit_ko",
+        "v8_audit_report",
+        "v8_suffix_description",
+        "v8_suffix_caption",
+        "v8_suffix_usage",
+        "v8_suffix_record",
+        "v8_suffix_meaning",
+        "v8_suffix_two",
+        "multiline_v8_path",
+        "multiline_v8_read",
+        "multiline_v8_stream",
+        "multiline_v8_comment",
+        "multiline_v8_first",
+        "multiline_v8_pair"
+      ],
+      "validation": [
+        "v8_val_audit",
+        "v8_val_review",
+        "v8_val_suffix",
+        "v8_val_session",
+        "multiline_v8_val_blob",
+        "multiline_v8_val_ko"
+      ],
+      "test": [
+        "v8_test_audit",
+        "v8_test_review",
+        "v8_test_suffix",
+        "v8_test_session",
+        "multiline_v8_test_object",
+        "multiline_v8_test_ko"
+      ]
+    },
+    "counts": {
+      "train": 5224,
+      "validation": 288,
+      "test": 288
+    },
+    "fingerprint": "b16731627ea192df6e2aaaa7859b0e7235f4edea5422b121594d8d32e4cdc6dd",
+    "replay": "span-context-v7/train",
+    "historical_eval": [
+      "span-synthetic-v1",
+      "span-refinement-v1",
+      "span-refinement-v3",
+      "span-context-v4",
+      "span-context-v6",
+      "span-context-v7"
+    ],
+    "variable_multiline": true,
+    "notice": "All previous tests are development only. New families assigned before training. Synthetic values only."
+  },
+  "artifact_sha256": {
+    "runs/span-mmbert-context-v7/model/model.safetensors": "7198cdfb6cac1575d125cfe5f2f076295fda1c64c06932832226e61500c049e4",
+    "runs/span-mmbert-context-v7/model/tokenizer_config.json": "e9bfcf1366bf02303909d85c96e92ecf5adbcb19d2dcf4e36431e5b805cfd053",
+    "runs/span-mmbert-context-v7/model/special_tokens_map.json": "6e3204c5a4004719c185007a745d1940471a6fb02521cfa0a00306dbb6bc5903",
+    "runs/span-mmbert-context-v7/model/config.json": "5556abda07a42e7425228ca15c0ca342e8da3e4e00dfab58ebaf6bc93aaaa032",
+    "runs/span-mmbert-context-v7/model/tokenizer.json": "ac6fc8196d1db9ef82e68f6088e8d77d711b8c6f07589cec7d9d59c4adfc9a1e",
+    "runs/span-mmbert-context-v7/model/span_bundle.json": "13d8145eb3c893b8c88246cf1d81479d9e57bcb8f130ffc39ad738d223293f2f",
+    "runs/span-mmbert-context-v8-calibrated/model/model.safetensors": "5348cb59b67c93d1fff6724b8f07cd34beb2fb1b5c08a1270d03bace0980ff98",
+    "runs/span-mmbert-context-v8-calibrated/model/tokenizer_config.json": "e9bfcf1366bf02303909d85c96e92ecf5adbcb19d2dcf4e36431e5b805cfd053",
+    "runs/span-mmbert-context-v8-calibrated/model/special_tokens_map.json": "6e3204c5a4004719c185007a745d1940471a6fb02521cfa0a00306dbb6bc5903",
+    "runs/span-mmbert-context-v8-calibrated/model/config.json": "5556abda07a42e7425228ca15c0ca342e8da3e4e00dfab58ebaf6bc93aaaa032",
+    "runs/span-mmbert-context-v8-calibrated/model/tokenizer.json": "ac6fc8196d1db9ef82e68f6088e8d77d711b8c6f07589cec7d9d59c4adfc9a1e",
+    "runs/span-mmbert-context-v8-calibrated/model/span_bundle.json": "419a198f7224c7ff04d49a0611e0619cdabae75992a756658be872a19beaebfe",
+    "runs/span-mmbert-context-v8-calibrated/model/boundary.pt": "0d8e6bb81981e0cb436197858601ce22f6db718da5abb0da89bc39f03c06eb4c"
+  },
+  "regression_gate_sha256": "fe09031f7c986f016c07f8e08625809808dc6425cd37ea5ae5c9e6a3a0b345cc"
+}

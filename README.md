@@ -345,3 +345,5 @@ uv run python scripts/evaluate.py --data data/raw/agent_candidates_v1.jsonl.gz \
 [ML_C_REFINEMENT](docs/ml_span/ML_C_REFINEMENT.md)를 참고하세요.
 
 추가 문맥·문자 경계 학습 실험은 [Context v4](docs/ml_span/ML_C_CONTEXT_V4.md)를 참고하십시오. 가중치와 학습 JSONL은 로컬에만 저장됩니다.
+
+문맥 미탐 보완과 퇴보 검사 후속 실험: [Context v8](docs/ml_span/ML_C_CONTEXT_V8.md), [Context v9](docs/ml_span/ML_C_CONTEXT_V9.md). 개선된 합성 평가 수치와 미해결 유형, 전면 교체 기준 미통과 결과를 함께 기록했습니다.

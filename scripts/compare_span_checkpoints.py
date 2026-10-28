@@ -52,11 +52,15 @@ def comparison(rows,rule_predictions,checkpoints):
     return report
 
 
-def run(previous,candidate,data_dir,output,unrefined=None,alternative=None,development=None):
+def run(previous,candidate,data_dir,output,unrefined=None,alternative=None,development=None,additional=None):
     torch.set_num_threads(4)
     checkpoints={'previous':previous,'candidate':candidate}
     if unrefined is not None: checkpoints['without_boundary']=unrefined
     if alternative is not None: checkpoints['intermediate_v4']=alternative
+    for entry in additional or []:
+        name,path=entry.split('=',1)
+        if not name or name in checkpoints:raise ValueError('unique checkpoint name required')
+        checkpoints[name]=path
     rules=RuleSpanDetector()
     report=dict(notice='Synthetic only. Validation decision frozen before test comparison. All thresholds loaded from saved checkpoints.',rule_metadata=rules.metadata,datasets={})
     validation=load(Path(data_dir)/'validation.jsonl')
@@ -94,4 +98,5 @@ if __name__=='__main__':
     p.add_argument('--unrefined')
     p.add_argument('--alternative')
     p.add_argument('--development',action='append',default=[],metavar='NAME_development=PATH')
-    a=p.parse_args();run(a.previous,a.candidate,a.data_dir,a.output,a.unrefined,a.alternative,a.development)
+    p.add_argument('--additional',action='append',default=[],metavar='NAME=CHECKPOINT')
+    a=p.parse_args();run(a.previous,a.candidate,a.data_dir,a.output,a.unrefined,a.alternative,a.development,a.additional)
