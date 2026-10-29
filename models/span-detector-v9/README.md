@@ -12,3 +12,7 @@ This directory contains the selected v9 token-span model bundle. It was trained 
 The score threshold (`0.9996943789993322`) was selected on synthetic validation data to meet the v8 reference precision/recall constraints. It is not a calibrated probability and may be sensitive to distribution changes. See [v9 evaluation](../../docs/ml_span/ML_C_CONTEXT_V9.md) for results, failed regression gates, and limitations. Synthetic data and split manifests are in `data/span-context-v9/`; prior cumulative training sets are documented under `docs/ml_span/`.
 
 The base checkpoint is [jhu-clsp/mmBERT-small](https://huggingface.co/jhu-clsp/mmBERT-small), which is listed under the MIT license. Its license and notices apply to the upstream model; this fine-tune adds PromptGuard-specific synthetic training.
+
+## Grammatical-word candidate policy
+
+The bundle now enables `contextual-function-words-v1` in the Python `MLSpanDetector` runtime. It suppresses standalone grammatical-word candidates such as `by`, `of`, and `and`, while retaining quoted/assigned/credential-labelled values and identifier fragments. This is a runtime change; weights and threshold are unchanged. Update both source and bundle metadata, then restart the detector. Direct Transformers inference does not apply this policy. See [policy, limitations, and verification](../../docs/ml_span/V9_FUNCTION_WORD_FIX.md).
