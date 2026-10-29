@@ -1,0 +1,30 @@
+{
+  "role": "Qwen v2 train-only augmentation",
+  "seed": 20261030,
+  "per_family": 12,
+  "note": "Designed after inspecting v1 failures on validation (review decoy family) and negative_challenge (reference-not-value). Template wording, family IDs and value seeds are disjoint from the hold-out and from all existing sets (checked: group/text/canonical-template/value keys).",
+  "composition": {
+    "records": 264,
+    "positive": 120,
+    "negative": 144,
+    "gold_spans": 120,
+    "families": 22,
+    "kinds": {
+      "hard_negative": 144,
+      "positive": 120
+    },
+    "sources": {
+      "code": 72,
+      "shell": 24,
+      "configuration": 48,
+      "log": 48,
+      "prompt": 60,
+      "markdown": 12
+    }
+  },
+  "shared_key_checks": {
+    "augment_vs_existing": {},
+    "holdout_vs_existing": {},
+    "holdout_vs_augment": {}
+  }
+}

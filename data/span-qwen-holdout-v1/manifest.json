@@ -1,0 +1,29 @@
+{
+  "role": "Independent hold-out for the Qwen v2 remedy. Never used for training, epoch or cutoff selection. Written by the same author as the augmentation, with different templates and seeds; it targets the remedied failure types, so it is not a general benchmark.",
+  "seed": 20261031,
+  "per_family": 8,
+  "composition": {
+    "records": 144,
+    "positive": 64,
+    "negative": 80,
+    "gold_spans": 64,
+    "families": 18,
+    "kinds": {
+      "hard_negative": 80,
+      "positive": 64
+    },
+    "sources": {
+      "code": 24,
+      "shell": 8,
+      "configuration": 40,
+      "prompt": 32,
+      "tool_output": 16,
+      "log": 24
+    }
+  },
+  "shared_key_checks": {
+    "augment_vs_existing": {},
+    "holdout_vs_existing": {},
+    "holdout_vs_augment": {}
+  }
+}

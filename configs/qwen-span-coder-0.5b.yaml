@@ -1,0 +1,26 @@
+# Qwen2.5-Coder generative span detector (LoRA). Selection uses v9 validation only.
+model_name: Qwen/Qwen2.5-Coder-0.5B-Instruct
+# Pin for reproducibility after the first download: copy the commit hash from
+# ~/.cache/huggingface/hub/models--Qwen--Qwen2.5-Coder-0.5B-Instruct/refs/main
+revision: ea3f2471cf1b1f0db85067f1ef93848e38e88c25
+local_files_only: false
+sft_dir: runs/qwen-span/sft
+output_dir: runs/qwen-span/coder-0.5b-r16
+device: auto            # mps on Apple silicon; run from a normal Terminal, not a sandboxed shell
+dtype: float32          # 0.5B fits in 16 GB; bfloat16 halves memory if needed
+seed: 20261029
+epochs: 3
+gradient_accumulation: 16
+learning_rate: 0.0002
+weight_decay: 0.0
+warmup_ratio: 0.05
+max_grad_norm: 1.0
+max_length: 4096        # rows above this abort the run; nothing is truncated
+gradient_checkpointing: true
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+log_every: 5
+save_every: 25
+max_new_tokens: 512     # longest gold answer is 375 characters; bounds runaway output

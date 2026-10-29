@@ -1,0 +1,196 @@
+{
+  "schema_version": "qwen-span-sft-v1",
+  "answer_format": "qwen-span-json-v1",
+  "system_prompt_sha256": "1099c91e2fd7c13129b93a425a8e31288412d514f6a3967996fe2c0ffd1ea5d3",
+  "source_metadata_in_prompt": false,
+  "note": "Only text is given to the model, like the v9 ML detector. The `source` field is excluded because some training rows use source=\"negative\", which would leak the label.",
+  "extra_train": {
+    "data/span-qwen-augment-v1/train.jsonl": {
+      "sha256": "4dc01e84fb118959091f580f0d7fa4933a70f3c19d899917fa118ed7532d2e8e",
+      "rows": 264
+    }
+  },
+  "train": {
+    "path": "data/span-context-v9/train.jsonl",
+    "sha256": "a69572c6fb774381157ef7df32763fefccd35ec6af37be71cb11e0066496dabe",
+    "rows": 2320,
+    "positives": 1104,
+    "spans_per_row": {
+      "0": 1216,
+      "1": 984,
+      "2": 120
+    }
+  },
+  "evaluation_sets": {
+    "validation": {
+      "path": "data/span-context-v9/validation.jsonl",
+      "sha256": "49712062051cf53ba67bbac54e5baf6b05a43d671cd2c6404b2c83e37b94b52d",
+      "rows": 384
+    },
+    "fresh_test": {
+      "path": "data/span-context-v9/test.jsonl",
+      "sha256": "f8b463df537cdd01be1043b5df0676ab66d88aefb7bda37cb14d260cd50caf9b",
+      "rows": 384
+    },
+    "v3_development": {
+      "path": "data/span-refinement-v3/test.jsonl",
+      "sha256": "afddee0718f69fedf284b9f6179fd66f56ff22a5b32941999dccbdc647140473",
+      "rows": 256
+    },
+    "v1_development": {
+      "path": "data/span-refinement-v1/test.jsonl",
+      "sha256": "d33868197f72199b19a4acec04fe2fd065b8d53a965eb54c64c453d1e45592fc",
+      "rows": 96
+    },
+    "original_development": {
+      "path": "data/span-synthetic-v1/test.jsonl",
+      "sha256": "41414cb853a9c9d4d6329d9e21faf67945922abb97cbfa67bfb049f76eccfc25",
+      "rows": 80
+    },
+    "negative_challenge": {
+      "path": "data/span-negative-challenge-v1/test.jsonl",
+      "sha256": "0c70dd7a8f5777afa1926ed3c6307c9912fb3593c37083d4bcf9a54047a93020",
+      "rows": 96
+    },
+    "v4_development": {
+      "path": "data/span-context-v4/test.jsonl",
+      "sha256": "566bfa29bfb0c58d05c1e7a1c5525d7655b7012d0b65d3ea05271a18edae90d0",
+      "rows": 288
+    },
+    "v6_development": {
+      "path": "data/span-context-v6/test.jsonl",
+      "sha256": "7294249e179201e940a1de0a61210178c7d8165cb32f9e124179c03141a52dea",
+      "rows": 192
+    },
+    "v7_development": {
+      "path": "data/span-context-v7/test.jsonl",
+      "sha256": "a858c7fa204a6319f074b72b6f7f2d396b180bf0e54a08a3fe80a74e4c71837d",
+      "rows": 256
+    },
+    "qwen_holdout": {
+      "path": "data/span-qwen-holdout-v1/test.jsonl",
+      "sha256": "683cbfb5bf0c01e6d6a4c1c2e9e1618490f43249261db800b645c58d5745a629",
+      "rows": 144
+    }
+  },
+  "roundtrip": {
+    "train": {
+      "rows": 2320,
+      "gold_spans": 1224,
+      "recovered_exactly": 1224,
+      "failed_ids": []
+    },
+    "validation": {
+      "rows": 384,
+      "gold_spans": 192,
+      "recovered_exactly": 192,
+      "failed_ids": []
+    },
+    "fresh_test": {
+      "rows": 384,
+      "gold_spans": 192,
+      "recovered_exactly": 192,
+      "failed_ids": []
+    },
+    "v3_development": {
+      "rows": 256,
+      "gold_spans": 128,
+      "recovered_exactly": 128,
+      "failed_ids": []
+    },
+    "v1_development": {
+      "rows": 96,
+      "gold_spans": 48,
+      "recovered_exactly": 48,
+      "failed_ids": []
+    },
+    "original_development": {
+      "rows": 80,
+      "gold_spans": 40,
+      "recovered_exactly": 40,
+      "failed_ids": []
+    },
+    "negative_challenge": {
+      "rows": 96,
+      "gold_spans": 0,
+      "recovered_exactly": 0,
+      "failed_ids": []
+    },
+    "v4_development": {
+      "rows": 288,
+      "gold_spans": 192,
+      "recovered_exactly": 192,
+      "failed_ids": []
+    },
+    "v6_development": {
+      "rows": 192,
+      "gold_spans": 96,
+      "recovered_exactly": 96,
+      "failed_ids": []
+    },
+    "v7_development": {
+      "rows": 256,
+      "gold_spans": 160,
+      "recovered_exactly": 160,
+      "failed_ids": []
+    },
+    "qwen_holdout": {
+      "rows": 144,
+      "gold_spans": 64,
+      "recovered_exactly": 64,
+      "failed_ids": []
+    }
+  },
+  "leakage": {
+    "validation": {
+      "rows": 384,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    },
+    "fresh_test": {
+      "rows": 384,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    },
+    "v3_development": {
+      "rows": 256,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    },
+    "v1_development": {
+      "rows": 96,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    },
+    "original_development": {
+      "rows": 80,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    },
+    "negative_challenge": {
+      "rows": 96,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    },
+    "v4_development": {
+      "rows": 288,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    },
+    "v6_development": {
+      "rows": 192,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    },
+    "v7_development": {
+      "rows": 256,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    },
+    "qwen_holdout": {
+      "rows": 144,
+      "rows_sharing_any_key": 0,
+      "shared_keys_by_kind": {}
+    }
+  }
+}
