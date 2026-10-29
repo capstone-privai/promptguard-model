@@ -8,7 +8,7 @@ import json
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
-DEFAULT_BUNDLE = Path(__file__).resolve().parents[3] / 'models' / 'qwen-span-v2'
+DEFAULT_BUNDLE = Path(__file__).resolve().parents[3] / 'models' / 'qwen-span-v3'
 BUNDLE_SCHEMA = 'qwen-span-bundle-v1'
 POSTFILTERS = (None, 'non-value-syntax-v1')
 

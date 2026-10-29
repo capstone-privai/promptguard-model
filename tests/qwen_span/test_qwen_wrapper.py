@@ -32,19 +32,17 @@ def scanner(**kw):
     return QwenSecretScanner(detector=FakeDetector(**kw))
 
 
-def test_bundle_is_published_with_validation_cutoff():
-    meta = load_bundle(DEFAULT_BUNDLE)
-    selection = json.loads((ROOT / 'reports/qwen_span/selection-v2.json').read_text())
-    assert meta['threshold'] == selection['selected']['threshold']
+@pytest.mark.parametrize('bundle,selection', [('qwen-span-v3', 'selection-v3.json'), ('qwen-span-v2', 'selection-v2.json')])
+def test_bundles_are_published_with_validation_cutoff(bundle, selection):
+    meta = load_bundle(ROOT / 'models' / bundle)
+    chosen = json.loads((ROOT / 'reports/qwen_span' / selection).read_text())
+    assert meta['threshold'] == chosen['selected']['threshold'] and not meta.get('postfilter')
     assert meta['revision'] and not meta['production_ready']
-    assert (DEFAULT_BUNDLE / 'adapter_config.json').exists()
+    assert (ROOT / 'models' / bundle / 'adapter_config.json').exists()
 
 
-def test_v3_bundle_matches_its_selection():
-    meta = load_bundle(ROOT / 'models/qwen-span-v3')
-    selection = json.loads((ROOT / 'reports/qwen_span/selection-v3.json').read_text())
-    assert meta['threshold'] == selection['selected']['threshold'] and not meta.get('postfilter')
-    assert meta['revision'] == load_bundle(DEFAULT_BUNDLE)['revision'] and not meta['production_ready']
+def test_default_bundle_is_v3():
+    assert DEFAULT_BUNDLE.name == 'qwen-span-v3'
 
 
 def test_scan_applies_bundle_threshold():

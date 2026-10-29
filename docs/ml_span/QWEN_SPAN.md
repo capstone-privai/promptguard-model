@@ -270,7 +270,7 @@ v2 오탐에 대한 결정적 대책으로 `src/privai_model/qwen_span/postfilte
 - 미리 정한 기준(validation F2·precision)만 보면 v2가 근소하게 앞섭니다. F2 차이는 .009, precision 차이는 .05입니다.
 - 이번 보완의 목표인 참조형 오탐에서는, 학습에서 뺀 13종 문법의 새 hold-out에서 v3가 오탐을 38에서 0으로 없앴습니다. negative_challenge도 0입니다.
 - 이 차이는 필터 없이 모델 단독으로 낸 결과입니다.
-- 따라서 기본 번들(`models/qwen-span-v2`)은 그대로 두고 `models/qwen-span-v3`를 별도 번들로 추가했습니다. 기본을 v3로 바꿀지는 이 trade-off를 보고 결정합니다.
+- 이 trade-off를 검토한 뒤 **기본 번들을 `models/qwen-span-v3`로 바꿨습니다**(사용자 결정, 2026-10-29). validation만 보면 v2가 근소하게 낫지만, 이번 보완의 목표인 참조형 오탐에서 독립 hold-out 차이가 크기 때문입니다. v2 번들은 `models/qwen-span-v2`에 그대로 남겨 두었습니다.
 - 어느 쪽이든 `production_ready: false`이며, v9 보조로만 써야 합니다.
 
 ### v3 latency
@@ -298,7 +298,7 @@ v2 오탐에 대한 결정적 대책으로 `src/privai_model/qwen_span/postfilte
 
 ## 래퍼 사용법
 
-v2 어댑터는 `models/qwen-span-v2/`에 있습니다(Git LFS, 34MB). 같은 폴더의 `qwen_bundle.json`에 베이스 모델 revision, validation에서 고정한 cutoff(0.9564), 입력 최대 4,096토큰이 들어 있습니다. 베이스 모델은 처음 실행할 때 Hugging Face에서 받습니다.
+기본 번들은 v3 어댑터인 `models/qwen-span-v3/`입니다(Git LFS, 34MB). 같은 폴더의 `qwen_bundle.json`에 베이스 모델 revision, validation에서 고정한 cutoff(0.9824), 입력 최대 4,096토큰이 들어 있습니다. 베이스 모델은 처음 실행할 때 Hugging Face에서 받습니다. 이전 v2는 `models/qwen-span-v2/`에 그대로 있습니다. 쓰려면 `QwenSecretScanner('models/qwen-span-v2')` 또는 `--bundle models/qwen-span-v2`를 주면 됩니다.
 
 ```python
 from privai_model.qwen_span.wrapper import QwenSecretScanner
@@ -316,4 +316,4 @@ m = scanner.mask(text)                   # m.status: 'clean' | 'masked' | 'block
 - **fail-closed**: 다음 경우에는 `status='error'`를 반환하고 clean으로 판정하지 않습니다. 잘못된 JSON, 최대 생성 길이에서 잘린 답, 입력 4,096토큰 초과, 모델 예외. 이때 `mask()`는 `blocked`를 반환하고 `text=None`입니다. `on_error='raise'`를 주면 `ScanError`를 발생시킵니다.
 - CLI 종료 코드: 0 clean, 1 secret 발견, 2 검사 실패.
 - 출력에는 offset과 점수만 있고 secret 값은 없습니다. `--mask`를 쓸 때만 마스킹된 텍스트가 포함됩니다.
-- 위 결과 섹션의 한계가 그대로 적용됩니다. 참조형 문맥(`${VAR}`, `secretKeyRef` 등)에서 오탐이 나고, CPU 기준 평균 약 1.4초가 걸립니다. 단독 탐지기로 쓰지 마십시오.
+- 위 결과 섹션의 한계가 그대로 적용됩니다. v3는 참조형 문맥의 오탐이 크게 줄었지만, 공개 ID와 secret이 섞인 문맥에서는 놓치는 경우가 늘었습니다. CPU 기준 평균 약 1~1.4초가 걸립니다. 단독 탐지기로 쓰지 마십시오.
