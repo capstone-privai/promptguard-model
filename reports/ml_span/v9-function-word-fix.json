@@ -1,0 +1,277 @@
+{
+  "policy": "contextual-function-words-v1",
+  "checkpoint": "models/span-detector-v9",
+  "threshold": 0.9996943789993322,
+  "notice": "Historical regression data; not independent holdout. Runtime candidate filter, no retraining.",
+  "datasets": {
+    "validation": {
+      "rows": 384,
+      "sha256": "49712062051cf53ba67bbac54e5baf6b05a43d671cd2c6404b2c83e37b94b52d",
+      "before": {
+        "tp": 151,
+        "fp": 17,
+        "fn": 41,
+        "precision": 0.8988095238095238,
+        "recall": 0.7864583333333334,
+        "f1": 0.8388888888888889,
+        "f2": 0.8066239316239316
+      },
+      "after": {
+        "tp": 151,
+        "fp": 17,
+        "fn": 41,
+        "precision": 0.8988095238095238,
+        "recall": 0.7864583333333334,
+        "f1": 0.8388888888888889,
+        "f2": 0.8066239316239316
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "fresh_test": {
+      "rows": 384,
+      "sha256": "f8b463df537cdd01be1043b5df0676ab66d88aefb7bda37cb14d260cd50caf9b",
+      "before": {
+        "tp": 159,
+        "fp": 1,
+        "fn": 33,
+        "precision": 0.99375,
+        "recall": 0.828125,
+        "f1": 0.9034090909090909,
+        "f2": 0.8566810344827587
+      },
+      "after": {
+        "tp": 159,
+        "fp": 1,
+        "fn": 33,
+        "precision": 0.99375,
+        "recall": 0.828125,
+        "f1": 0.9034090909090909,
+        "f2": 0.8566810344827587
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "v3_development": {
+      "rows": 256,
+      "sha256": "afddee0718f69fedf284b9f6179fd66f56ff22a5b32941999dccbdc647140473",
+      "before": {
+        "tp": 128,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "after": {
+        "tp": 128,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "v1_development": {
+      "rows": 96,
+      "sha256": "d33868197f72199b19a4acec04fe2fd065b8d53a965eb54c64c453d1e45592fc",
+      "before": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "after": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "original_development": {
+      "rows": 80,
+      "sha256": "41414cb853a9c9d4d6329d9e21faf67945922abb97cbfa67bfb049f76eccfc25",
+      "before": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "after": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "negative_challenge": {
+      "rows": 96,
+      "sha256": "0c70dd7a8f5777afa1926ed3c6307c9912fb3593c37083d4bcf9a54047a93020",
+      "before": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "after": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "f2": null
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "v4_development": {
+      "rows": 288,
+      "sha256": "566bfa29bfb0c58d05c1e7a1c5525d7655b7012d0b65d3ea05271a18edae90d0",
+      "before": {
+        "tp": 168,
+        "fp": 19,
+        "fn": 24,
+        "precision": 0.8983957219251337,
+        "recall": 0.875,
+        "f1": 0.8865435356200527,
+        "f2": 0.8795811518324608
+      },
+      "after": {
+        "tp": 168,
+        "fp": 19,
+        "fn": 24,
+        "precision": 0.8983957219251337,
+        "recall": 0.875,
+        "f1": 0.8865435356200527,
+        "f2": 0.8795811518324608
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "v6_development": {
+      "rows": 192,
+      "sha256": "7294249e179201e940a1de0a61210178c7d8165cb32f9e124179c03141a52dea",
+      "before": {
+        "tp": 68,
+        "fp": 3,
+        "fn": 28,
+        "precision": 0.9577464788732394,
+        "recall": 0.7083333333333334,
+        "f1": 0.8143712574850299,
+        "f2": 0.7472527472527473
+      },
+      "after": {
+        "tp": 68,
+        "fp": 3,
+        "fn": 28,
+        "precision": 0.9577464788732394,
+        "recall": 0.7083333333333334,
+        "f1": 0.8143712574850299,
+        "f2": 0.7472527472527473
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "v7_development": {
+      "rows": 256,
+      "sha256": "a858c7fa204a6319f074b72b6f7f2d396b180bf0e54a08a3fe80a74e4c71837d",
+      "before": {
+        "tp": 122,
+        "fp": 14,
+        "fn": 38,
+        "precision": 0.8970588235294118,
+        "recall": 0.7625,
+        "f1": 0.8243243243243243,
+        "f2": 0.7860824742268041
+      },
+      "after": {
+        "tp": 122,
+        "fp": 14,
+        "fn": 38,
+        "precision": 0.8970588235294118,
+        "recall": 0.7625,
+        "f1": 0.8243243243243243,
+        "f2": 0.7860824742268041
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "qwen_holdout": {
+      "rows": 144,
+      "sha256": "683cbfb5bf0c01e6d6a4c1c2e9e1618490f43249261db800b645c58d5745a629",
+      "before": {
+        "tp": 23,
+        "fp": 7,
+        "fn": 41,
+        "precision": 0.7666666666666667,
+        "recall": 0.359375,
+        "f1": 0.48936170212765956,
+        "f2": 0.4020979020979021
+      },
+      "after": {
+        "tp": 23,
+        "fp": 7,
+        "fn": 41,
+        "precision": 0.7666666666666667,
+        "recall": 0.359375,
+        "f1": 0.48936170212765956,
+        "f2": 0.4020979020979021
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    },
+    "qwen_holdout_v2": {
+      "rows": 156,
+      "sha256": "6bedd98c232715713d39238f6df6648ac6e2682ee9289d8faee764519d719c3f",
+      "before": {
+        "tp": 76,
+        "fp": 40,
+        "fn": 2,
+        "precision": 0.6551724137931034,
+        "recall": 0.9743589743589743,
+        "f1": 0.7835051546391752,
+        "f2": 0.8878504672897196
+      },
+      "after": {
+        "tp": 76,
+        "fp": 40,
+        "fn": 2,
+        "precision": 0.6551724137931034,
+        "recall": 0.9743589743589743,
+        "f1": 0.7835051546391752,
+        "f2": 0.8878504672897196
+      },
+      "removed_tp": 0,
+      "removed_fp": 0
+    }
+  },
+  "gold_preservation": {
+    "spans_checked": 15806,
+    "suppressed": 0
+  },
+  "passed": true
+}
