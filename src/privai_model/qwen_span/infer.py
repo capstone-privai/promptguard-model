@@ -34,6 +34,9 @@ class QwenSpanDetector:
         # the library default, which would silently restore sampling and the penalty.
         self.model.generation_config = self.generation
 
+    def prompt_length(self, text):
+        return len(prompt_ids(self.tokenizer, text))
+
     def scan_detail(self, text):
         if not isinstance(text, str):
             raise ValueError('text must be a string')

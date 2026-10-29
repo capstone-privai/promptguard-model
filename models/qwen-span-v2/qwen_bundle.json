@@ -1,0 +1,13 @@
+{
+  "schema_version": "qwen-span-bundle-v1",
+  "base_model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+  "revision": "ea3f2471cf1b1f0db85067f1ef93848e38e88c25",
+  "adapter": "LoRA r=16, alpha=32, attention+MLP; v9 train + data/span-qwen-augment-v1, epoch 2",
+  "threshold": 0.9563973149353693,
+  "threshold_source": "reports/qwen_span/selection-v2.json (validation exact-span F2, frozen before other sets)",
+  "dtype": "float32",
+  "max_new_tokens": 512,
+  "max_input_tokens": 4096,
+  "answer_format": "values + occurrence JSON, offsets recovered locally",
+  "production_ready": false
+}
