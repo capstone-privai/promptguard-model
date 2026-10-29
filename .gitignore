@@ -32,3 +32,5 @@ data/span-code-refinement-*/
 !models/span-detector-v9/**
 !models/qwen-span-v2/
 !models/qwen-span-v2/**
+!models/qwen-span-v3/
+!models/qwen-span-v3/**

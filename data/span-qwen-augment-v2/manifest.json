@@ -1,0 +1,70 @@
+{
+  "role": "Qwen v3 train-only augmentation",
+  "form_split": {
+    "seed": 20261101,
+    "train_forms": [
+      "angle_placeholder",
+      "azure_kv_ref",
+      "bullet_mask",
+      "changeme",
+      "dotnet_config",
+      "erb_env",
+      "gha_secret",
+      "go_getenv",
+      "hidden",
+      "java_getenv",
+      "keyring_call",
+      "node_env",
+      "null_literal",
+      "onepassword_ref",
+      "pwsh_env",
+      "py_getenv",
+      "redacted",
+      "replace_me",
+      "secret_manager_call",
+      "sh_brace",
+      "sh_cat_secret",
+      "sh_default",
+      "sh_dollar",
+      "sh_required",
+      "star_mask",
+      "vault_uri",
+      "win_percent"
+    ],
+    "holdout_only_forms": [
+      "aws_arn",
+      "empty_quotes",
+      "filtered",
+      "gcp_secret_path",
+      "get_secret_call",
+      "helm_values",
+      "jinja_secret",
+      "octopus_var",
+      "py_environ",
+      "ruby_fetch",
+      "rust_var",
+      "x_mask",
+      "your_key_here"
+    ]
+  },
+  "composition": {
+    "records": 432,
+    "positive": 216,
+    "negative": 216,
+    "gold_spans": 216,
+    "families": 224,
+    "sources": {
+      "configuration": 108,
+      "code": 54,
+      "tool_output": 54,
+      "shell": 54,
+      "log": 54,
+      "prompt": 108
+    }
+  },
+  "shared_key_checks": {
+    "augment_vs_existing": {},
+    "holdout_vs_existing": {},
+    "holdout_vs_augment": {}
+  }
+}

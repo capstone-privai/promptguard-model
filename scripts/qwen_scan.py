@@ -1,4 +1,4 @@
-"""Scan or mask text with the bundled Qwen span detector (models/qwen-span-v2).
+"""Scan or mask text with the bundled Qwen span detector (models/qwen-span-v3).
 
 Input is one of --text, --file, --jsonl ({"id", "text"} per line) or stdin. Output is JSON
 with offsets and scores only; --mask adds the masked text. Secret values are never printed.

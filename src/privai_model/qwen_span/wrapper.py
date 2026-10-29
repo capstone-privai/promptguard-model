@@ -8,8 +8,9 @@ import json
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
-DEFAULT_BUNDLE = Path(__file__).resolve().parents[3] / 'models' / 'qwen-span-v2'
+DEFAULT_BUNDLE = Path(__file__).resolve().parents[3] / 'models' / 'qwen-span-v3'
 BUNDLE_SCHEMA = 'qwen-span-bundle-v1'
+POSTFILTERS = (None, 'non-value-syntax-v1')
 
 
 class ScanError(RuntimeError):
@@ -30,6 +31,7 @@ class ScanResult:
     error: str = None                # invalid_json, truncated, input_too_long, inference_failed
     latency_ms: float = 0.0
     counts: dict = field(default_factory=dict)
+    filtered: dict = field(default_factory=dict)   # post-filter rule -> spans dropped
 
     @property
     def clean(self):
@@ -83,6 +85,9 @@ class QwenSecretScanner:
         if not 0.0 <= self.threshold <= 1.0:
             raise ValueError('threshold must be in [0, 1]')
         self.max_input_tokens = self.meta['max_input_tokens']
+        self.postfilter = self.meta.get('postfilter')
+        if self.postfilter not in POSTFILTERS:
+            raise ValueError(f'unknown postfilter {self.postfilter!r}')
         if detector is None:
             from .infer import QwenSpanDetector
             detector = QwenSpanDetector(self.meta['base_model'], str(adapter or bundle), device, self.meta['dtype'],
@@ -102,8 +107,12 @@ class QwenSecretScanner:
             return ScanResult('error', error='inference_failed')
         if detail['error'] is not None:
             return ScanResult('error', error=detail['error'], latency_ms=detail['latency_ms'], counts=detail['counts'])
-        findings = [Finding(s['start'], s['end'], s['score']) for s in detail['spans'] if s['score'] >= self.threshold]
-        return ScanResult('ok', findings, latency_ms=detail['latency_ms'], counts=detail['counts'])
+        spans, filtered = detail['spans'], {}
+        if self.postfilter:
+            from .postfilter import filter_spans
+            spans, filtered = filter_spans(text, spans)
+        findings = [Finding(s['start'], s['end'], s['score']) for s in spans if s['score'] >= self.threshold]
+        return ScanResult('ok', findings, latency_ms=detail['latency_ms'], counts=detail['counts'], filtered=filtered)
 
     def scan_many(self, texts):
         return [self.scan(t) for t in texts]

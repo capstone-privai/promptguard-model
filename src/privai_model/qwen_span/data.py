@@ -23,6 +23,8 @@ EVAL_SETS = {
     'v7_development': 'data/span-context-v7/test.jsonl',
     # Built for the v2 remedy after v1 results were seen; never used for training or selection.
     'qwen_holdout': 'data/span-qwen-holdout-v1/test.jsonl',
+    # Built before v3 training from reference forms held out of data/span-qwen-augment-v2.
+    'qwen_holdout_v2': 'data/span-qwen-holdout-v2/test.jsonl',
 }
 
 
