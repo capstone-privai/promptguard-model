@@ -1,0 +1,173 @@
+{
+  "postfilter": false,
+  "policy": "Validation only. Per adapter: cutoff maximizing exact F2 over all observed confidences (precision tie-break), restricted to precision >= min_precision when given. Adapter with highest eligible F2 is selected. Frozen before scoring any other dataset.",
+  "min_precision": null,
+  "v9_validation": {
+    "tp": 151,
+    "fp": 17,
+    "fn": 41,
+    "precision": 0.8988095238095238,
+    "recall": 0.7864583333333334,
+    "f1": 0.8388888888888889,
+    "f2": 0.8066239316239316
+  },
+  "candidates": {
+    "v3-e1": {
+      "raw": {
+        "records": 384,
+        "gold_spans": 192,
+        "threshold": 0.0,
+        "exact": {
+          "tp": 168,
+          "fp": 23,
+          "fn": 24,
+          "precision": 0.8795811518324608,
+          "recall": 0.875,
+          "f1": 0.8772845953002611,
+          "f2": 0.8759124087591241
+        },
+        "invalid_outputs": {},
+        "invalid_output_rate": 0.0,
+        "answer_items": {
+          "ok": 191,
+          "hallucinated": 1,
+          "bad_occurrence": 0,
+          "duplicate": 0,
+          "malformed_item": 0
+        },
+        "hallucinated_items": 1,
+        "bad_occurrence_items": 0,
+        "negative_rows_with_findings": 0,
+        "overlap_recall": 0.8958333333333334,
+        "latency": {
+          "unit": "ms/input",
+          "calls": 384,
+          "mean": 4679.245455111963,
+          "p50": 2380.237000001216,
+          "p95": 15469.722167006694
+        }
+      },
+      "calibration": {
+        "selected": {
+          "threshold": 0.9679381500789531,
+          "tp": 168,
+          "fp": 17,
+          "fn": 24,
+          "precision": 0.9081081081081082,
+          "recall": 0.875,
+          "f1": 0.8912466843501327,
+          "f2": 0.881427072402938
+        },
+        "eligible": true,
+        "minimum_precision": null,
+        "cutoffs_evaluated": 192
+      }
+    },
+    "v3-e2": {
+      "raw": {
+        "records": 384,
+        "gold_spans": 192,
+        "threshold": 0.0,
+        "exact": {
+          "tp": 169,
+          "fp": 23,
+          "fn": 23,
+          "precision": 0.8802083333333334,
+          "recall": 0.8802083333333334,
+          "f1": 0.8802083333333334,
+          "f2": 0.8802083333333334
+        },
+        "invalid_outputs": {},
+        "invalid_output_rate": 0.0,
+        "answer_items": {
+          "ok": 192,
+          "hallucinated": 1,
+          "bad_occurrence": 0,
+          "duplicate": 0,
+          "malformed_item": 0
+        },
+        "hallucinated_items": 1,
+        "bad_occurrence_items": 0,
+        "negative_rows_with_findings": 0,
+        "overlap_recall": 0.9010416666666666,
+        "latency": {
+          "unit": "ms/input",
+          "calls": 384,
+          "mean": 4594.934760200412,
+          "p50": 1813.736208503542,
+          "p95": 15632.504125002015
+        }
+      },
+      "calibration": {
+        "selected": {
+          "threshold": 0.9824353001249998,
+          "tp": 169,
+          "fp": 19,
+          "fn": 23,
+          "precision": 0.898936170212766,
+          "recall": 0.8802083333333334,
+          "f1": 0.8894736842105263,
+          "f2": 0.8838912133891214
+        },
+        "eligible": true,
+        "minimum_precision": null,
+        "cutoffs_evaluated": 193
+      }
+    },
+    "v3-e3": {
+      "raw": {
+        "records": 384,
+        "gold_spans": 192,
+        "threshold": 0.0,
+        "exact": {
+          "tp": 169,
+          "fp": 23,
+          "fn": 23,
+          "precision": 0.8802083333333334,
+          "recall": 0.8802083333333334,
+          "f1": 0.8802083333333334,
+          "f2": 0.8802083333333334
+        },
+        "invalid_outputs": {},
+        "invalid_output_rate": 0.0,
+        "answer_items": {
+          "ok": 192,
+          "hallucinated": 1,
+          "bad_occurrence": 0,
+          "duplicate": 0,
+          "malformed_item": 0
+        },
+        "hallucinated_items": 1,
+        "bad_occurrence_items": 0,
+        "negative_rows_with_findings": 0,
+        "overlap_recall": 0.9010416666666666,
+        "latency": {
+          "unit": "ms/input",
+          "calls": 384,
+          "mean": 1013.6498596640043,
+          "p50": 516.0195415010094,
+          "p95": 3933.2049999939045
+        }
+      },
+      "calibration": {
+        "selected": {
+          "threshold": 0.9839612856828873,
+          "tp": 169,
+          "fp": 20,
+          "fn": 23,
+          "precision": 0.8941798941798942,
+          "recall": 0.8802083333333334,
+          "f1": 0.8871391076115486,
+          "f2": 0.8829676071055381
+        },
+        "eligible": true,
+        "minimum_precision": null,
+        "cutoffs_evaluated": 193
+      }
+    }
+  },
+  "selected": {
+    "tag": "v3-e2",
+    "threshold": 0.9824353001249998
+  }
+}

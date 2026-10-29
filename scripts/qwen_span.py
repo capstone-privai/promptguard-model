@@ -168,10 +168,18 @@ def cmd_v9predict(args):
             print(name, json.dumps(qeval.score(rows, predictions, 0.0)['exact']))
 
 
-def scored(tag, name, rows):
-    predictions = qeval.read_predictions(PREDICTIONS / tag / f'{name}.jsonl')
+def scored(tag, name, rows, postfilter=False):
+    path = PREDICTIONS / tag / f'{name}.jsonl'
+    if not path.exists():
+        return None
+    predictions = qeval.read_predictions(path)
     if set(predictions) != {r['id'] for r in rows}:
         return None
+    if postfilter:
+        from privai_model.qwen_span.postfilter import filter_spans
+        for r in rows:
+            p = predictions[r['id']]
+            p['spans'], p['postfilter_dropped'] = filter_spans(r['text'], p['spans'])
     return predictions
 
 
@@ -183,7 +191,7 @@ def cmd_select(args):
     v9 = json.loads(V9_REPORT.read_text())['datasets']['validation']['candidate']['ml_only']
     candidates = {}
     for tag in args.tags.split(','):
-        predictions = scored(tag, 'validation', rows)
+        predictions = scored(tag, 'validation', rows, args.postfilter)
         if predictions is None:
             raise SystemExit(f'{tag}: validation predictions incomplete')
         raw = qeval.score(rows, predictions, 0.0)
@@ -193,7 +201,7 @@ def cmd_select(args):
         s = candidates[tag]['calibration']['selected']
         return (candidates[tag]['calibration']['eligible'], s['f2'] or 0, s['precision'] or 0)
     selected = max(candidates, key=rank)
-    selection = dict(policy=('Validation only. Per adapter: cutoff maximizing exact F2 over all observed confidences '
+    selection = dict(postfilter=args.postfilter, policy=('Validation only. Per adapter: cutoff maximizing exact F2 over all observed confidences '
                              '(precision tie-break), restricted to precision >= min_precision when given. Adapter with '
                              'highest eligible F2 is selected. Frozen before scoring any other dataset.'),
                      min_precision=args.min_precision, v9_validation=v9, candidates=candidates,
@@ -209,12 +217,13 @@ def cmd_select(args):
 def cmd_report(args):
     selection = json.loads((REPORTS / f'selection{args.run}.json').read_text())
     tag, threshold = selection['selected']['tag'], selection['selected']['threshold']
+    postfilter = selection.get('postfilter', False)
     v9_report = json.loads(V9_REPORT.read_text())['datasets']
     tags = [tag] + [t for t in (args.also or '').split(',') if t]
     report = dict(notice=('Synthetic only. Adapter and cutoff frozen on validation (selection.json). '
                           '*_development sets were used while developing v4-v9 and are development checks. '
                           'v9 numbers are rebuilt from reports/ml_span/context-v9-comparison.json.'),
-                  selection=selection['selected'], development_after=args.development_note, datasets={})
+                  selection=selection['selected'], postfilter=postfilter, development_after=args.development_note, datasets={})
     for name, path in qdata.EVAL_SETS.items():
         rows = load(ROOT / path)
         if name in v9_report:
@@ -226,7 +235,7 @@ def cmd_report(args):
             v9 = {(k, s['start'], s['end']) for k, p in live.items() for s in p['spans']}
         entry = {}
         for t in tags:
-            predictions = scored(t, name, rows)
+            predictions = scored(t, name, rows, postfilter and t == tag)
             if predictions is None:
                 continue
             cut = threshold if t == tag else 0.0
@@ -239,7 +248,7 @@ def cmd_report(args):
         if entry:
             report['datasets'][name] = entry
     if args.with_rules:
-        report['rule_union'] = rule_union(tag, threshold)
+        report['rule_union'] = rule_union(tag, threshold, postfilter)
     write_json(REPORTS / f'comparison{args.run}.json', report)
     print('| Dataset | v9 TP/FP/FN | Qwen TP/FP/FN | Qwen-only TP | Qwen new FP | v9∪Qwen TP/FP/FN | invalid |')
     print('|---|---:|---:|---:|---:|---:|---:|')
@@ -251,7 +260,7 @@ def cmd_report(args):
               f"| {c['qwen_only_tp']} | {c['qwen_new_fp']} | {u['tp']}/{u['fp']}/{u['fn']} | {sum(entry[tag]['score']['invalid_outputs'].values())} |")
 
 
-def rule_union(tag, threshold):
+def rule_union(tag, threshold, postfilter=False):
     """Same Rule+ML candidate union as v9 (requires the `baselines` extra)."""
     from privai_model.ml_span.rules import RuleSpanDetector
     from privai_model.ml_span.evaluation import evaluate, predict_rows
@@ -259,7 +268,7 @@ def rule_union(tag, threshold):
     result = dict(rule_metadata=rules.metadata, datasets={})
     for name, path in qdata.EVAL_SETS.items():
         rows = load(ROOT / path)
-        predictions = scored(tag, name, rows)
+        predictions = scored(tag, name, rows, postfilter)
         if predictions is None:
             continue
         rp, _ = predict_rows(rules, rows, True)
@@ -292,7 +301,9 @@ def main():
     s.add_argument('--device', default='cpu'); s.add_argument('--threads', type=int, default=4); s.set_defaults(func=cmd_bench)
     s = sub.add_parser('select'); s.add_argument('--tags', required=True)
     s.add_argument('--min-precision', type=float); s.add_argument('--force', action='store_true')
-    s.add_argument('--run', default='', help='selection file suffix, e.g. -v2'); s.set_defaults(func=cmd_select)
+    s.add_argument('--run', default='', help='selection file suffix, e.g. -v2')
+    s.add_argument('--postfilter', action='store_true', help='drop non-value syntax spans before scoring (postfilter.py)')
+    s.set_defaults(func=cmd_select)
     s = sub.add_parser('report'); s.add_argument('--also', help='extra tags (e.g. zero-shot) reported at cutoff 0')
     s.add_argument('--with-rules', action='store_true'); s.add_argument('--run', default='')
     s.add_argument('--development-note', help='sets whose results were seen before this run was designed')

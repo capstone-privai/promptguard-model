@@ -40,6 +40,13 @@ def test_bundle_is_published_with_validation_cutoff():
     assert (DEFAULT_BUNDLE / 'adapter_config.json').exists()
 
 
+def test_v3_bundle_matches_its_selection():
+    meta = load_bundle(ROOT / 'models/qwen-span-v3')
+    selection = json.loads((ROOT / 'reports/qwen_span/selection-v3.json').read_text())
+    assert meta['threshold'] == selection['selected']['threshold'] and not meta.get('postfilter')
+    assert meta['revision'] == load_bundle(DEFAULT_BUNDLE)['revision'] and not meta['production_ready']
+
+
 def test_scan_applies_bundle_threshold():
     s = scanner(spans=[span(0, 4, 0.999), span(6, 9, 0.5)])
     r = s.scan('abcd, xyz')
@@ -83,6 +90,18 @@ def test_mask_unicode_offsets_are_code_points():
     text = '토큰 🔑 abc'
     s = scanner(spans=[span(5, 8)])
     assert s.mask(text).text == '토큰 🔑 [SECRET]'
+
+
+def test_bundle_postfilter_drops_non_value_syntax(tmp_path):
+    meta = dict(load_bundle(DEFAULT_BUNDLE), postfilter='non-value-syntax-v1')
+    (tmp_path / 'qwen_bundle.json').write_text(json.dumps(meta))
+    text = 'TOKEN=${API_TOKEN} key=Zx9fQ2mLr7TbW4kPa8'
+    s = QwenSecretScanner(tmp_path, detector=FakeDetector(spans=[span(6, 18), span(23, 41)]))
+    r = s.scan(text)
+    assert [(f.start, f.end) for f in r.findings] == [(23, 41)] and r.filtered == {'shell_variable': 1}
+    with pytest.raises(ValueError):
+        (tmp_path / 'qwen_bundle.json').write_text(json.dumps(dict(meta, postfilter='other')))
+        QwenSecretScanner(tmp_path, detector=FakeDetector())
 
 
 def test_clean_mask_returns_text_unchanged():
