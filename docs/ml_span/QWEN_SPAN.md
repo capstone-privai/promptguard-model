@@ -200,3 +200,25 @@ v1 결과를 본 뒤 설계했습니다. 그래서 **v2 기준으로 fresh_test,
 .venv/bin/python scripts/qwen_span.py report --run=-v2 --also r16-e2 --with-rules
 .venv/bin/python scripts/qwen_span.py bench --config $CFG --adapter runs/qwen-span/coder-0.5b-r16-v2/epoch-2 --tag v2-e2
 ```
+
+## 래퍼 사용법
+
+v2 어댑터는 `models/qwen-span-v2/`에 있습니다(Git LFS, 34MB). 같은 폴더의 `qwen_bundle.json`에 베이스 모델 revision, validation에서 고정한 cutoff(0.9564), 입력 최대 4,096토큰이 들어 있습니다. 베이스 모델은 처음 실행할 때 Hugging Face에서 받습니다.
+
+```python
+from privai_model.qwen_span.wrapper import QwenSecretScanner
+
+scanner = QwenSecretScanner()            # 모델은 한 번만 로딩, device='auto'
+r = scanner.scan(text)                   # r.status: 'ok' | 'error', r.findings: [Finding(start, end, score)]
+m = scanner.mask(text)                   # m.status: 'clean' | 'masked' | 'blocked', m.text
+```
+
+```sh
+.venv/bin/python scripts/qwen_scan.py --file prompt.txt --mask
+.venv/bin/python scripts/qwen_scan.py --jsonl inputs.jsonl --output results.jsonl   # {"id","text"} 한 줄씩
+```
+
+- **fail-closed**: 다음 경우에는 `status='error'`를 반환하고 clean으로 판정하지 않습니다. 잘못된 JSON, 최대 생성 길이에서 잘린 답, 입력 4,096토큰 초과, 모델 예외. 이때 `mask()`는 `blocked`를 반환하고 `text=None`입니다. `on_error='raise'`를 주면 `ScanError`를 발생시킵니다.
+- CLI 종료 코드: 0 clean, 1 secret 발견, 2 검사 실패.
+- 출력에는 offset과 점수만 있고 secret 값은 없습니다. `--mask`를 쓸 때만 마스킹된 텍스트가 포함됩니다.
+- 위 결과 섹션의 한계가 그대로 적용됩니다. 참조형 문맥(`${VAR}`, `secretKeyRef` 등)에서 오탐이 나고, CPU 기준 평균 약 1.4초가 걸립니다. 단독 탐지기로 쓰지 마십시오.
