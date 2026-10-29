@@ -52,6 +52,8 @@ def test_compare_with_v9_partitions_true_positives():
 def test_v9_rebuild_matches_saved_report_on_every_set():
     report = json.loads((ROOT / 'reports/ml_span/context-v9-comparison.json').read_text())['datasets']
     for name, path in qdata.EVAL_SETS.items():
+        if name not in report:  # built after v9; scored with a live v9 run instead
+            continue
         data = load(ROOT / path)
         predicted = qeval.v9_predictions(data, report[name])
         stored = report[name]['candidate']['ml_only']

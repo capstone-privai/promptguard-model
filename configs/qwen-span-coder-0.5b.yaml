@@ -2,7 +2,7 @@
 model_name: Qwen/Qwen2.5-Coder-0.5B-Instruct
 # Pin for reproducibility after the first download: copy the commit hash from
 # ~/.cache/huggingface/hub/models--Qwen--Qwen2.5-Coder-0.5B-Instruct/refs/main
-revision: null
+revision: ea3f2471cf1b1f0db85067f1ef93848e38e88c25
 local_files_only: false
 sft_dir: runs/qwen-span/sft
 output_dir: runs/qwen-span/coder-0.5b-r16

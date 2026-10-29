@@ -39,8 +39,8 @@ def load_config(path, overrides):
 
 
 def cmd_prepare(args):
-    manifest = qdata.prepare(ROOT, args.sft_dir)
-    write_json(REPORTS / 'sft-manifest.json', manifest)
+    manifest = qdata.prepare(ROOT, args.sft_dir, extra_train=args.extra_train)
+    write_json(REPORTS / f'sft-manifest{args.run}.json', manifest)
     for name, r in manifest['roundtrip'].items():
         print(f"{name}: {r['recovered_exactly']}/{r['gold_spans']} gold spans recovered exactly")
     for name, r in manifest['leakage'].items():
@@ -117,6 +117,57 @@ def cmd_predict(args):
         print(f'{args.tag}/{name}: complete')
 
 
+def cmd_bench(args):
+    """Latency only, under v9's measurement condition (CPU, fixed threads, sequential, warm model).
+    Nothing is scored or stored except timings, so it can run on any set after selection is frozen."""
+    import torch
+    from privai_model.qwen_span.infer import QwenSpanDetector
+    config = load_config(args.config, args.set)
+    torch.set_num_threads(args.threads)
+    adapter = None if args.adapter == 'base' else args.adapter
+    detector = QwenSpanDetector(config['model_name'], adapter, args.device, config.get('dtype', 'float32'),
+                                config.get('revision'), config.get('local_files_only', False), config.get('max_new_tokens', 512))
+    rows = load(ROOT / qdata.EVAL_SETS[args.dataset])[:args.limit]
+    detector.scan_detail(rows[0]['text'])  # warm-up, excluded
+    timings = [detector.scan_detail(r['text']) for r in rows]
+    result = dict(adapter=args.adapter, dataset=args.dataset, device=args.device, threads=args.threads,
+                  dtype=config.get('dtype'), records=len(rows),
+                  latency=qeval.latency([t['latency_ms'] for t in timings]),
+                  generated_tokens=qeval.latency([t['generated_tokens'] for t in timings]),
+                  includes='tokenization, greedy generation, offset recovery; sequential warm model; warm-up call excluded')
+    write_json(REPORTS / f'latency-{args.tag}-{args.device}.json', result)
+    print(json.dumps(result['latency']))
+
+
+def cmd_v9predict(args):
+    """Run the v9 bundle live (CPU, 4 threads, its own threshold) on sets missing from the saved v9 report.
+    Checks first that the live run reproduces the stored validation counts."""
+    import torch
+    from privai_model.ml_span.runtime import MLSpanDetector
+    torch.set_num_threads(4)
+    detector = MLSpanDetector(str(ROOT / 'models/span-detector-v9'), 'cpu')
+    v9_report = json.loads(V9_REPORT.read_text())['datasets']
+    for name in ['validation'] + args.sets.split(','):
+        rows = load(ROOT / qdata.EVAL_SETS[name])
+        out = PREDICTIONS / 'v9' / f'{name}.jsonl'
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with out.open('w', encoding='utf-8') as f:
+            for row in rows:
+                began = __import__('time').perf_counter()
+                spans = detector.scan_text(row['text'])
+                ms = (__import__('time').perf_counter() - began) * 1000
+                f.write(json.dumps(dict(id=row['id'], spans=[dict(start=s['start'], end=s['end'], score=s['score']) for s in spans],
+                                        error=None, counts={}, latency_ms=ms)) + '\n')
+        predictions = qeval.read_predictions(out)
+        if name in v9_report:
+            live = qeval.predicted_keys(rows, predictions, 0.0)
+            if live != qeval.v9_predictions(rows, v9_report[name]):
+                raise SystemExit(f'live v9 run does not reproduce stored {name} predictions')
+            print(f'v9 live run reproduces stored {name} predictions exactly')
+        else:
+            print(name, json.dumps(qeval.score(rows, predictions, 0.0)['exact']))
+
+
 def scored(tag, name, rows):
     predictions = qeval.read_predictions(PREDICTIONS / tag / f'{name}.jsonl')
     if set(predictions) != {r['id'] for r in rows}:
@@ -126,7 +177,7 @@ def scored(tag, name, rows):
 
 def cmd_select(args):
     """Freeze adapter and cutoff on validation before any other set is scored."""
-    if (REPORTS / 'selection.json').exists() and not args.force:
+    if (REPORTS / f'selection{args.run}.json').exists() and not args.force:
         raise SystemExit('selection.json already frozen; pass --force only if no test set has been looked at')
     rows = load(ROOT / qdata.EVAL_SETS['validation'])
     v9 = json.loads(V9_REPORT.read_text())['datasets']['validation']['candidate']['ml_only']
@@ -147,7 +198,7 @@ def cmd_select(args):
                              'highest eligible F2 is selected. Frozen before scoring any other dataset.'),
                      min_precision=args.min_precision, v9_validation=v9, candidates=candidates,
                      selected=dict(tag=selected, threshold=candidates[selected]['calibration']['selected']['threshold']))
-    write_json(REPORTS / 'selection.json', selection)
+    write_json(REPORTS / f'selection{args.run}.json', selection)
     for tag, c in candidates.items():
         s = c['calibration']['selected']; r = c['raw']['exact']
         print(f"{tag}: raw {r['tp']}/{r['fp']}/{r['fn']}  cutoff {s['threshold']:.4f} -> {s['tp']}/{s['fp']}/{s['fn']} "
@@ -156,17 +207,23 @@ def cmd_select(args):
 
 
 def cmd_report(args):
-    selection = json.loads((REPORTS / 'selection.json').read_text())
+    selection = json.loads((REPORTS / f'selection{args.run}.json').read_text())
     tag, threshold = selection['selected']['tag'], selection['selected']['threshold']
     v9_report = json.loads(V9_REPORT.read_text())['datasets']
     tags = [tag] + [t for t in (args.also or '').split(',') if t]
     report = dict(notice=('Synthetic only. Adapter and cutoff frozen on validation (selection.json). '
                           '*_development sets were used while developing v4-v9 and are development checks. '
                           'v9 numbers are rebuilt from reports/ml_span/context-v9-comparison.json.'),
-                  selection=selection['selected'], datasets={})
+                  selection=selection['selected'], development_after=args.development_note, datasets={})
     for name, path in qdata.EVAL_SETS.items():
         rows = load(ROOT / path)
-        v9 = qeval.v9_predictions(rows, v9_report[name])
+        if name in v9_report:
+            v9 = qeval.v9_predictions(rows, v9_report[name])
+        else:
+            live = scored('v9', name, rows)
+            if live is None:
+                continue
+            v9 = {(k, s['start'], s['end']) for k, p in live.items() for s in p['spans']}
         entry = {}
         for t in tags:
             predictions = scored(t, name, rows)
@@ -183,7 +240,7 @@ def cmd_report(args):
             report['datasets'][name] = entry
     if args.with_rules:
         report['rule_union'] = rule_union(tag, threshold)
-    write_json(REPORTS / 'comparison.json', report)
+    write_json(REPORTS / f'comparison{args.run}.json', report)
     print('| Dataset | v9 TP/FP/FN | Qwen TP/FP/FN | Qwen-only TP | Qwen new FP | v9∪Qwen TP/FP/FN | invalid |')
     print('|---|---:|---:|---:|---:|---:|---:|')
     for name, entry in report['datasets'].items():
@@ -215,7 +272,10 @@ def rule_union(tag, threshold):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest='command', required=True)
-    s = sub.add_parser('prepare'); s.add_argument('--sft-dir', default='runs/qwen-span/sft'); s.set_defaults(func=cmd_prepare)
+    s = sub.add_parser('prepare'); s.add_argument('--sft-dir', default='runs/qwen-span/sft')
+    s.add_argument('--extra-train', action='append', default=[], help='additional train JSONL (repo-relative)')
+    s.add_argument('--run', default='', help='report suffix, e.g. -v2'); s.set_defaults(func=cmd_prepare)
+    s = sub.add_parser('v9predict'); s.add_argument('--sets', required=True); s.set_defaults(func=cmd_v9predict)
     for name, func in [('smoke', cmd_smoke), ('train', cmd_train), ('predict', cmd_predict)]:
         s = sub.add_parser(name); s.add_argument('--config', required=True)
         s.add_argument('--set', action='append', default=[], metavar='KEY=VALUE'); s.set_defaults(func=func)
@@ -225,10 +285,18 @@ def main():
             s.add_argument('--adapter', required=True, help="adapter directory, or 'base' for zero-shot")
             s.add_argument('--tag', required=True); s.add_argument('--sets', default='validation')
             s.add_argument('--limit', type=int)
+    s = sub.add_parser('bench'); s.add_argument('--config', required=True)
+    s.add_argument('--set', action='append', default=[], metavar='KEY=VALUE')
+    s.add_argument('--adapter', required=True); s.add_argument('--tag', required=True)
+    s.add_argument('--dataset', default='fresh_test'); s.add_argument('--limit', type=int, default=96)
+    s.add_argument('--device', default='cpu'); s.add_argument('--threads', type=int, default=4); s.set_defaults(func=cmd_bench)
     s = sub.add_parser('select'); s.add_argument('--tags', required=True)
-    s.add_argument('--min-precision', type=float); s.add_argument('--force', action='store_true'); s.set_defaults(func=cmd_select)
+    s.add_argument('--min-precision', type=float); s.add_argument('--force', action='store_true')
+    s.add_argument('--run', default='', help='selection file suffix, e.g. -v2'); s.set_defaults(func=cmd_select)
     s = sub.add_parser('report'); s.add_argument('--also', help='extra tags (e.g. zero-shot) reported at cutoff 0')
-    s.add_argument('--with-rules', action='store_true'); s.set_defaults(func=cmd_report)
+    s.add_argument('--with-rules', action='store_true'); s.add_argument('--run', default='')
+    s.add_argument('--development-note', help='sets whose results were seen before this run was designed')
+    s.set_defaults(func=cmd_report)
     args = p.parse_args()
     args.func(args)
 

@@ -1,0 +1,23 @@
+{
+  "adapter": "runs/qwen-span/coder-0.5b-r16/epoch-2",
+  "dataset": "fresh_test",
+  "device": "cpu",
+  "threads": 4,
+  "dtype": "float32",
+  "records": 96,
+  "latency": {
+    "unit": "ms/input",
+    "calls": 96,
+    "mean": 1446.3937694793003,
+    "p50": 1039.5955835010682,
+    "p95": 3016.066124997451
+  },
+  "generated_tokens": {
+    "unit": "ms/input",
+    "calls": 96,
+    "mean": 21.6875,
+    "p50": 16.5,
+    "p95": 46
+  },
+  "includes": "tokenization, greedy generation, offset recovery; sequential warm model; warm-up call excluded"
+}

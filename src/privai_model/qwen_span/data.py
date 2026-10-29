@@ -21,6 +21,8 @@ EVAL_SETS = {
     'v4_development': 'data/span-context-v4/test.jsonl',
     'v6_development': 'data/span-context-v6/test.jsonl',
     'v7_development': 'data/span-context-v7/test.jsonl',
+    # Built for the v2 remedy after v1 results were seen; never used for training or selection.
+    'qwen_holdout': 'data/span-qwen-holdout-v1/test.jsonl',
 }
 
 
@@ -64,12 +66,17 @@ def sha256_file(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def prepare(root, output_dir, train_dir=TRAIN_DIR, eval_sets=None):
+def prepare(root, output_dir, train_dir=TRAIN_DIR, eval_sets=None, extra_train=()):
     root = Path(root)
     output_dir = Path(output_dir)
     eval_sets = dict(EVAL_SETS if eval_sets is None else eval_sets)
     train_path = root / train_dir / 'train.jsonl'
     train = load(train_path)
+    extras = {path: load(root / path) for path in extra_train}
+    for rows in extras.values():
+        train = train + rows
+    if len({r['id'] for r in train}) != len(train):
+        raise ValueError('duplicate IDs across train files')
     evaluations = {name: load(root / path) for name, path in eval_sets.items()}
     roundtrip = {'train': roundtrip_report(train)}
     roundtrip.update({name: roundtrip_report(rows) for name, rows in evaluations.items()})
@@ -87,6 +94,7 @@ def prepare(root, output_dir, train_dir=TRAIN_DIR, eval_sets=None):
         source_metadata_in_prompt=False,
         note=('Only text is given to the model, like the v9 ML detector. The `source` field is '
               'excluded because some training rows use source="negative", which would leak the label.'),
+        extra_train={path: dict(sha256=sha256_file(root / path), rows=len(rows)) for path, rows in extras.items()},
         train=dict(path=str(train_dir) + '/train.jsonl', sha256=sha256_file(train_path), rows=len(train),
                    positives=sum(bool(r['spans']) for r in train), spans_per_row=dict(sorted(targets.items()))),
         evaluation_sets={name: dict(path=path, sha256=sha256_file(root / path), rows=len(evaluations[name]))
