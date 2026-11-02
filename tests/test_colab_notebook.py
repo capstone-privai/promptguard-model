@@ -28,5 +28,7 @@ def test_default_settings_point_at_existing_recipe_and_bundle():
 def test_gpu_required_and_test_outputs_left_out_of_archive():
     source = '\n'.join(CODE)
     assert "raise RuntimeError('GPU가 없습니다" in source and "device='cuda'" in source and "'cpu'" not in source
+    # The training script ends with a Rule comparison that needs CredSweeper.
+    assert "pip install -q -e '.[baselines]'" in source
     keep = next(line for line in source.splitlines() if line.startswith('KEEP = '))
     assert 'evaluation' not in keep and 'test-predictions' not in keep
