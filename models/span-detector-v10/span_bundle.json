@@ -1,0 +1,27 @@
+{
+  "schema_version": "ml-span-bundle-v1",
+  "candidate_filter": "contextual-function-words-v1",
+  "max_length": 512,
+  "stride": 128,
+  "threshold": 0.9856988658706943,
+  "threshold_source": "synthetic validation F2 constrained by reference precision and recall",
+  "backbone": "jhu-clsp/mmBERT-small (context-v10 full-union retraining warm-started from context-v9)",
+  "revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "label_mapping": {
+    "0": "O",
+    "1": "B-SECRET",
+    "2": "I-SECRET"
+  },
+  "best_epoch": 3,
+  "production_ready": false,
+  "boundary_refiner": {
+    "schema_version": "character-boundary-v1",
+    "threshold": 0.8
+  },
+  "calibration_reference": "models/span-detector-v9",
+  "selection": {
+    "validation": "boundary-v3 and cutoff selected on validation only (182 TP / 9 FP / 10 FN)",
+    "holdout": "configs/span-holdout-v11-decision.json: F2 0.777 -> 0.853 and precision 0.716 -> 0.746 versus v9 on data/span-holdout-v11",
+    "gate_exception": "Passes 10 of 13 predeclared v10 gates (v9 also passes 10). Fails v6 retention (FP 14 > 3), v7 retention (FP 12 > 9), mixed trailing-role recovery (FP 5 > 1). Adopted as default by explicit user decision on 2026-11-02."
+  }
+}
