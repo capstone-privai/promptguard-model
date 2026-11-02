@@ -1,0 +1,18 @@
+{
+  "notice": "Fixed before any v10 evaluation. The v8 gates are kept unchanged; four v9-retention gates are added so v10 cannot trade away what v9 already does. All datasets here are development, never selectors.",
+  "gates": [
+    {"name":"original retention","dataset":"original_development","bounds":{"tp":{"min":40},"fp":{"max":0}}},
+    {"name":"v1 retention","dataset":"v1_development","bounds":{"tp":{"min":48},"fp":{"max":0}}},
+    {"name":"v3 retention","dataset":"v3_development","bounds":{"tp":{"min":128},"fp":{"max":0}}},
+    {"name":"audit recall restoration","dataset":"v4_development","family":"context4_public_auth_audit","bounds":{"tp":{"min":22},"fp":{"max":1}}},
+    {"name":"multiline tool recovery","dataset":"v4_development","family":"context4_multiline_tool","bounds":{"tp":{"min":1},"fp":{"max":24}}},
+    {"name":"mixed trailing-role recovery","dataset":"v7_development","family":"context4_v7_test_suffix","bounds":{"tp":{"min":1},"fp":{"max":1}}},
+    {"name":"v7 retention","dataset":"v7_development","bounds":{"tp":{"min":85},"fp":{"max":9}}},
+    {"name":"v6 retention","dataset":"v6_development","bounds":{"tp":{"min":67},"fp":{"max":3}}},
+    {"name":"negative challenge retention","dataset":"negative_challenge","bounds":{"fp":{"max":7}}},
+    {"name":"v9 fresh-test retention","dataset":"v9_development","bounds":{"tp":{"min":159},"fp":{"max":1}}},
+    {"name":"v9 negative challenge retention","dataset":"negative_challenge","bounds":{"fp":{"max":0}}},
+    {"name":"v9 v4 precision retention","dataset":"v4_development","bounds":{"tp":{"min":168},"fp":{"max":19}}},
+    {"name":"v9 reference-syntax retention","dataset":"qwen_holdout_v2_development","bounds":{"fp":{"max":40}}}
+  ]
+}

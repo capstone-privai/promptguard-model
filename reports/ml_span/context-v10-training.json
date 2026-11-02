@@ -1,0 +1,333 @@
+{
+  "notice": "Synthetic only. Epoch, boundary refiner and cutoff chosen on validation; test opened only after the calibration was frozen.",
+  "runs": {
+    "base": {
+      "config": {
+        "model_name": "runs/backbones/mmbert-small",
+        "backbone_id": "jhu-clsp/mmBERT-small (context-v10, all training splits, from base)",
+        "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "local_files_only": true,
+        "data_dir": "data/span-context-v10",
+        "output_dir": "runs/span-mmbert-context-v10-base",
+        "seed": 110,
+        "epochs": 8,
+        "patience": 3,
+        "batch_size": 4,
+        "length_grouped_batches": true,
+        "progress_every_batches": 200,
+        "learning_rate": 3e-05,
+        "weight_decay": 0.01,
+        "class_weights": [
+          1.0,
+          2.0,
+          2.0
+        ],
+        "max_length": 512,
+        "stride": 128,
+        "thresholds": [
+          0.5,
+          0.7,
+          0.8,
+          0.9,
+          0.95,
+          0.98,
+          0.99
+        ],
+        "device": "mps",
+        "threads": 4
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "loss": 0.09367610939421894,
+          "threshold": 0.99,
+          "validation": {
+            "tp": 180,
+            "fp": 12,
+            "fn": 12,
+            "precision": 0.9375,
+            "recall": 0.9375,
+            "f1": 0.9375,
+            "f2": 0.9375
+          }
+        },
+        {
+          "epoch": 2,
+          "loss": 0.014436344026922088,
+          "threshold": 0.99,
+          "validation": {
+            "tp": 180,
+            "fp": 12,
+            "fn": 12,
+            "precision": 0.9375,
+            "recall": 0.9375,
+            "f1": 0.9375,
+            "f2": 0.9375
+          }
+        },
+        {
+          "epoch": 3,
+          "loss": 0.009407532157805168,
+          "threshold": 0.99,
+          "validation": {
+            "tp": 180,
+            "fp": 12,
+            "fn": 12,
+            "precision": 0.9375,
+            "recall": 0.9375,
+            "f1": 0.9375,
+            "f2": 0.9375
+          }
+        },
+        {
+          "epoch": 4,
+          "loss": 3.6699954413844317e-07,
+          "threshold": 0.99,
+          "validation": {
+            "tp": 180,
+            "fp": 12,
+            "fn": 12,
+            "precision": 0.9375,
+            "recall": 0.9375,
+            "f1": 0.9375,
+            "f2": 0.9375
+          }
+        }
+      ],
+      "alignment": {
+        "train": {
+          "gold_spans": 3520,
+          "exactly_representable_in_a_window": 3309,
+          "boundary_or_window_unrepresentable": 211
+        },
+        "validation": {
+          "gold_spans": 192,
+          "exactly_representable_in_a_window": 180,
+          "boundary_or_window_unrepresentable": 12
+        }
+      },
+      "calibrated_bundle": {
+        "backbone": "jhu-clsp/mmBERT-small (context-v10, all training splits, from base)",
+        "best_epoch": 1,
+        "boundary_refiner": {
+          "schema_version": "character-boundary-v1",
+          "threshold": 0.8
+        },
+        "candidate_filter": "contextual-function-words-v1",
+        "label_mapping": {
+          "0": "O",
+          "1": "B-SECRET",
+          "2": "I-SECRET"
+        },
+        "max_length": 512,
+        "production_ready": false,
+        "revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "schema_version": "ml-span-bundle-v1",
+        "stride": 128,
+        "threshold": 0.9999999574314344,
+        "threshold_source": "synthetic validation F2 constrained by reference precision and recall",
+        "calibration_reference": "models/span-detector-v9"
+      },
+      "artifact_sha256": {
+        "model.safetensors": "132440fb0a277302ce0674fd605d190e2ceab98f9019a8751c3c4f82c37cb694",
+        "boundary.pt": "9f94e4210a711ec1109cd15f5e68e341b8da5a77bc405708e26652cb694adc7e"
+      }
+    },
+    "warm": {
+      "config": {
+        "model_name": "runs/span-mmbert-context-v9/model",
+        "backbone_id": "jhu-clsp/mmBERT-small (context-v10, all training splits, warm-started from context-v9)",
+        "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "local_files_only": true,
+        "data_dir": "data/span-context-v10",
+        "output_dir": "runs/span-mmbert-context-v10-warm",
+        "seed": 111,
+        "epochs": 5,
+        "patience": 2,
+        "batch_size": 4,
+        "length_grouped_batches": true,
+        "progress_every_batches": 200,
+        "learning_rate": 5e-06,
+        "weight_decay": 0.01,
+        "class_weights": [
+          1.0,
+          2.0,
+          2.0
+        ],
+        "max_length": 512,
+        "stride": 128,
+        "thresholds": [
+          0.5,
+          0.7,
+          0.8,
+          0.9,
+          0.95,
+          0.98,
+          0.99
+        ],
+        "device": "mps",
+        "threads": 4
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "loss": 0.007865862412567754,
+          "threshold": 0.98,
+          "validation": {
+            "tp": 156,
+            "fp": 27,
+            "fn": 36,
+            "precision": 0.8524590163934426,
+            "recall": 0.8125,
+            "f1": 0.832,
+            "f2": 0.8201892744479495
+          }
+        },
+        {
+          "epoch": 2,
+          "loss": 0.006122337626722204,
+          "threshold": 0.98,
+          "validation": {
+            "tp": 172,
+            "fp": 36,
+            "fn": 20,
+            "precision": 0.8269230769230769,
+            "recall": 0.8958333333333334,
+            "f1": 0.86,
+            "f2": 0.8811475409836066
+          }
+        },
+        {
+          "epoch": 3,
+          "loss": 0.006028089390861146,
+          "threshold": 0.98,
+          "validation": {
+            "tp": 179,
+            "fp": 12,
+            "fn": 13,
+            "precision": 0.93717277486911,
+            "recall": 0.9322916666666666,
+            "f1": 0.9347258485639687,
+            "f2": 0.9332638164754953
+          }
+        },
+        {
+          "epoch": 4,
+          "loss": 2.663377030525161e-07,
+          "threshold": 0.98,
+          "validation": {
+            "tp": 179,
+            "fp": 12,
+            "fn": 13,
+            "precision": 0.93717277486911,
+            "recall": 0.9322916666666666,
+            "f1": 0.9347258485639687,
+            "f2": 0.9332638164754953
+          }
+        },
+        {
+          "epoch": 5,
+          "loss": 7.286124931815165e-08,
+          "threshold": 0.99,
+          "validation": {
+            "tp": 179,
+            "fp": 12,
+            "fn": 13,
+            "precision": 0.93717277486911,
+            "recall": 0.9322916666666666,
+            "f1": 0.9347258485639687,
+            "f2": 0.9332638164754953
+          }
+        }
+      ],
+      "alignment": {
+        "train": {
+          "gold_spans": 3520,
+          "exactly_representable_in_a_window": 3309,
+          "boundary_or_window_unrepresentable": 211
+        },
+        "validation": {
+          "gold_spans": 192,
+          "exactly_representable_in_a_window": 180,
+          "boundary_or_window_unrepresentable": 12
+        }
+      },
+      "calibrated_bundle": {
+        "backbone": "jhu-clsp/mmBERT-small (context-v10, all training splits, warm-started from context-v9)",
+        "best_epoch": 3,
+        "boundary_refiner": {
+          "schema_version": "character-boundary-v1",
+          "threshold": 0.8
+        },
+        "candidate_filter": "contextual-function-words-v1",
+        "label_mapping": {
+          "0": "O",
+          "1": "B-SECRET",
+          "2": "I-SECRET"
+        },
+        "max_length": 512,
+        "production_ready": false,
+        "revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "schema_version": "ml-span-bundle-v1",
+        "stride": 128,
+        "threshold": 0.9856988658706943,
+        "threshold_source": "synthetic validation F2 constrained by reference precision and recall",
+        "calibration_reference": "models/span-detector-v9"
+      },
+      "artifact_sha256": {
+        "model.safetensors": "027fd9f24ed72643d76a804d9be50d0448b8da2bed085f61ccbd5400d15b6aa0",
+        "boundary.pt": "9f94e4210a711ec1109cd15f5e68e341b8da5a77bc405708e26652cb694adc7e"
+      }
+    }
+  },
+  "selection": {
+    "rule": "validation F2, precision tie-break, after boundary gate and calibration against models/span-detector-v9",
+    "selected": "base",
+    "checkpoint": "runs/span-mmbert-context-v10-base-calibrated/model",
+    "validation": {
+      "v9": {
+        "tp": 151,
+        "fp": 17,
+        "fn": 41
+      },
+      "base": {
+        "tp": 183,
+        "fp": 9,
+        "fn": 9
+      },
+      "warm": {
+        "tp": 182,
+        "fp": 9,
+        "fn": 10
+      }
+    }
+  },
+  "first_attempt": {
+    "batch_size": 16,
+    "device": "mps",
+    "outcome": "abandoned before any validation result",
+    "detail": "base raised nonfinite loss in epoch 1 under heavy swap (16 GB unified memory; batch 16 x 512 tokens needs about 11 GB on MPS); warm slowed to minutes per batch and was stopped. Batch size reduced to 4 (5.1 GB measured), the size used by every earlier base and warm run. No data or rows changed."
+  },
+  "mps_recheck": {
+    "device": "cpu",
+    "purpose": "near-zero MPS training loss after epoch 1 (base) and epoch 3 (warm)",
+    "validation_reproduced": {
+      "base": {
+        "tp": 180,
+        "fp": 12,
+        "fn": 12
+      },
+      "warm": {
+        "tp": 179,
+        "fp": 12,
+        "fn": 13
+      }
+    },
+    "train_sample_cpu_loss": {
+      "base": 2.544e-06,
+      "warm": 5.55e-07
+    },
+    "sample": "every 25th train row, 263 windows",
+    "conclusion": "CPU reproduces the MPS validation counts exactly; the near-zero loss is memorization of the synthetic training set, not an MPS numeric fault."
+  }
+}
