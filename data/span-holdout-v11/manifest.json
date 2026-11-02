@@ -1,0 +1,92 @@
+{
+  "checked_against": [
+    "data/span-code-refinement-v1/test.jsonl",
+    "data/span-code-refinement-v1/train.jsonl",
+    "data/span-code-refinement-v1/validation.jsonl",
+    "data/span-context-v10/test.jsonl",
+    "data/span-context-v10/train.jsonl",
+    "data/span-context-v10/validation.jsonl",
+    "data/span-context-v4/test.jsonl",
+    "data/span-context-v4/train.jsonl",
+    "data/span-context-v4/validation.jsonl",
+    "data/span-context-v5/test.jsonl",
+    "data/span-context-v5/train.jsonl",
+    "data/span-context-v5/validation.jsonl",
+    "data/span-context-v6/test.jsonl",
+    "data/span-context-v6/train.jsonl",
+    "data/span-context-v6/validation.jsonl",
+    "data/span-context-v7/test.jsonl",
+    "data/span-context-v7/train.jsonl",
+    "data/span-context-v7/validation.jsonl",
+    "data/span-context-v8/test.jsonl",
+    "data/span-context-v8/train.jsonl",
+    "data/span-context-v8/validation.jsonl",
+    "data/span-context-v9/test.jsonl",
+    "data/span-context-v9/train.jsonl",
+    "data/span-context-v9/validation.jsonl",
+    "data/span-negative-challenge-v1/test.jsonl",
+    "data/span-qwen-augment-v1/train.jsonl",
+    "data/span-qwen-augment-v2/train.jsonl",
+    "data/span-qwen-holdout-v1/test.jsonl",
+    "data/span-qwen-holdout-v2/test.jsonl",
+    "data/span-refinement-v1/test.jsonl",
+    "data/span-refinement-v1/train.jsonl",
+    "data/span-refinement-v1/validation.jsonl",
+    "data/span-refinement-v3/test.jsonl",
+    "data/span-refinement-v3/train.jsonl",
+    "data/span-refinement-v3/validation.jsonl",
+    "data/span-synthetic-v1/test.jsonl",
+    "data/span-synthetic-v1/train.jsonl",
+    "data/span-synthetic-v1/validation.jsonl"
+  ],
+  "test_contextual": {
+    "seed": 20261111,
+    "per_family": 24,
+    "rejected_by_public_exclusions": 0,
+    "families": {
+      "train": [],
+      "validation": [],
+      "test": [
+        "v11_hold_sql_update",
+        "v11_hold_ko_handoff",
+        "multiline_v11_hold_export",
+        "v11_hold_email",
+        "v11_hold_tsv",
+        "long_v11_hold_pod_log",
+        "v11_hold_public_first_two",
+        "v11_hold_md_list"
+      ]
+    }
+  },
+  "test_reference_forms": [
+    "argo_parameter",
+    "chef_data_bag",
+    "deno_env",
+    "elixir_env",
+    "gradle_property",
+    "kubectl_jsonpath",
+    "perl_env",
+    "puppet_lookup",
+    "swift_env",
+    "vault_agent"
+  ],
+  "composition": {
+    "records": 504,
+    "positive": 252,
+    "negative": 252,
+    "gold_spans": 276,
+    "families": 74,
+    "sources": {
+      "code": 68,
+      "prompt": 184,
+      "file_read": 48,
+      "tool_output": 68,
+      "log": 48,
+      "markdown": 48,
+      "configuration": 20,
+      "shell": 20
+    }
+  },
+  "fingerprint": "cbed9cf7a04704d046733edc25c4bf66e6ab77ad053cbb51e6e359eef8a991a2",
+  "notice": "Independent hold-out authored after the v10 test was seen and before any model was run on it. Shares no leakage key (value_family aside) with any earlier file. Same author as the training data, so it is not a general benchmark."
+}

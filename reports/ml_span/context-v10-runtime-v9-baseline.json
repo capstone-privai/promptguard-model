@@ -1,0 +1,96 @@
+{
+  "checkpoint": "models/span-detector-v9",
+  "records": 504,
+  "threads": 4,
+  "device": "cpu",
+  "rule_metadata": {
+    "method": "CredSweeper",
+    "version": "1.18.5",
+    "output": "whole-text character spans",
+    "use_ml": false,
+    "ml_threshold": "disabled",
+    "match_policy": "exact character spans; containment reported separately",
+    "score_note": "ML scores do not cover every rule or rejected candidate; not exposed as complete probabilities",
+    "scope": "local CredSweeper proxy; NOT deployed PromptGuard ensemble",
+    "runtime_adapter": "serial plain-list CredentialManager, no IPC; upstream rules/filters/ML unchanged",
+    "config_sha256": "e5fe1e4969b6fe13909609b453d14e4f85c5fb42cee0c2e38c405891fda5d0a0",
+    "gitleaks": "NOT EVALUATED",
+    "custom_rules": "NOT EVALUATED",
+    "mapping_policy": "value offsets, no string search"
+  },
+  "rule_latency": {
+    "unit": "ms/input",
+    "calls": 504,
+    "mean": 0.5490970893261542,
+    "p50": 0.3125415023532696,
+    "p95": 1.9191250030416995,
+    "includes": "Rule scan with source dispatch; sequential loaded model; first scan included"
+  },
+  "ml_latency": {
+    "unit": "ms/input",
+    "calls": 504,
+    "mean": 57.69751866069234,
+    "p50": 27.87239600002067,
+    "p95": 220.21837499778485,
+    "includes": "tokenization, all windows, decoding; sequential warm model; first scan included"
+  },
+  "union_latency": {
+    "unit": "ms/input",
+    "calls": 504,
+    "mean": 58.00678554777054,
+    "p50": 28.242167001735652,
+    "p95": 219.26408300350886,
+    "includes": "Sequential Rule scan + ML tokenization/all windows/boundary/decoding + candidate union; warm models; excludes model loading and external transport."
+  },
+  "evaluation": {
+    "records": 504,
+    "gold_spans": 276,
+    "rule_only": {
+      "tp": 82,
+      "fp": 29,
+      "fn": 194,
+      "precision": 0.7387387387387387,
+      "recall": 0.2971014492753623,
+      "f1": 0.42377260981912146,
+      "f2": 0.3374485596707819
+    },
+    "ml_only": {
+      "tp": 219,
+      "fp": 87,
+      "fn": 57,
+      "precision": 0.7156862745098039,
+      "recall": 0.7934782608695652,
+      "f1": 0.7525773195876289,
+      "f2": 0.776595744680851
+    },
+    "candidate_union": {
+      "tp": 225,
+      "fp": 116,
+      "fn": 51,
+      "precision": 0.6598240469208211,
+      "recall": 0.8152173913043478,
+      "f1": 0.7293354943273906,
+      "f2": 0.7785467128027682
+    },
+    "merged_mask_intervals": {
+      "tp": 222,
+      "fp": 115,
+      "fn": 54,
+      "precision": 0.658753709198813,
+      "recall": 0.8043478260869565,
+      "f1": 0.7243066884176182,
+      "f2": 0.7702984038861902
+    },
+    "rule_miss_count": 194,
+    "rule_miss_recall": 0.7371134020618557,
+    "rule_no_overlap_miss_count": 194,
+    "rule_no_overlap_miss_recall": 0.7371134020618557,
+    "rule_coverage_miss_count": 194,
+    "rule_coverage_miss_recall": 0.7371134020618557,
+    "ml_added_true_positives": 143,
+    "ml_induced_false_positives": 87,
+    "ml_overlap_recall": 0.8152173913043478,
+    "combined_coverage_recall": 0.8188405797101449
+  },
+  "repeated_union_predictions_equal": true
+}

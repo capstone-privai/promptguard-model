@@ -1,0 +1,99 @@
+{
+  "train_sources": {
+    "span-synthetic-v1": 424,
+    "span-refinement-v1": 808,
+    "span-code-refinement-v1": 384,
+    "span-refinement-v3": 1320,
+    "span-context-v4": 2184,
+    "span-context-v5": 3048,
+    "span-context-v6": 3432,
+    "span-context-v7": 4456,
+    "span-context-v8": 5224,
+    "span-context-v9": 2056,
+    "span-qwen-augment-v1": 264,
+    "span-qwen-augment-v2": 432
+  },
+  "validation_source": "data/span-context-v9/validation.jsonl",
+  "test_contextual": {
+    "seed": 20261110,
+    "per_family": 24,
+    "rejected_by_public_exclusions": 0,
+    "families": {
+      "train": [],
+      "validation": [],
+      "test": [
+        "v10_test_suffix_review",
+        "v10_test_ko_suffix",
+        "multiline_v10_test_paste",
+        "v10_test_chat_two",
+        "v10_test_csv",
+        "long_v10_test_ci_log",
+        "v10_test_decoy_first",
+        "v10_test_xml"
+      ]
+    }
+  },
+  "test_reference_forms": [
+    "ansible_lookup",
+    "cfn_dynamic",
+    "cfn_ref",
+    "concourse_var",
+    "configparser",
+    "docker_secret_file",
+    "laravel_env",
+    "pulumi_config",
+    "serverless_ssm",
+    "terraform_var"
+  ],
+  "composition": {
+    "train": {
+      "records": 6304,
+      "positive": 3096,
+      "negative": 3208,
+      "gold_spans": 3520,
+      "families": 364,
+      "sources": {
+        "configuration": 924,
+        "prompt": 1160,
+        "tool_output": 758,
+        "log": 1094,
+        "markdown": 460,
+        "negative": 88,
+        "code": 1118,
+        "shell": 286,
+        "file_read": 416
+      }
+    },
+    "validation": {
+      "records": 384,
+      "positive": 192,
+      "negative": 192,
+      "gold_spans": 192,
+      "families": 8,
+      "sources": {
+        "log": 96,
+        "tool_output": 96,
+        "file_read": 48,
+        "prompt": 96,
+        "markdown": 48
+      }
+    },
+    "test": {
+      "records": 504,
+      "positive": 252,
+      "negative": 252,
+      "gold_spans": 276,
+      "families": 74,
+      "sources": {
+        "prompt": 232,
+        "file_read": 48,
+        "tool_output": 48,
+        "log": 48,
+        "configuration": 108,
+        "code": 20
+      }
+    }
+  },
+  "fingerprint": "0a5c4d6b2d9e6c87c33c576009cb96abb52c2aef8c08c8ad690dfdf1efc49d04",
+  "notice": "Train is the de-duplicated union of every earlier training split. Validation is unchanged from v9. Test is new, authored before v10 training, and shares no leakage key with any train or earlier evaluation row. Same author as the training data, so it is not a general benchmark."
+}

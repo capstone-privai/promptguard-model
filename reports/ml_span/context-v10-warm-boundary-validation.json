@@ -1,0 +1,37 @@
+{
+  "validation_only": true,
+  "baseline": {
+    "tp": 179,
+    "fp": 12,
+    "fn": 13,
+    "precision": 0.93717277486911,
+    "recall": 0.9322916666666666,
+    "f1": 0.9347258485639687,
+    "f2": 0.9332638164754953
+  },
+  "with_boundary": {
+    "tp": 182,
+    "fp": 9,
+    "fn": 10,
+    "precision": 0.9528795811518325,
+    "recall": 0.9479166666666666,
+    "f1": 0.9503916449086162,
+    "f2": 0.948905109489051
+  },
+  "eligible": true,
+  "character_selection": {
+    "epoch": 1,
+    "loss": 26.01472624577582,
+    "validation_correct": 282,
+    "validation_total": 288,
+    "wrong_trim": 0,
+    "threshold": 0.8,
+    "score": 282,
+    "train_samples": 5936,
+    "train_unrepresentable": 0,
+    "validation_unrepresentable": 0,
+    "policy": "Validation character boundary score only; full detector validation acceptance still required"
+  },
+  "policy": "Strictly greater exact validation F2 and no reduction in exact precision; test unopened by this script.",
+  "checkpoint": "runs/span-mmbert-context-v10-warm-boundary/model"
+}

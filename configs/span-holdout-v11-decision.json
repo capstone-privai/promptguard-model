@@ -1,0 +1,9 @@
+{
+  "notice": "Written before data/span-holdout-v11 existed and before any model was run on it. The v10 test (data/span-context-v10/test.jsonl) is development from here on: warm was singled out for this check after its v10 test results were seen.",
+  "dataset": "data/span-holdout-v11/test.jsonl",
+  "candidate": {"name": "warm", "checkpoint": "runs/span-mmbert-context-v10-warm-calibrated/model", "threshold": 0.9856988658706943},
+  "baseline": {"name": "v9", "checkpoint": "models/span-detector-v9"},
+  "reference_only": [{"name": "base", "checkpoint": "runs/span-mmbert-context-v10-base-calibrated/model"}],
+  "rule": "Warm is better than v9 on this hold-out only if its exact-span ML-only F2 is strictly higher and its precision is not lower. Thresholds, checkpoints and data are frozen; nothing is changed after the result.",
+  "default_model": "Replacing the default additionally needs the predeclared v10 gates (configs/span-context-v10-gates.json). Warm fails 3 of 13, so this hold-out alone cannot make it the default; that requires an explicit decision about the gates."
+}
