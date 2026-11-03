@@ -17,8 +17,11 @@ GPU를 쓴다고 성능이 저절로 오르지는 않습니다. v10은 학습 �
 | `RUN_NAME` | 결과 폴더 이름. Drive에 같은 이름이 있으면 멈춥니다. |
 | `BASE_CONFIG` | 재사용할 학습 레시피(`configs/*.yaml`): 데이터, 학습률, epoch, seed 등 |
 | `START_FROM` | `v9`/`v10`: `models/`의 bundle에서 이어 학습. `backbone`: mmBERT-small 원본(고정 revision)에서 시작 |
-| `OVERRIDES` | 레시피에서 바꿀 값. 예: `{'batch_size': 16, 'seed': 120}` |
+| `OVERRIDES` | 레시피에서 바꿀 값. 예: `{'batch_size': 16, 'learning_rate': 5e-6}` |
+| `SEEDS` | 여러 seed로 차례로 학습할 때의 목록. 예: `[112, 113, 114]`. seed마다 `RUN_NAME-seedN` 폴더와 zip이 따로 생깁니다. 비우면 레시피의 seed로 한 번만 학습합니다. |
 | `REPO_REF` | 학습에 쓸 코드와 데이터의 브랜치 또는 태그 |
+
+같은 설정이라도 seed와 장치에 따라 결과가 꽤 달라집니다(Colab 재현 실행에서 hold-out v11 오탐이 v10의 83개 대비 36개). 후보를 비교할 때는 `SEEDS`로 여러 번 학습해 차이의 폭을 함께 보세요.
 
 기본값은 v10 warm 학습(`START_FROM='v9'`, v10 warm 레시피)을 GPU에서 그대로 재현합니다. 처음에는 기본값으로 돌려, validation이 v10과 비슷하게 나오는지(경계 보정 전 179 / 12 / 13) 보며 환경을 확인하세요.
 

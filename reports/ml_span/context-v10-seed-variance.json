@@ -1,0 +1,776 @@
+{
+  "notice": "Synthetic only. The v10 warm recipe (configs/span-mmbert-context-v10-warm.yaml) retrained on a Colab Tesla T4 with seeds 111-114, then post-processed on Mac CPU exactly like v10: boundary-v3 gate, contextual-function-words-v1, calibration against models/span-detector-v10. Aggregates only; weights stay local.",
+  "reference": {
+    "name": "v10",
+    "checkpoint": "models/span-detector-v10",
+    "trained_on": "Mac MPS, seed 111",
+    "datasets": {
+      "validation": {
+        "tp": 182,
+        "fp": 9,
+        "fn": 10,
+        "precision": 0.9528795811518325,
+        "recall": 0.9479166666666666,
+        "f2": 0.948905109489051
+      },
+      "fresh_test": {
+        "tp": 244,
+        "fp": 23,
+        "fn": 32,
+        "precision": 0.9138576779026217,
+        "recall": 0.8840579710144928,
+        "f2": 0.8898614150255288
+      },
+      "v3_development": {
+        "tp": 128,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f2": 1.0
+      },
+      "v1_development": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f2": 1.0
+      },
+      "original_development": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f2": 1.0
+      },
+      "negative_challenge": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null,
+        "f2": null
+      },
+      "v4_development": {
+        "tp": 181,
+        "fp": 12,
+        "fn": 11,
+        "precision": 0.9378238341968912,
+        "recall": 0.9427083333333334,
+        "f2": 0.9417273673257024
+      },
+      "v6_development": {
+        "tp": 82,
+        "fp": 14,
+        "fn": 14,
+        "precision": 0.8541666666666666,
+        "recall": 0.8541666666666666,
+        "f2": 0.8541666666666666
+      },
+      "v7_development": {
+        "tp": 145,
+        "fp": 12,
+        "fn": 15,
+        "precision": 0.9235668789808917,
+        "recall": 0.90625,
+        "f2": 0.9096612296110415
+      },
+      "v9_development": {
+        "tp": 191,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.9947916666666666,
+        "recall": 0.9947916666666666,
+        "f2": 0.9947916666666666
+      },
+      "qwen_holdout_development": {
+        "tp": 54,
+        "fp": 6,
+        "fn": 10,
+        "precision": 0.9,
+        "recall": 0.84375,
+        "f2": 0.8544303797468354
+      },
+      "qwen_holdout_v2_development": {
+        "tp": 76,
+        "fp": 13,
+        "fn": 2,
+        "precision": 0.8539325842696629,
+        "recall": 0.9743589743589743,
+        "f2": 0.9476309226932669
+      },
+      "holdout_v11_development": {
+        "tp": 244,
+        "fp": 83,
+        "fn": 32,
+        "precision": 0.746177370030581,
+        "recall": 0.8840579710144928,
+        "f2": 0.8525506638714185
+      }
+    }
+  },
+  "runs": {
+    "111": {
+      "gpu": "Tesla T4",
+      "torch": "2.11.0+cu130",
+      "commit": "968946eb44bcfcd2c875c8b202ccd0a48aa95ac3",
+      "best_epoch": 4,
+      "validation_history": [
+        {
+          "epoch": 1,
+          "tp": 156,
+          "fp": 33,
+          "fn": 36
+        },
+        {
+          "epoch": 2,
+          "tp": 156,
+          "fp": 33,
+          "fn": 36
+        },
+        {
+          "epoch": 3,
+          "tp": 180,
+          "fp": 27,
+          "fn": 12
+        },
+        {
+          "epoch": 4,
+          "tp": 180,
+          "fp": 12,
+          "fn": 12
+        },
+        {
+          "epoch": 5,
+          "tp": 180,
+          "fp": 12,
+          "fn": 12
+        }
+      ],
+      "boundary": {
+        "eligible": true,
+        "before": {
+          "tp": 180,
+          "fp": 12,
+          "fn": 12,
+          "precision": 0.9375,
+          "recall": 0.9375,
+          "f2": 0.9375
+        },
+        "after": {
+          "tp": 183,
+          "fp": 9,
+          "fn": 9,
+          "precision": 0.953125,
+          "recall": 0.953125,
+          "f2": 0.953125
+        }
+      },
+      "calibration_vs_v10": {
+        "eligible_cutoffs": 2,
+        "searched": 192,
+        "selected": 0.999993457911059
+      },
+      "at_cutoff_099": {
+        "validation": {
+          "tp": 183,
+          "fp": 9,
+          "fn": 9,
+          "precision": 0.953125,
+          "recall": 0.953125,
+          "f2": 0.953125
+        },
+        "fresh_test": {
+          "tp": 244,
+          "fp": 7,
+          "fn": 32,
+          "precision": 0.9721115537848606,
+          "recall": 0.8840579710144928,
+          "f2": 0.9003690036900369
+        },
+        "v3_development": {
+          "tp": 128,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "v1_development": {
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "original_development": {
+          "tp": 40,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "negative_challenge": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f2": null
+        },
+        "v4_development": {
+          "tp": 181,
+          "fp": 12,
+          "fn": 11,
+          "precision": 0.9378238341968912,
+          "recall": 0.9427083333333334,
+          "f2": 0.9417273673257024
+        },
+        "v6_development": {
+          "tp": 82,
+          "fp": 7,
+          "fn": 14,
+          "precision": 0.9213483146067416,
+          "recall": 0.8541666666666666,
+          "f2": 0.8668076109936576
+        },
+        "v7_development": {
+          "tp": 151,
+          "fp": 32,
+          "fn": 9,
+          "precision": 0.825136612021858,
+          "recall": 0.94375,
+          "f2": 0.9173754556500607
+        },
+        "v9_development": {
+          "tp": 189,
+          "fp": 3,
+          "fn": 3,
+          "precision": 0.984375,
+          "recall": 0.984375,
+          "f2": 0.984375
+        },
+        "qwen_holdout_development": {
+          "tp": 53,
+          "fp": 11,
+          "fn": 11,
+          "precision": 0.828125,
+          "recall": 0.828125,
+          "f2": 0.828125
+        },
+        "qwen_holdout_v2_development": {
+          "tp": 76,
+          "fp": 8,
+          "fn": 2,
+          "precision": 0.9047619047619048,
+          "recall": 0.9743589743589743,
+          "f2": 0.9595959595959596
+        },
+        "holdout_v11_development": {
+          "tp": 233,
+          "fp": 36,
+          "fn": 43,
+          "precision": 0.8661710037174721,
+          "recall": 0.8442028985507246,
+          "f2": 0.8485069191551348
+        }
+      }
+    },
+    "112": {
+      "gpu": "Tesla T4",
+      "torch": "2.11.0+cu130",
+      "commit": "363f33bee996c579321f059c5e654a8b2a6b6245",
+      "best_epoch": 3,
+      "validation_history": [
+        {
+          "epoch": 1,
+          "tp": 156,
+          "fp": 30,
+          "fn": 36
+        },
+        {
+          "epoch": 2,
+          "tp": 156,
+          "fp": 12,
+          "fn": 36
+        },
+        {
+          "epoch": 3,
+          "tp": 159,
+          "fp": 26,
+          "fn": 33
+        },
+        {
+          "epoch": 4,
+          "tp": 159,
+          "fp": 26,
+          "fn": 33
+        },
+        {
+          "epoch": 5,
+          "tp": 159,
+          "fp": 26,
+          "fn": 33
+        }
+      ],
+      "boundary": {
+        "eligible": true,
+        "before": {
+          "tp": 159,
+          "fp": 26,
+          "fn": 33,
+          "precision": 0.8594594594594595,
+          "recall": 0.828125,
+          "f2": 0.8342077649527807
+        },
+        "after": {
+          "tp": 162,
+          "fp": 23,
+          "fn": 30,
+          "precision": 0.8756756756756757,
+          "recall": 0.84375,
+          "f2": 0.8499475341028332
+        }
+      },
+      "calibration_vs_v10": {
+        "eligible_cutoffs": 0,
+        "searched": 213,
+        "selected": null
+      },
+      "at_cutoff_099": {
+        "validation": {
+          "tp": 162,
+          "fp": 23,
+          "fn": 30,
+          "precision": 0.8756756756756757,
+          "recall": 0.84375,
+          "f2": 0.8499475341028332
+        },
+        "fresh_test": {
+          "tp": 234,
+          "fp": 7,
+          "fn": 42,
+          "precision": 0.970954356846473,
+          "recall": 0.8478260869565217,
+          "f2": 0.8698884758364313
+        },
+        "v3_development": {
+          "tp": 128,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "v1_development": {
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "original_development": {
+          "tp": 35,
+          "fp": 0,
+          "fn": 5,
+          "precision": 1.0,
+          "recall": 0.875,
+          "f2": 0.8974358974358975
+        },
+        "negative_challenge": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f2": null
+        },
+        "v4_development": {
+          "tp": 178,
+          "fp": 14,
+          "fn": 14,
+          "precision": 0.9270833333333334,
+          "recall": 0.9270833333333334,
+          "f2": 0.9270833333333334
+        },
+        "v6_development": {
+          "tp": 76,
+          "fp": 5,
+          "fn": 20,
+          "precision": 0.9382716049382716,
+          "recall": 0.7916666666666666,
+          "f2": 0.8172043010752689
+        },
+        "v7_development": {
+          "tp": 148,
+          "fp": 11,
+          "fn": 12,
+          "precision": 0.9308176100628931,
+          "recall": 0.925,
+          "f2": 0.9261576971214017
+        },
+        "v9_development": {
+          "tp": 170,
+          "fp": 1,
+          "fn": 22,
+          "precision": 0.9941520467836257,
+          "recall": 0.8854166666666666,
+          "f2": 0.9052183173588925
+        },
+        "qwen_holdout_development": {
+          "tp": 33,
+          "fp": 13,
+          "fn": 31,
+          "precision": 0.717391304347826,
+          "recall": 0.515625,
+          "f2": 0.5463576158940397
+        },
+        "qwen_holdout_v2_development": {
+          "tp": 76,
+          "fp": 8,
+          "fn": 2,
+          "precision": 0.9047619047619048,
+          "recall": 0.9743589743589743,
+          "f2": 0.9595959595959596
+        },
+        "holdout_v11_development": {
+          "tp": 239,
+          "fp": 61,
+          "fn": 37,
+          "precision": 0.7966666666666666,
+          "recall": 0.8659420289855072,
+          "f2": 0.8511396011396012
+        }
+      }
+    },
+    "113": {
+      "gpu": "Tesla T4",
+      "torch": "2.11.0+cu130",
+      "commit": "363f33bee996c579321f059c5e654a8b2a6b6245",
+      "best_epoch": 5,
+      "validation_history": [
+        {
+          "epoch": 1,
+          "tp": 154,
+          "fp": 14,
+          "fn": 38
+        },
+        {
+          "epoch": 2,
+          "tp": 172,
+          "fp": 13,
+          "fn": 20
+        },
+        {
+          "epoch": 3,
+          "tp": 174,
+          "fp": 15,
+          "fn": 18
+        },
+        {
+          "epoch": 4,
+          "tp": 174,
+          "fp": 14,
+          "fn": 18
+        },
+        {
+          "epoch": 5,
+          "tp": 175,
+          "fp": 15,
+          "fn": 17
+        }
+      ],
+      "boundary": {
+        "eligible": true,
+        "before": {
+          "tp": 175,
+          "fp": 15,
+          "fn": 17,
+          "precision": 0.9210526315789473,
+          "recall": 0.9114583333333334,
+          "f2": 0.9133611691022965
+        },
+        "after": {
+          "tp": 178,
+          "fp": 12,
+          "fn": 14,
+          "precision": 0.9368421052631579,
+          "recall": 0.9270833333333334,
+          "f2": 0.9290187891440501
+        }
+      },
+      "calibration_vs_v10": {
+        "eligible_cutoffs": 0,
+        "searched": 216,
+        "selected": null
+      },
+      "at_cutoff_099": {
+        "validation": {
+          "tp": 178,
+          "fp": 12,
+          "fn": 14,
+          "precision": 0.9368421052631579,
+          "recall": 0.9270833333333334,
+          "f2": 0.9290187891440501
+        },
+        "fresh_test": {
+          "tp": 228,
+          "fp": 22,
+          "fn": 48,
+          "precision": 0.912,
+          "recall": 0.8260869565217391,
+          "f2": 0.8419497784342689
+        },
+        "v3_development": {
+          "tp": 125,
+          "fp": 0,
+          "fn": 3,
+          "precision": 1.0,
+          "recall": 0.9765625,
+          "f2": 0.9811616954474097
+        },
+        "v1_development": {
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "original_development": {
+          "tp": 40,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "negative_challenge": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f2": null
+        },
+        "v4_development": {
+          "tp": 178,
+          "fp": 13,
+          "fn": 14,
+          "precision": 0.9319371727748691,
+          "recall": 0.9270833333333334,
+          "f2": 0.9280500521376434
+        },
+        "v6_development": {
+          "tp": 75,
+          "fp": 5,
+          "fn": 21,
+          "precision": 0.9375,
+          "recall": 0.78125,
+          "f2": 0.8081896551724138
+        },
+        "v7_development": {
+          "tp": 144,
+          "fp": 25,
+          "fn": 16,
+          "precision": 0.8520710059171598,
+          "recall": 0.9,
+          "f2": 0.8899876390605687
+        },
+        "v9_development": {
+          "tp": 169,
+          "fp": 7,
+          "fn": 23,
+          "precision": 0.9602272727272727,
+          "recall": 0.8802083333333334,
+          "f2": 0.8951271186440678
+        },
+        "qwen_holdout_development": {
+          "tp": 44,
+          "fp": 8,
+          "fn": 20,
+          "precision": 0.8461538461538461,
+          "recall": 0.6875,
+          "f2": 0.7142857142857143
+        },
+        "qwen_holdout_v2_development": {
+          "tp": 76,
+          "fp": 11,
+          "fn": 2,
+          "precision": 0.8735632183908046,
+          "recall": 0.9743589743589743,
+          "f2": 0.9523809523809523
+        },
+        "holdout_v11_development": {
+          "tp": 232,
+          "fp": 55,
+          "fn": 44,
+          "precision": 0.8083623693379791,
+          "recall": 0.8405797101449275,
+          "f2": 0.8339324227174695
+        }
+      }
+    },
+    "114": {
+      "gpu": "Tesla T4",
+      "torch": "2.11.0+cu130",
+      "commit": "363f33bee996c579321f059c5e654a8b2a6b6245",
+      "best_epoch": 1,
+      "validation_history": [
+        {
+          "epoch": 1,
+          "tp": 180,
+          "fp": 17,
+          "fn": 12
+        },
+        {
+          "epoch": 2,
+          "tp": 162,
+          "fp": 33,
+          "fn": 30
+        },
+        {
+          "epoch": 3,
+          "tp": 164,
+          "fp": 37,
+          "fn": 28
+        }
+      ],
+      "boundary": {
+        "eligible": true,
+        "before": {
+          "tp": 180,
+          "fp": 17,
+          "fn": 12,
+          "precision": 0.9137055837563451,
+          "recall": 0.9375,
+          "f2": 0.9326424870466321
+        },
+        "after": {
+          "tp": 183,
+          "fp": 14,
+          "fn": 9,
+          "precision": 0.9289340101522843,
+          "recall": 0.953125,
+          "f2": 0.9481865284974094
+        }
+      },
+      "calibration_vs_v10": {
+        "eligible_cutoffs": 0,
+        "searched": 213,
+        "selected": null
+      },
+      "at_cutoff_099": {
+        "validation": {
+          "tp": 183,
+          "fp": 14,
+          "fn": 9,
+          "precision": 0.9289340101522843,
+          "recall": 0.953125,
+          "f2": 0.9481865284974094
+        },
+        "fresh_test": {
+          "tp": 238,
+          "fp": 22,
+          "fn": 38,
+          "precision": 0.9153846153846154,
+          "recall": 0.8623188405797102,
+          "f2": 0.8724340175953079
+        },
+        "v3_development": {
+          "tp": 128,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "v1_development": {
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "original_development": {
+          "tp": 40,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "negative_challenge": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f2": null
+        },
+        "v4_development": {
+          "tp": 178,
+          "fp": 15,
+          "fn": 14,
+          "precision": 0.9222797927461139,
+          "recall": 0.9270833333333334,
+          "f2": 0.9261186264308012
+        },
+        "v6_development": {
+          "tp": 68,
+          "fp": 4,
+          "fn": 28,
+          "precision": 0.9444444444444444,
+          "recall": 0.7083333333333334,
+          "f2": 0.7456140350877193
+        },
+        "v7_development": {
+          "tp": 147,
+          "fp": 70,
+          "fn": 13,
+          "precision": 0.6774193548387096,
+          "recall": 0.91875,
+          "f2": 0.8576429404900817
+        },
+        "v9_development": {
+          "tp": 190,
+          "fp": 2,
+          "fn": 2,
+          "precision": 0.9895833333333334,
+          "recall": 0.9895833333333334,
+          "f2": 0.9895833333333334
+        },
+        "qwen_holdout_development": {
+          "tp": 45,
+          "fp": 13,
+          "fn": 19,
+          "precision": 0.7758620689655172,
+          "recall": 0.703125,
+          "f2": 0.7165605095541401
+        },
+        "qwen_holdout_v2_development": {
+          "tp": 76,
+          "fp": 22,
+          "fn": 2,
+          "precision": 0.7755102040816326,
+          "recall": 0.9743589743589743,
+          "f2": 0.926829268292683
+        },
+        "holdout_v11_development": {
+          "tp": 248,
+          "fp": 81,
+          "fn": 28,
+          "precision": 0.7537993920972644,
+          "recall": 0.8985507246376812,
+          "f2": 0.8653175157013259
+        }
+      }
+    }
+  }
+}

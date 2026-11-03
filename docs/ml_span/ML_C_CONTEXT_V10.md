@@ -120,11 +120,38 @@ v10 test 결과를 본 뒤 warm을 따로 검증하기로 했으므로, **v10 te
 - 이전 bundle `models/span-detector-v9`는 비교용으로 그대로 둡니다.
 - 지연시간(CPU 4 thread, hold-out v11 504행, 모델 미리 로드): v10 ML 평균 64.3 ms / p95 214.3 ms, v9 ML 평균 57.7 ms / p95 220.2 ms. 아키텍처가 같아 차이는 측정 편차 수준입니다. 이 hold-out에는 512토큰을 넘는 긴 로그가 있어 v9 문서의 33 ms(v9 test 기준)보다 깁니다. 배포 환경 지연시간은 아닙니다.
 
+## seed 변동 (Colab 재학습)
+
+v10 warm 레시피를 그대로 두고 seed만 111~114로 바꿔 Colab T4에서 다시 학습했습니다. 후처리는 v10과 똑같이 맥 CPU에서 했습니다(boundary-v3 검증, `contextual-function-words-v1`, v10 기준 cutoff 선택). 집계는 `reports/ml_span/context-v10-seed-variance.json`에 있습니다.
+
+아래 표는 경계 보정 후 cutoff 0.99 기준의 TP / FP / FN입니다. validation을 뺀 나머지는 모두 개발셋입니다.
+
+| 데이터셋 | v10 (맥, seed 111) | Colab 111 | Colab 112 | Colab 113 | Colab 114 |
+|---|---:|---:|---:|---:|---:|
+| validation | 182 / 9 / 10 | 183 / 9 / 9 | 162 / 23 / 30 | 178 / 12 / 14 | 183 / 14 / 9 |
+| v10 test | 244 / 23 / 32 | 244 / 7 / 32 | 234 / 7 / 42 | 228 / 22 / 48 | 238 / 22 / 38 |
+| hold-out v11 | 244 / 83 / 32 | 233 / 36 / 43 | 239 / 61 / 37 | 232 / 55 / 44 | 248 / 81 / 28 |
+| v6 | 82 / 14 / 14 | 82 / 7 / 14 | 76 / 5 / 20 | 75 / 5 / 21 | 68 / 4 / 28 |
+| v7 | 145 / 12 / 15 | 151 / 32 / 9 | 148 / 11 / 12 | 144 / 25 / 16 | 147 / 70 / 13 |
+| v9 test | 191 / 1 / 1 | 189 / 3 / 3 | 170 / 1 / 22 | 169 / 7 / 23 | 190 / 2 / 2 |
+| Qwen hold-out v1 | 54 / 6 / 10 | 53 / 11 / 11 | 33 / 13 / 31 | 44 / 8 / 20 | 45 / 13 / 19 |
+
+| F2 | v10 | Colab 111 | Colab 112 | Colab 113 | Colab 114 | v9 |
+|---|---:|---:|---:|---:|---:|---:|
+| validation | 0.949 | 0.953 | 0.850 | 0.929 | 0.948 | 0.807 |
+| v10 test | 0.890 | 0.900 | 0.870 | 0.842 | 0.872 | 0.794 |
+| hold-out v11 | 0.853 | 0.849 | 0.851 | 0.834 | 0.865 | 0.777 |
+
+- **seed에 따른 차이가 큽니다.** 같은 레시피인데 validation F2가 0.850~0.953 사이로 흩어지고, 개발셋별로 FP·FN이 수십 개씩 달라집니다(v7 FP 11~70, v9 test FN 2~23, Qwen hold-out v1 FN 11~31). 앞으로 이보다 작은 차이를 근거로 모델을 고르면 안 되고, 여러 seed의 범위를 함께 봐야 합니다.
+- **v9 대비 개선은 seed와 관계없이 유지됩니다.** 네 번 모두 v10 test(0.842~0.900)와 hold-out v11(0.834~0.865)에서 v9(0.794, 0.777)보다 높습니다. v10 레시피가 v9보다 낫다는 결론은 seed 변동보다 큰 차이에 근거합니다.
+- **v10은 운이 좋은 seed였던 것이 아니라 분포의 위쪽에 있습니다.** v10 이상인 cutoff가 하나라도 나온 재학습은 Colab 111 하나뿐이고(192개 중 2개, 극단값 0.9999935), 나머지 셋은 0개입니다. 그래서 기본 모델은 v10을 그대로 둡니다.
+- 이 실행들의 가중치는 `runs/`와 Google Drive에만 있고 커밋하지 않았습니다.
+
 ## 산출물
 
 - 데이터: `data/span-context-v10/` (train/validation/test, manifest), `data/span-holdout-v11/` (test, manifest)
 - 설정: `configs/span-mmbert-context-v10-{base,warm}.yaml`, `configs/span-context-v10-gates.json`, `configs/span-holdout-v11-decision.json`
 - 스크립트: `scripts/prepare_context_v10.py`, `scripts/prepare_holdout_v11.py`, `scripts/evaluate_span_holdout.py`
-- 보고서: `reports/ml_span/context-v10-*.json` (training, dataset, boundary validation, calibration, comparison, regression), `reports/ml_span/holdout-v11-evaluation.json`. 집계와 ID·offset만 담고 값이나 원문은 없습니다.
+- 보고서: `reports/ml_span/context-v10-*.json` (training, dataset, boundary validation, calibration, comparison, regression), `reports/ml_span/holdout-v11-evaluation.json`, `reports/ml_span/context-v10-seed-variance.json`. 집계와 ID·offset만 담고 값이나 원문은 없습니다.
 - 기본 bundle: `models/span-detector-v10` (`model.safetensors`는 Git LFS). 다른 실행(base, raw, boundary)의 가중치는 `runs/span-mmbert-context-v10-*`에만 있고 커밋하지 않았습니다. SHA-256은 `context-v10-training.json`에 있습니다.
 - 지연시간: `reports/ml_span/context-v10-runtime.json`, `reports/ml_span/context-v10-runtime-v9-baseline.json`.
