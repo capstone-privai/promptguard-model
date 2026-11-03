@@ -7,7 +7,7 @@
     "PromptGuard without ML"
   ],
   "selection": "Epoch and cutoff from the training grid on the combined validation (v9 validation + team hand_v1 val), F2 then recall. Boundary-v3 is attached only if validation F2 rises and precision does not fall. No reference-constrained calibration: it chose extreme cutoffs for v10.",
-  "independent_evaluation": "Team metric-detection scorer (promptguard-data e1efcd4, promptguard-claude-demoV0 8b8d8a6, CredSweeper 1.19.0, ML timeout 60 s) on four external sources that no one has scored with v9, v10 or v11, each built by the team converter at its pinned revision: Nosey Parker rule examples, openhands-feedback, SWE-Gym OpenHands trajectories, Nemotron-PII test split. CredData is left out (13 GB download and a case-sensitive volume). This list was fixed before the first v11 score.",
+  "independent_evaluation": "Team metric-detection scorer (promptguard-data e1efcd4, promptguard-claude-demoV0 8b8d8a6, CredSweeper 1.19.0, ML timeout 120 s, ML inference on the Mac GPU (MPS) for every configuration) on four external sources that no one has scored with v9, v10 or v11, each built by the team converter at its pinned revision: Nosey Parker rule examples, openhands-feedback, SWE-Gym OpenHands trajectories, Nemotron-PII test split. CredData is left out (13 GB download and a case-sensitive volume). This list was fixed before the first v11 score.",
   "rule": "v11 is better if its micro F2 over the independent sources (counts summed) is strictly higher than both v9 and v10, and its micro precision is not lower than v9's. Per-source results and the development sets are reported but do not decide.",
   "default_model": "Changing what PromptGuard loads stays a separate, explicit decision."
 }
