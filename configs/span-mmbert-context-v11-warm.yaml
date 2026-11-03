@@ -1,0 +1,20 @@
+model_name: models/span-detector-v10
+backbone_id: jhu-clsp/mmBERT-small (context-v11, v10 union plus team hand_v1 train, warm-started from v10)
+backbone_revision: abc32620dd4f6ab06f5fbe905dc25f310618e09f
+local_files_only: true
+data_dir: runs/data/span-context-v11
+output_dir: runs/span-mmbert-context-v11-warm
+seed: 121
+epochs: 5
+patience: 2
+batch_size: 4
+length_grouped_batches: true
+progress_every_batches: 200
+learning_rate: 0.000005
+weight_decay: 0.01
+class_weights: [1.0, 2.0, 2.0]
+max_length: 512
+stride: 128
+thresholds: [0.5, 0.7, 0.8, 0.9, 0.95, 0.98, 0.99]
+device: mps
+threads: 4
