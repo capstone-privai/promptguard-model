@@ -20,6 +20,7 @@ GPU를 쓴다고 성능이 저절로 오르지는 않습니다. v10은 학습 �
 | `OVERRIDES` | 레시피에서 바꿀 값. 예: `{'batch_size': 16, 'learning_rate': 5e-6}` |
 | `SEEDS` | 여러 seed로 차례로 학습할 때의 목록. 예: `[112, 113, 114]`. seed마다 `RUN_NAME-seedN` 폴더와 zip이 따로 생깁니다. 비우면 레시피의 seed로 한 번만 학습합니다. |
 | `REPO_REF` | 학습에 쓸 코드와 데이터의 브랜치 또는 태그 |
+| `PREPARE` | 설치 뒤, 학습 전에 저장소 폴더에서 실행할 셸 명령 목록. git에 올릴 수 없는 학습 데이터를 Colab 안에서 다시 만들 때 씁니다. 예: v11은 `['bash scripts/colab_prepare_v11.sh']` |
 
 같은 설정이라도 seed와 장치에 따라 결과가 꽤 달라집니다(Colab 재현 실행에서 hold-out v11 오탐이 v10의 83개 대비 36개). 후보를 비교할 때는 `SEEDS`로 여러 번 학습해 차이의 폭을 함께 보세요.
 

@@ -1,0 +1,13 @@
+{
+  "notice": "Written before any v11 training or evaluation. The team hand_v1 test, agent sessions v2, the built-in corpus and our own hold-outs were all looked at while diagnosing v10, so they are development sets for v11.",
+  "candidate": "PromptGuard + ml-v9 module loading the v11 bundle (runs/span-mmbert-context-v11-warm, boundary refiner if its validation gate passes)",
+  "baselines": [
+    "PromptGuard + v9 (models/span-detector-v9, what PromptGuard runs today)",
+    "PromptGuard + v10 (models/span-detector-v10)",
+    "PromptGuard without ML"
+  ],
+  "selection": "Epoch and cutoff from the training grid on the combined validation (v9 validation + team hand_v1 val), F2 then recall. Boundary-v3 is attached only if validation F2 rises and precision does not fall. No reference-constrained calibration: it chose extreme cutoffs for v10.",
+  "independent_evaluation": "Team metric-detection scorer (promptguard-data e1efcd4, promptguard-claude-demoV0 8b8d8a6, CredSweeper 1.19.0, ML timeout 60 s) on four external sources that no one has scored with v9, v10 or v11, each built by the team converter at its pinned revision: Nosey Parker rule examples, openhands-feedback, SWE-Gym OpenHands trajectories, Nemotron-PII test split. CredData is left out (13 GB download and a case-sensitive volume). This list was fixed before the first v11 score.",
+  "rule": "v11 is better if its micro F2 over the independent sources (counts summed) is strictly higher than both v9 and v10, and its micro precision is not lower than v9's. Per-source results and the development sets are reported but do not decide.",
+  "default_model": "Changing what PromptGuard loads stays a separate, explicit decision."
+}

@@ -21,7 +21,7 @@ def test_code_cells_parse_and_carry_no_outputs():
 
 def test_default_settings_point_at_existing_recipe_and_bundle():
     s = settings()
-    assert (ROOT / s['BASE_CONFIG']).exists() and s['OVERRIDES'] == {} and s['SEEDS'] == []
+    assert (ROOT / s['BASE_CONFIG']).exists() and s['OVERRIDES'] == {} and s['SEEDS'] == [] and s['PREPARE'] == []
     assert (ROOT / f"models/span-detector-{s['START_FROM']}/model.safetensors").exists()
 
 
