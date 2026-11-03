@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from privai_model.ml_span.function_words import POLICY
+from privai_model.ml_span.short_values import PROMPTGUARD_MIN_VALUE_LENGTH
 from privai_model.ml_span.schema import load
 from privai_model.ml_span.splitter import assert_disjoint
 
@@ -17,10 +18,19 @@ def test_v10_bundle_uses_validation_cutoff_and_runtime_filter():
     calibration = read('reports/ml_span/context-v10-warm-exact-calibration.json')
     assert meta['threshold'] == calibration['selected']['threshold']
     assert meta['candidate_filter'] == POLICY and meta['boundary_refiner']['threshold'] == 0.8
+    assert meta['min_value_length'] == PROMPTGUARD_MIN_VALUE_LENGTH
     assert meta['calibration_reference'] == 'models/span-detector-v9' and not meta['production_ready']
     assert 'gate_exception' in meta['selection']
     for name in ['model.safetensors', 'boundary.pt', 'tokenizer.json', 'config.json']:
         assert (V10 / name).exists()
+
+
+def test_length_guard_is_validation_neutral_and_v9_bundle_untouched():
+    report = read('reports/ml_span/min-value-length.json')
+    assert report['min_value_length'] == PROMPTGUARD_MIN_VALUE_LENGTH and report['gold_preservation']['suppressed'] == 0
+    for result in report['checkpoints'].values():
+        assert result['validation_passed'] and result['removed_tp_any_set'] == 0
+    assert 'min_value_length' not in read('models/span-detector-v9/span_bundle.json')
 
 
 def test_v10_adoption_rests_on_predeclared_holdout_rule():

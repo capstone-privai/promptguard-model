@@ -1,6 +1,7 @@
 {
   "schema_version": "ml-span-bundle-v1",
   "candidate_filter": "contextual-function-words-v1",
+  "min_value_length": 6,
   "max_length": 512,
   "stride": 128,
   "threshold": 0.9856988658706943,

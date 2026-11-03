@@ -350,4 +350,6 @@ uv run python scripts/evaluate.py --data data/raw/agent_candidates_v1.jsonl.gz \
 
 전체 학습 데이터 재학습과 새 독립 hold-out 검증: [Context v10](docs/ml_span/ML_C_CONTEXT_V10.md). 현재 기본 span detector bundle은 `models/span-detector-v10`입니다(gate 3개 미통과를 예외로 받아들이고 채택, 이전 bundle은 `models/span-detector-v9`). 단, 팀 평가 도구에서는 v9보다 낮게 나왔습니다: [팀 평가 도구로 본 v10](docs/ml_span/EXTERNAL_EVAL_V10.md).
 
+팀 hand_v1 학습 데이터를 더한 v11은 외부 데이터 4종에서 v9를 넘지 못해 채택하지 않았습니다: [Context v11](docs/ml_span/ML_C_CONTEXT_V11.md). 런타임은 PromptGuard와 같은 짧은 값 제거를 opt-in으로 지원하고, v10 bundle에서 켜져 있습니다: [짧은 값 제거](docs/ml_span/MIN_VALUE_LENGTH.md).
+
 Google Colab GPU에서 학습하려면 [Colab 학습](docs/ml_span/COLAB_TRAINING.md)과 [노트북](notebooks/colab_train_span.ipynb)을 참고하세요. 노트북은 학습만 하고, cutoff 선택과 판정은 로컬 CPU에서 합니다.
