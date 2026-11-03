@@ -1,0 +1,1617 @@
+{
+  "notice": "Scored with capstone-privai/promptguard-data metric-detection (span-level, Mod replacement rules) on the PromptGuard detector from promptguard-claude-demoV0 with ml-v9 pointed at each checkpoint. Aggregates, group ids and label kinds only; no values or text. gitleaks was not installed, so every configuration ran without it; ML timeout raised to 60 s (PG_ML_TIMEOUT_SECONDS) and no item was blocked.",
+  "tool": {
+    "scorer_git": {
+      "commit": "e1efcd422d6f407c9c2915cd6685445213e661e1",
+      "branch": "main",
+      "dirty": null
+    },
+    "system_git": {
+      "commit": "8b8d8a62817f520f8d026888dfc0a50a61e49082",
+      "branch": "main",
+      "dirty": null,
+      "repository": "capstone-privai/promptguard-claude-demoV0 (local copies; only the ml-v9 checkpoint/threshold options differ)"
+    },
+    "versions": {
+      "evaluation": "0.1.0",
+      "python": "3.12.13",
+      "credsweeper": "1.19.0"
+    }
+  },
+  "datasets": {
+    "sessions_mleval_hand_v1_test": {
+      "sessions": 80,
+      "items": 310,
+      "gold_spans": 435,
+      "sessions_sha256": "7162ff3617b0447be06040ad38f2f51c8fcc000d34fa3bb7a7323b3b9be7a520",
+      "gold_sha256": "a4dd6b047602981dca46e527ef2e0e45c44e3484d008f0d73038f97b9de79c81"
+    },
+    "sessions_2": {
+      "sessions": 43,
+      "items": 152,
+      "gold_spans": 78,
+      "sessions_sha256": "2286d8a42509c13a32ef6d12403569182983e9686b05150e34e52daa8eb3e570",
+      "gold_sha256": "debac9d0b60ea648476df5557fe0c7112044817462af23a187504e54dd36931f"
+    },
+    "sessions": {
+      "sessions": 12,
+      "items": 51,
+      "gold_spans": 32,
+      "sessions_sha256": "2e18273f6dfa4b7583a2e81db82a79c37ef7fd93f09783c80c62e30d6b97e2d5",
+      "gold_sha256": "cd0f460690baf75b644d7e20b3813b309da64813f18da455a3eb9ba9a7b87a2b"
+    },
+    "sessions_from_example": {
+      "sessions": 2,
+      "items": 9,
+      "gold_spans": 10,
+      "sessions_sha256": "d6e71190b3f73b7060eff816e492a17933d1c89a30e232a38cb3cc41bf142a4e",
+      "gold_sha256": "0b413b8fab6360dee4a005c4aebf9a50a6a0234a76b31888f6530c83a379f286"
+    }
+  },
+  "configurations": {
+    "system": {
+      "ml": null,
+      "note": "PromptGuard default detectors only"
+    },
+    "v9": {
+      "ml": "models/span-detector-v9",
+      "cutoff": 0.9996943789993322
+    },
+    "v10": {
+      "ml": "models/span-detector-v10",
+      "cutoff": 0.9856988658706943
+    },
+    "s111": {
+      "ml": "v10 recipe, Colab seed 111, boundary model",
+      "cutoff": 0.99
+    },
+    "s112": {
+      "ml": "v10 recipe, Colab seed 112, boundary model",
+      "cutoff": 0.98
+    },
+    "s113": {
+      "ml": "v10 recipe, Colab seed 113, boundary model",
+      "cutoff": 0.95
+    },
+    "s114": {
+      "ml": "v10 recipe, Colab seed 114, boundary model",
+      "cutoff": 0.95
+    },
+    "v10-hi": {
+      "ml": "models/span-detector-v10",
+      "cutoff": 0.9996943789993322,
+      "note": "diagnostic: forced to v9's cutoff"
+    },
+    "s111-hi": {
+      "ml": "v10 recipe, Colab seed 111, boundary model",
+      "cutoff": 0.9996943789993322,
+      "note": "diagnostic: forced to v9's cutoff"
+    },
+    "s112-hi": {
+      "ml": "v10 recipe, Colab seed 112, boundary model",
+      "cutoff": 0.9996943789993322,
+      "note": "diagnostic: forced to v9's cutoff"
+    },
+    "s113-hi": {
+      "ml": "v10 recipe, Colab seed 113, boundary model",
+      "cutoff": 0.9996943789993322,
+      "note": "diagnostic: forced to v9's cutoff"
+    },
+    "s114-hi": {
+      "ml": "v10 recipe, Colab seed 114, boundary model",
+      "cutoff": 0.9996943789993322,
+      "note": "diagnostic: forced to v9's cutoff"
+    }
+  },
+  "results": {
+    "sessions_mleval_hand_v1_test": {
+      "system": {
+        "recall": 0.7402298850574712,
+        "precision": 0.8274582560296846,
+        "f2": 0.7561726119894946,
+        "char_recall": 0.9401495752550502,
+        "over_rate": 0.0022988505747126436,
+        "partial_rate": 0.10114942528735632,
+        "missed_rate": 0.15632183908045977,
+        "fp_per_1k_lines": 106.11303344867359,
+        "counts": {
+          "gold_total": 435,
+          "exact": 322,
+          "over": 1,
+          "partial": 44,
+          "missed": 68,
+          "edits_total": 539,
+          "edits_tp": 446,
+          "edits_over": 1,
+          "edits_fp": 92,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 2945,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8048780487804879,
+          "TOKEN": 0.6991869918699187,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 0.8846153846153846
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.7402298850574712
+        }
+      },
+      "v9": {
+        "recall": 0.8505747126436781,
+        "precision": 0.8121645796064401,
+        "f2": 0.8426047612837207,
+        "char_recall": 0.9738649758159574,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.09425287356321839,
+        "missed_rate": 0.04367816091954023,
+        "fp_per_1k_lines": 115.34025374855824,
+        "counts": {
+          "gold_total": 435,
+          "exact": 370,
+          "over": 5,
+          "partial": 41,
+          "missed": 19,
+          "edits_total": 559,
+          "edits_tp": 454,
+          "edits_over": 5,
+          "edits_fp": 100,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1286,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.9121951219512195,
+          "TOKEN": 0.8617886178861789,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8505747126436781
+        }
+      },
+      "v10": {
+        "recall": 0.8137931034482758,
+        "precision": 0.7841726618705036,
+        "f2": 0.8076913415890081,
+        "char_recall": 0.9722188351014104,
+        "over_rate": 0.020689655172413793,
+        "partial_rate": 0.10114942528735632,
+        "missed_rate": 0.06436781609195402,
+        "fp_per_1k_lines": 128.02768166089965,
+        "counts": {
+          "gold_total": 435,
+          "exact": 354,
+          "over": 9,
+          "partial": 44,
+          "missed": 28,
+          "edits_total": 556,
+          "edits_tp": 436,
+          "edits_over": 9,
+          "edits_fp": 111,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1367,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.848780487804878,
+          "TOKEN": 0.8373983739837398,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8137931034482758
+        }
+      },
+      "s111": {
+        "recall": 0.7885057471264367,
+        "precision": 0.8142076502732241,
+        "f2": 0.793515490840887,
+        "char_recall": 0.9639881315286754,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.10114942528735632,
+        "missed_rate": 0.09885057471264368,
+        "fp_per_1k_lines": 111.8800461361015,
+        "counts": {
+          "gold_total": 435,
+          "exact": 343,
+          "over": 5,
+          "partial": 44,
+          "missed": 43,
+          "edits_total": 549,
+          "edits_tp": 447,
+          "edits_over": 5,
+          "edits_fp": 97,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1772,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8048780487804879,
+          "TOKEN": 0.8211382113821138,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.7885057471264367
+        }
+      },
+      "s112": {
+        "recall": 0.8091954022988506,
+        "precision": 0.800369685767098,
+        "f2": 0.807414721799604,
+        "char_recall": 0.9678900947038979,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.09885057471264368,
+        "missed_rate": 0.08045977011494253,
+        "fp_per_1k_lines": 118.800461361015,
+        "counts": {
+          "gold_total": 435,
+          "exact": 352,
+          "over": 5,
+          "partial": 43,
+          "missed": 35,
+          "edits_total": 541,
+          "edits_tp": 433,
+          "edits_over": 5,
+          "edits_fp": 103,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1580,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8341463414634146,
+          "TOKEN": 0.8455284552845529,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8091954022988506
+        }
+      },
+      "s113": {
+        "recall": 0.8344827586206897,
+        "precision": 0.8088235294117647,
+        "f2": 0.8292214912280702,
+        "char_recall": 0.9711010852335081,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.0896551724137931,
+        "missed_rate": 0.06436781609195402,
+        "fp_per_1k_lines": 114.18685121107266,
+        "counts": {
+          "gold_total": 435,
+          "exact": 363,
+          "over": 5,
+          "partial": 39,
+          "missed": 28,
+          "edits_total": 544,
+          "edits_tp": 440,
+          "edits_over": 5,
+          "edits_fp": 99,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1422,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8878048780487805,
+          "TOKEN": 0.8617886178861789,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 0.9615384615384616
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8344827586206897
+        }
+      },
+      "s114": {
+        "recall": 0.8275862068965517,
+        "precision": 0.8021778584392014,
+        "f2": 0.8223765814934259,
+        "char_recall": 0.972767548672926,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.10114942528735632,
+        "missed_rate": 0.059770114942528735,
+        "fp_per_1k_lines": 119.95386389850057,
+        "counts": {
+          "gold_total": 435,
+          "exact": 360,
+          "over": 5,
+          "partial": 44,
+          "missed": 26,
+          "edits_total": 551,
+          "edits_tp": 442,
+          "edits_over": 5,
+          "edits_fp": 104,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1340,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8585365853658536,
+          "TOKEN": 0.8699186991869918,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8275862068965517
+        }
+      },
+      "v10-hi": {
+        "recall": 0.8206896551724138,
+        "precision": 0.8021778584392014,
+        "f2": 0.8169192585942863,
+        "char_recall": 0.9720156078527009,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.10114942528735632,
+        "missed_rate": 0.06666666666666667,
+        "fp_per_1k_lines": 119.95386389850057,
+        "counts": {
+          "gold_total": 435,
+          "exact": 357,
+          "over": 5,
+          "partial": 44,
+          "missed": 29,
+          "edits_total": 551,
+          "edits_tp": 442,
+          "edits_over": 5,
+          "edits_fp": 104,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1377,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8439024390243902,
+          "TOKEN": 0.8699186991869918,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8206896551724138
+        }
+      },
+      "s111-hi": {
+        "recall": 0.7839080459770115,
+        "precision": 0.8189964157706093,
+        "f2": 0.7906831138414827,
+        "char_recall": 0.9613461772954518,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.10344827586206896,
+        "missed_rate": 0.10114942528735632,
+        "fp_per_1k_lines": 110.72664359861592,
+        "counts": {
+          "gold_total": 435,
+          "exact": 341,
+          "over": 5,
+          "partial": 45,
+          "missed": 44,
+          "edits_total": 558,
+          "edits_tp": 457,
+          "edits_over": 5,
+          "edits_fp": 96,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1902,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8048780487804879,
+          "TOKEN": 0.8130081300813008,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 0.9807692307692307
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.7839080459770115
+        }
+      },
+      "s112-hi": {
+        "recall": 0.8,
+        "precision": 0.7992565055762082,
+        "f2": 0.7998511904761905,
+        "char_recall": 0.9658781449416738,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.10114942528735632,
+        "missed_rate": 0.08735632183908046,
+        "fp_per_1k_lines": 118.800461361015,
+        "counts": {
+          "gold_total": 435,
+          "exact": 348,
+          "over": 5,
+          "partial": 44,
+          "missed": 38,
+          "edits_total": 538,
+          "edits_tp": 430,
+          "edits_over": 5,
+          "edits_fp": 103,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1679,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.824390243902439,
+          "TOKEN": 0.8292682926829268,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8
+        }
+      },
+      "s113-hi": {
+        "recall": 0.8091954022988506,
+        "precision": 0.8097014925373134,
+        "f2": 0.8092965697285112,
+        "char_recall": 0.9663252448888346,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.09655172413793103,
+        "missed_rate": 0.08275862068965517,
+        "fp_per_1k_lines": 111.8800461361015,
+        "counts": {
+          "gold_total": 435,
+          "exact": 352,
+          "over": 5,
+          "partial": 42,
+          "missed": 36,
+          "edits_total": 536,
+          "edits_tp": 434,
+          "edits_over": 5,
+          "edits_fp": 97,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1657,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8439024390243902,
+          "TOKEN": 0.8292682926829268,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8091954022988506
+        }
+      },
+      "s114-hi": {
+        "recall": 0.8114942528735632,
+        "precision": 0.8100558659217877,
+        "f2": 0.8112061669735995,
+        "char_recall": 0.971548185180669,
+        "over_rate": 0.011494252873563218,
+        "partial_rate": 0.10114942528735632,
+        "missed_rate": 0.07586206896551724,
+        "fp_per_1k_lines": 111.8800461361015,
+        "counts": {
+          "gold_total": 435,
+          "exact": 353,
+          "over": 5,
+          "partial": 44,
+          "missed": 33,
+          "edits_total": 537,
+          "edits_tp": 435,
+          "edits_over": 5,
+          "edits_fp": 97,
+          "gold_chars_total": 49206,
+          "exposed_chars_total": 1400,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.824390243902439,
+          "TOKEN": 0.8699186991869918,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.3333333333333333,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8114942528735632
+        }
+      }
+    },
+    "sessions_2": {
+      "system": {
+        "recall": 0.7361111111111112,
+        "precision": 0.782608695652174,
+        "f2": 0.7449632984538498,
+        "char_recall": 0.7698382850695751,
+        "over_rate": 0.013888888888888888,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.2361111111111111,
+        "fp_per_1k_lines": 22.11690363349131,
+        "counts": {
+          "gold_total": 72,
+          "exact": 53,
+          "over": 1,
+          "partial": 1,
+          "missed": 17,
+          "edits_total": 69,
+          "edits_tp": 54,
+          "edits_over": 1,
+          "edits_fp": 14,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 612,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.7,
+          "TOKEN": 0.8,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7142857142857143
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7611940298507462
+        }
+      },
+      "v9": {
+        "recall": 0.7916666666666666,
+        "precision": 0.5979381443298969,
+        "f2": 0.743489407637296,
+        "char_recall": 0.8345242572395637,
+        "over_rate": 0.05555555555555555,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.1388888888888889,
+        "fp_per_1k_lines": 55.292259083728275,
+        "counts": {
+          "gold_total": 72,
+          "exact": 57,
+          "over": 4,
+          "partial": 1,
+          "missed": 10,
+          "edits_total": 97,
+          "edits_tp": 58,
+          "edits_over": 4,
+          "edits_fp": 35,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 440,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.7666666666666667,
+          "TOKEN": 0.8666666666666667,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7619047619047619
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.8208955223880597
+        }
+      },
+      "v10": {
+        "recall": 0.7916666666666666,
+        "precision": 0.48333333333333334,
+        "f2": 0.7020897043832822,
+        "char_recall": 0.8439262880782249,
+        "over_rate": 0.06944444444444445,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.125,
+        "fp_per_1k_lines": 91.62717219589257,
+        "counts": {
+          "gold_total": 72,
+          "exact": 57,
+          "over": 5,
+          "partial": 1,
+          "missed": 9,
+          "edits_total": 120,
+          "edits_tp": 58,
+          "edits_over": 4,
+          "edits_fp": 58,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 415,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8333333333333334,
+          "TOKEN": 0.8666666666666667,
+          "ACCESS_KEY": 0.75,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7142857142857143
+        },
+        "recall_by_channel": {
+          "prompt": 0.0,
+          "instructions": 1.0,
+          "tool_output": 0.835820895522388
+        }
+      },
+      "s111": {
+        "recall": 0.8194444444444444,
+        "precision": 0.6,
+        "f2": 0.7635893011216566,
+        "char_recall": 0.8390372320421211,
+        "over_rate": 0.041666666666666664,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.125,
+        "fp_per_1k_lines": 58.45181674565561,
+        "counts": {
+          "gold_total": 72,
+          "exact": 59,
+          "over": 3,
+          "partial": 1,
+          "missed": 9,
+          "edits_total": 100,
+          "edits_tp": 60,
+          "edits_over": 3,
+          "edits_fp": 37,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 428,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8,
+          "TOKEN": 0.8666666666666667,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.8095238095238095
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.8507462686567164
+        }
+      },
+      "s112": {
+        "recall": 0.8194444444444444,
+        "precision": 0.4878048780487805,
+        "f2": 0.7213595794106858,
+        "char_recall": 0.8589695374200828,
+        "over_rate": 0.05555555555555555,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.1111111111111111,
+        "fp_per_1k_lines": 93.20695102685623,
+        "counts": {
+          "gold_total": 72,
+          "exact": 59,
+          "over": 4,
+          "partial": 1,
+          "missed": 8,
+          "edits_total": 123,
+          "edits_tp": 60,
+          "edits_over": 4,
+          "edits_fp": 59,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 375,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8333333333333334,
+          "TOKEN": 0.9333333333333333,
+          "ACCESS_KEY": 0.75,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7619047619047619
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 1.0,
+          "tool_output": 0.835820895522388
+        }
+      },
+      "s113": {
+        "recall": 0.8055555555555556,
+        "precision": 0.594059405940594,
+        "f2": 0.7520096810441698,
+        "char_recall": 0.8555848063181647,
+        "over_rate": 0.05555555555555555,
+        "partial_rate": 0.027777777777777776,
+        "missed_rate": 0.1111111111111111,
+        "fp_per_1k_lines": 58.45181674565561,
+        "counts": {
+          "gold_total": 72,
+          "exact": 58,
+          "over": 4,
+          "partial": 2,
+          "missed": 8,
+          "edits_total": 101,
+          "edits_tp": 60,
+          "edits_over": 4,
+          "edits_fp": 37,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 384,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8333333333333334,
+          "TOKEN": 0.8666666666666667,
+          "ACCESS_KEY": 0.75,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7619047619047619
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 1.0,
+          "tool_output": 0.8208955223880597
+        }
+      },
+      "s114": {
+        "recall": 0.8333333333333334,
+        "precision": 0.5254237288135594,
+        "f2": 0.7459095283926852,
+        "char_recall": 0.8736367055283941,
+        "over_rate": 0.05555555555555555,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.09722222222222222,
+        "fp_per_1k_lines": 82.14849921011059,
+        "counts": {
+          "gold_total": 72,
+          "exact": 60,
+          "over": 4,
+          "partial": 1,
+          "missed": 7,
+          "edits_total": 118,
+          "edits_tp": 62,
+          "edits_over": 4,
+          "edits_fp": 52,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 336,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8333333333333334,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 0.75,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7619047619047619
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 1.0,
+          "tool_output": 0.8507462686567164
+        }
+      },
+      "v10-hi": {
+        "recall": 0.7638888888888888,
+        "precision": 0.6511627906976745,
+        "f2": 0.7383258222264839,
+        "char_recall": 0.8292591199699135,
+        "over_rate": 0.06944444444444445,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.1527777777777778,
+        "fp_per_1k_lines": 41.07424960505529,
+        "counts": {
+          "gold_total": 72,
+          "exact": 55,
+          "over": 5,
+          "partial": 1,
+          "missed": 11,
+          "edits_total": 86,
+          "edits_tp": 56,
+          "edits_over": 4,
+          "edits_fp": 26,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 454,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.7666666666666667,
+          "TOKEN": 0.8666666666666667,
+          "ACCESS_KEY": 0.75,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7142857142857143
+        },
+        "recall_by_channel": {
+          "prompt": 0.0,
+          "instructions": 1.0,
+          "tool_output": 0.8059701492537313
+        }
+      },
+      "s111-hi": {
+        "recall": 0.8194444444444444,
+        "precision": 0.7142857142857143,
+        "f2": 0.7960064759848895,
+        "char_recall": 0.8390372320421211,
+        "over_rate": 0.041666666666666664,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.125,
+        "fp_per_1k_lines": 33.17535545023697,
+        "counts": {
+          "gold_total": 72,
+          "exact": 59,
+          "over": 3,
+          "partial": 1,
+          "missed": 9,
+          "edits_total": 84,
+          "edits_tp": 60,
+          "edits_over": 3,
+          "edits_fp": 21,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 428,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8,
+          "TOKEN": 0.8666666666666667,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.8095238095238095
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.8507462686567164
+        }
+      },
+      "s112-hi": {
+        "recall": 0.8194444444444444,
+        "precision": 0.6060606060606061,
+        "f2": 0.7655378227585312,
+        "char_recall": 0.8537044001504325,
+        "over_rate": 0.041666666666666664,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.125,
+        "fp_per_1k_lines": 56.87203791469194,
+        "counts": {
+          "gold_total": 72,
+          "exact": 59,
+          "over": 3,
+          "partial": 1,
+          "missed": 9,
+          "edits_total": 99,
+          "edits_tp": 60,
+          "edits_over": 3,
+          "edits_fp": 36,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 389,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8333333333333334,
+          "TOKEN": 0.9333333333333333,
+          "ACCESS_KEY": 0.75,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7619047619047619
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 1.0,
+          "tool_output": 0.835820895522388
+        }
+      },
+      "s113-hi": {
+        "recall": 0.8055555555555556,
+        "precision": 0.6976744186046512,
+        "f2": 0.7813903359080294,
+        "char_recall": 0.8506957502820609,
+        "over_rate": 0.05555555555555555,
+        "partial_rate": 0.027777777777777776,
+        "missed_rate": 0.1111111111111111,
+        "fp_per_1k_lines": 34.75513428120063,
+        "counts": {
+          "gold_total": 72,
+          "exact": 58,
+          "over": 4,
+          "partial": 2,
+          "missed": 8,
+          "edits_total": 86,
+          "edits_tp": 60,
+          "edits_over": 4,
+          "edits_fp": 22,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 397,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.8333333333333334,
+          "TOKEN": 0.8666666666666667,
+          "ACCESS_KEY": 0.75,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7619047619047619
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 1.0,
+          "tool_output": 0.8208955223880597
+        }
+      },
+      "s114-hi": {
+        "recall": 0.7777777777777778,
+        "precision": 0.6404494382022472,
+        "f2": 0.7457943925233645,
+        "char_recall": 0.8292591199699135,
+        "over_rate": 0.05555555555555555,
+        "partial_rate": 0.013888888888888888,
+        "missed_rate": 0.1527777777777778,
+        "fp_per_1k_lines": 44.23380726698262,
+        "counts": {
+          "gold_total": 72,
+          "exact": 56,
+          "over": 4,
+          "partial": 1,
+          "missed": 11,
+          "edits_total": 89,
+          "edits_tp": 57,
+          "edits_over": 4,
+          "edits_fp": 28,
+          "gold_chars_total": 2659,
+          "exposed_chars_total": 454,
+          "gold_excluded": 6,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.7666666666666667,
+          "TOKEN": 0.8666666666666667,
+          "ACCESS_KEY": 0.75,
+          "PRIVATE_KEY": 0.5,
+          "SECRET": 0.7619047619047619
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 1.0,
+          "tool_output": 0.7910447761194029
+        }
+      }
+    },
+    "sessions": {
+      "system": {
+        "recall": 0.6875,
+        "precision": 0.8928571428571429,
+        "f2": 0.7206498951781972,
+        "char_recall": 0.7215909090909091,
+        "over_rate": 0.0,
+        "partial_rate": 0.03125,
+        "missed_rate": 0.28125,
+        "fp_per_1k_lines": 19.867549668874172,
+        "counts": {
+          "gold_total": 32,
+          "exact": 22,
+          "over": 0,
+          "partial": 1,
+          "missed": 9,
+          "edits_total": 28,
+          "edits_tp": 25,
+          "edits_over": 0,
+          "edits_fp": 3,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 245,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.7647058823529411,
+          "TOKEN": 0.7142857142857143,
+          "ACCESS_KEY": 0.3333333333333333,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.0,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "v9": {
+        "recall": 0.71875,
+        "precision": 0.6842105263157895,
+        "f2": 0.7115659209900048,
+        "char_recall": 0.9704545454545455,
+        "over_rate": 0.21875,
+        "partial_rate": 0.03125,
+        "missed_rate": 0.03125,
+        "fp_per_1k_lines": 33.11258278145696,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 7,
+          "partial": 1,
+          "missed": 1,
+          "edits_total": 38,
+          "edits_tp": 26,
+          "edits_over": 7,
+          "edits_fp": 5,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 26,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "v10": {
+        "recall": 0.6875,
+        "precision": 0.7297297297297297,
+        "f2": 0.6955503512880562,
+        "char_recall": 0.9488636363636364,
+        "over_rate": 0.15625,
+        "partial_rate": 0.09375,
+        "missed_rate": 0.0625,
+        "fp_per_1k_lines": 33.11258278145696,
+        "counts": {
+          "gold_total": 32,
+          "exact": 22,
+          "over": 5,
+          "partial": 3,
+          "missed": 2,
+          "edits_total": 37,
+          "edits_tp": 27,
+          "edits_over": 5,
+          "edits_fp": 5,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 45,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 0.6666666666666666,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7241379310344828
+        }
+      },
+      "s111": {
+        "recall": 0.71875,
+        "precision": 0.7222222222222222,
+        "f2": 0.71944177093359,
+        "char_recall": 0.9704545454545455,
+        "over_rate": 0.21875,
+        "partial_rate": 0.03125,
+        "missed_rate": 0.03125,
+        "fp_per_1k_lines": 19.867549668874172,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 7,
+          "partial": 1,
+          "missed": 1,
+          "edits_total": 36,
+          "edits_tp": 26,
+          "edits_over": 7,
+          "edits_fp": 3,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 26,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "s112": {
+        "recall": 0.71875,
+        "precision": 0.6585365853658537,
+        "f2": 0.7058422368720164,
+        "char_recall": 0.9954545454545455,
+        "over_rate": 0.1875,
+        "partial_rate": 0.09375,
+        "missed_rate": 0.0,
+        "fp_per_1k_lines": 46.35761589403974,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 6,
+          "partial": 3,
+          "missed": 0,
+          "edits_total": 41,
+          "edits_tp": 27,
+          "edits_over": 7,
+          "edits_fp": 7,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 4,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "s113": {
+        "recall": 0.71875,
+        "precision": 0.6666666666666666,
+        "f2": 0.7076923076923076,
+        "char_recall": 0.9965909090909091,
+        "over_rate": 0.21875,
+        "partial_rate": 0.0625,
+        "missed_rate": 0.0,
+        "fp_per_1k_lines": 33.11258278145696,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 7,
+          "partial": 2,
+          "missed": 0,
+          "edits_total": 39,
+          "edits_tp": 26,
+          "edits_over": 8,
+          "edits_fp": 5,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 3,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "s114": {
+        "recall": 0.71875,
+        "precision": 0.6923076923076923,
+        "f2": 0.7133011716057891,
+        "char_recall": 0.9897727272727272,
+        "over_rate": 0.15625,
+        "partial_rate": 0.125,
+        "missed_rate": 0.0,
+        "fp_per_1k_lines": 33.11258278145696,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 5,
+          "partial": 4,
+          "missed": 0,
+          "edits_total": 39,
+          "edits_tp": 27,
+          "edits_over": 7,
+          "edits_fp": 5,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 9,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "v10-hi": {
+        "recall": 0.71875,
+        "precision": 0.7941176470588235,
+        "f2": 0.7326569136385087,
+        "char_recall": 0.9113636363636364,
+        "over_rate": 0.125,
+        "partial_rate": 0.0625,
+        "missed_rate": 0.09375,
+        "fp_per_1k_lines": 19.867549668874172,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 4,
+          "partial": 2,
+          "missed": 3,
+          "edits_total": 34,
+          "edits_tp": 27,
+          "edits_over": 4,
+          "edits_fp": 3,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 78,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "s111-hi": {
+        "recall": 0.71875,
+        "precision": 0.7428571428571429,
+        "f2": 0.7234454391483184,
+        "char_recall": 0.9522727272727273,
+        "over_rate": 0.1875,
+        "partial_rate": 0.03125,
+        "missed_rate": 0.0625,
+        "fp_per_1k_lines": 19.867549668874172,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 6,
+          "partial": 1,
+          "missed": 2,
+          "edits_total": 35,
+          "edits_tp": 26,
+          "edits_over": 6,
+          "edits_fp": 3,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 42,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "s112-hi": {
+        "recall": 0.71875,
+        "precision": 0.7714285714285715,
+        "f2": 0.7287021825862474,
+        "char_recall": 0.9522727272727273,
+        "over_rate": 0.15625,
+        "partial_rate": 0.0625,
+        "missed_rate": 0.0625,
+        "fp_per_1k_lines": 19.867549668874172,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 5,
+          "partial": 2,
+          "missed": 2,
+          "edits_total": 35,
+          "edits_tp": 27,
+          "edits_over": 5,
+          "edits_fp": 3,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 42,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "s113-hi": {
+        "recall": 0.71875,
+        "precision": 0.7428571428571429,
+        "f2": 0.7234454391483184,
+        "char_recall": 0.9534090909090909,
+        "over_rate": 0.1875,
+        "partial_rate": 0.03125,
+        "missed_rate": 0.0625,
+        "fp_per_1k_lines": 19.867549668874172,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 6,
+          "partial": 1,
+          "missed": 2,
+          "edits_total": 35,
+          "edits_tp": 26,
+          "edits_over": 6,
+          "edits_fp": 3,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 41,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      },
+      "s114-hi": {
+        "recall": 0.71875,
+        "precision": 0.7297297297297297,
+        "f2": 0.7209194334803808,
+        "char_recall": 0.9681818181818181,
+        "over_rate": 0.15625,
+        "partial_rate": 0.09375,
+        "missed_rate": 0.03125,
+        "fp_per_1k_lines": 26.490066225165563,
+        "counts": {
+          "gold_total": 32,
+          "exact": 23,
+          "over": 5,
+          "partial": 3,
+          "missed": 1,
+          "edits_total": 37,
+          "edits_tp": 27,
+          "edits_over": 6,
+          "edits_fp": 4,
+          "gold_chars_total": 880,
+          "exposed_chars_total": 28,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 0.5882352941176471,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": 0.0,
+          "SECRET": 0.75
+        },
+        "recall_by_channel": {
+          "prompt": 0.5,
+          "instructions": 0.0,
+          "tool_output": 0.7586206896551724
+        }
+      }
+    },
+    "sessions_from_example": {
+      "system": {
+        "recall": 0.8,
+        "precision": 1.0,
+        "f2": 0.8333333333333334,
+        "char_recall": 0.765625,
+        "over_rate": 0.0,
+        "partial_rate": 0.0,
+        "missed_rate": 0.2,
+        "fp_per_1k_lines": 0.0,
+        "counts": {
+          "gold_total": 10,
+          "exact": 8,
+          "over": 0,
+          "partial": 0,
+          "missed": 2,
+          "edits_total": 8,
+          "edits_tp": 8,
+          "edits_over": 0,
+          "edits_fp": 0,
+          "gold_chars_total": 256,
+          "exposed_chars_total": 60,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 1.0,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 0.3333333333333333,
+          "PRIVATE_KEY": null,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 0.8
+        }
+      },
+      "v9": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "f2": 1.0,
+        "char_recall": 1.0,
+        "over_rate": 0.0,
+        "partial_rate": 0.0,
+        "missed_rate": 0.0,
+        "fp_per_1k_lines": 0.0,
+        "counts": {
+          "gold_total": 10,
+          "exact": 10,
+          "over": 0,
+          "partial": 0,
+          "missed": 0,
+          "edits_total": 10,
+          "edits_tp": 10,
+          "edits_over": 0,
+          "edits_fp": 0,
+          "gold_chars_total": 256,
+          "exposed_chars_total": 0,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 1.0,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": null,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 1.0
+        }
+      },
+      "v10": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "f2": 1.0,
+        "char_recall": 1.0,
+        "over_rate": 0.0,
+        "partial_rate": 0.0,
+        "missed_rate": 0.0,
+        "fp_per_1k_lines": 0.0,
+        "counts": {
+          "gold_total": 10,
+          "exact": 10,
+          "over": 0,
+          "partial": 0,
+          "missed": 0,
+          "edits_total": 10,
+          "edits_tp": 10,
+          "edits_over": 0,
+          "edits_fp": 0,
+          "gold_chars_total": 256,
+          "exposed_chars_total": 0,
+          "gold_excluded": 0,
+          "edits_excluded": 0
+        },
+        "recall_by_type": {
+          "PASSWORD": 1.0,
+          "TOKEN": 1.0,
+          "ACCESS_KEY": 1.0,
+          "PRIVATE_KEY": null,
+          "SECRET": 1.0
+        },
+        "recall_by_channel": {
+          "prompt": null,
+          "instructions": null,
+          "tool_output": 1.0
+        }
+      }
+    }
+  },
+  "v9_vs_v10_breakdown": {
+    "sessions_mleval_hand_v1_test": {
+      "group_field": "group_id",
+      "v9_exact_v10_not": {
+        "hand-container-metadata -> over": 4,
+        "hand-geo-routing -> missed": 1,
+        "hand-postgres-migration -> missed": 1,
+        "hand-clickhouse-batch -> missed": 4,
+        "hand-columnstore-reader -> missed": 3,
+        "hand-json-transport-tail -> partial": 4
+      },
+      "v10_exact_v9_not": {
+        "hand-inventory-client (v9 missed)": 1
+      },
+      "fp_edits_only_v10": {
+        "hand-byte-buffer-auth-fields / wallet_address": 5,
+        "hand-ssh-backup-identity / public_key": 4,
+        "hand-sshfs-identity / public_key": 3,
+        "hand-audit-export-adjacency / hash": 1,
+        "hand-container-metadata / hash": 1
+      },
+      "fp_edits_only_v9": {
+        "hand-geo-routing / not_propagated": 1,
+        "hand-audit-export-adjacency / hash": 1,
+        "hand-audit-export-adjacency / public_key_raw": 1
+      },
+      "ml_added_fp_edits": {
+        "v9": 9,
+        "v10": 19
+      }
+    },
+    "sessions_2": {
+      "group_field": "category",
+      "v9_exact_v10_not": {
+        "tool_input -> over": 2
+      },
+      "v10_exact_v9_not": {
+        "natural_language (v9 over)": 1,
+        "natural_language (v9 missed)": 1
+      },
+      "fp_edits_only_v10": {
+        "negative": 15,
+        "log": 7,
+        "config": 3,
+        "command_output": 5,
+        "weak_or_test": 2
+      },
+      "fp_edits_only_v9": {
+        "negative": 6,
+        "weak_or_test": 2,
+        "config": 1
+      },
+      "ml_added_fp_edits": {
+        "v9": 22,
+        "v10": 44
+      }
+    }
+  }
+}

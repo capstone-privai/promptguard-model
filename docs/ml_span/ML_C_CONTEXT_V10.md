@@ -147,6 +147,10 @@ v10 warm 레시피를 그대로 두고 seed만 111~114로 바꿔 Colab T4에서 
 - **v10은 운이 좋은 seed였던 것이 아니라 분포의 위쪽에 있습니다.** v10 이상인 cutoff가 하나라도 나온 재학습은 Colab 111 하나뿐이고(192개 중 2개, 극단값 0.9999935), 나머지 셋은 0개입니다. 그래서 기본 모델은 v10을 그대로 둡니다.
 - 이 실행들의 가중치는 `runs/`와 Google Drive에만 있고 커밋하지 않았습니다.
 
+## 팀 평가 도구 결과
+
+팀의 독립 평가 도구(`promptguard-data` metric-detection)에서는 ML 평가 test 기준으로 v10 레시피 다섯 모델이 모두 v9보다 낮았습니다(F2 0.794~0.829 대 0.843). 에이전트 세션 v2에서는 v9와 비슷했습니다. 자세한 내용은 [팀 평가 도구로 본 v10](EXTERNAL_EVAL_V10.md)에 있습니다. 저장소의 기본 bundle 표기는 바꾸지 않았고, 실제 PromptGuard 설정은 계속 v9를 씁니다.
+
 ## 산출물
 
 - 데이터: `data/span-context-v10/` (train/validation/test, manifest), `data/span-holdout-v11/` (test, manifest)
