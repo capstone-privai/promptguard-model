@@ -8,6 +8,7 @@ from privai_model.modeling.model import resolve_device
 from .bio import windows,aggregate,LABELS
 from .schema import validate_spans
 from .function_words import POLICY as FUNCTION_WORD_POLICY, filter_function_words
+from .short_values import check_min_value_length, filter_short_values
 
 
 def threshold_check(value):
@@ -42,7 +43,7 @@ def mask_intervals(text,findings):
 
 
 class MLSpanDetector:
-    def __init__(self,checkpoint=None,device='cpu',*,tokenizer=None,model=None,max_length=512,stride=128,threshold=0.5,candidate_filter=None):
+    def __init__(self,checkpoint=None,device='cpu',*,tokenizer=None,model=None,max_length=512,stride=128,threshold=0.5,candidate_filter=None,min_value_length=None):
         try:
             boundary_config=None
             if checkpoint is not None:
@@ -51,16 +52,19 @@ class MLSpanDetector:
                 max_length,stride,threshold=meta['max_length'],meta['stride'],meta['threshold']
                 boundary_config=meta.get('boundary_refiner')
                 candidate_filter=meta.get('candidate_filter')
+                # A caller may opt a bundle into the length guard without editing it (e.g. the frozen v9 bundle).
+                if min_value_length is None: min_value_length=meta.get('min_value_length')
                 tokenizer=AutoTokenizer.from_pretrained(checkpoint,local_files_only=True)
                 model=AutoModelForTokenClassification.from_pretrained(checkpoint,local_files_only=True,attn_implementation='eager')
             threshold_check(threshold)
             if candidate_filter not in (None, FUNCTION_WORD_POLICY): raise ValueError('unknown candidate filter')
+            check_min_value_length(min_value_length)
             if tokenizer is None or model is None or not tokenizer.is_fast or model.config.id2label!=LABELS:
                 raise ValueError()
             self.device=resolve_device(device)
             self.model=model.to(self.device).eval();self.tokenizer=tokenizer
             self.max_length=max_length;self.stride=stride;self.threshold=threshold
-            self.candidate_filter=candidate_filter
+            self.candidate_filter=candidate_filter;self.min_value_length=min_value_length
             self.boundary_refiner=None
             if boundary_config is not None:
                 from .boundary import BoundaryRefiner
@@ -92,6 +96,8 @@ class MLSpanDetector:
             spans=[s for s in spans if s['score']>=threshold]
             if self.candidate_filter==FUNCTION_WORD_POLICY:
                 spans=filter_function_words(text,spans)
+            if self.min_value_length is not None:
+                spans=filter_short_values(text,spans,self.min_value_length)
             return spans
         except Exception:
             raise RuntimeError('ML span inference failed; caller must fail closed') from None
