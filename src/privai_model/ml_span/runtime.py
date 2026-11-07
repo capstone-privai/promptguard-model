@@ -9,7 +9,7 @@ from .bio import windows,aggregate,LABELS
 from .schema import validate_spans
 from .function_words import POLICY as FUNCTION_WORD_POLICY, filter_function_words
 from .short_values import check_min_value_length, filter_short_values
-from .delimiters import POLICY as DELIMITER_POLICY, trim_quote_delimiters
+from .delimiters import POLICIES as DELIMITER_POLICIES, trim_quote_delimiters
 
 
 def threshold_check(value):
@@ -61,7 +61,7 @@ class MLSpanDetector:
             threshold_check(threshold)
             if candidate_filter not in (None, FUNCTION_WORD_POLICY): raise ValueError('unknown candidate filter')
             check_min_value_length(min_value_length)
-            if delimiter_policy not in (None, DELIMITER_POLICY): raise ValueError('unknown delimiter policy')
+            if delimiter_policy not in (None,)+DELIMITER_POLICIES: raise ValueError('unknown delimiter policy')
             if tokenizer is None or model is None or not tokenizer.is_fast or model.config.id2label!=LABELS:
                 raise ValueError()
             self.device=resolve_device(device)
@@ -97,8 +97,8 @@ class MLSpanDetector:
                 spans=self.boundary_refiner.refine(text,spans)
                 validate_spans(text,spans,True)
             spans=[s for s in spans if s['score']>=threshold]
-            if self.delimiter_policy==DELIMITER_POLICY:
-                spans=trim_quote_delimiters(text,spans)
+            if self.delimiter_policy is not None:
+                spans=trim_quote_delimiters(text,spans,self.delimiter_policy)
             if self.candidate_filter==FUNCTION_WORD_POLICY:
                 spans=filter_function_words(text,spans)
             if self.min_value_length is not None:

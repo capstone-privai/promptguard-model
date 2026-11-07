@@ -1,9 +1,9 @@
-"""Closing-quote trim: fixes token-merged quotes without ever cutting a value that ends in a quote."""
+"""Delimiter trims: fix token-merged quotes and separators without ever cutting a value that ends in a quote."""
 from types import SimpleNamespace
 from unittest.mock import patch
 import pytest
 import torch
-from privai_model.ml_span.delimiters import POLICY, trim_quote_delimiters
+from privai_model.ml_span.delimiters import POLICY, POLICY_V2, trim_quote_delimiters
 from privai_model.ml_span.runtime import MLSpanDetector
 
 
@@ -34,6 +34,37 @@ def test_closing_quote_trimmed(text, predicted, expected):
 def test_left_alone(text, value):
     s = span(text, value)
     assert trim_quote_delimiters(text, [s]) == [s]
+
+
+@pytest.mark.parametrize('text,predicted,expected', [
+    ('pw="+syn-value"; next', 'syn-value";', '+syn-value'),          # `"+` was one token: start moves back
+    ('{"k":"#syn~value.","n":1}', 'syn~value.",', '#syn~value.'),
+    ('use `/syn/value`.', 'syn/value', '/syn/value'),
+    ('queue:%9synvalue@host', ':%9synvalue', '%9synvalue'),          # `:%` was one token: separator dropped
+    ('pw="#syn-value"; x', '="#syn-value";', '#syn-value'),          # separator and opening quote dropped
+    ('pw="syn-value)"; next', 'syn-value)";', 'syn-value)'),         # v1 behaviour kept
+])
+def test_v2_moves_token_merged_start(text, predicted, expected):
+    s = span(text, predicted)
+    out = trim_quote_delimiters(text, [s], POLICY_V2)
+    assert text[out[0]['start']:out[0]['end']] == expected
+
+
+@pytest.mark.parametrize('text,value', [
+    ("token: '=SynValue'", '=SynValue'),       # a value that starts with = after a quote
+    ("a: k='=SynValue'", '=SynValue'),
+    ('x="><syn-value"', '<syn-value'),         # > is not value punctuation
+    ('pw="+syn-value"; next', '+syn-value'),  # already exact
+    ('key=syn-value', 'syn-value'),
+])
+def test_v2_left_alone(text, value):
+    s = span(text, value)
+    assert trim_quote_delimiters(text, [s], POLICY_V2) == [s]
+
+
+def test_unknown_policy_name_rejected():
+    with pytest.raises(ValueError):
+        trim_quote_delimiters('x', [], 'unknown')
 
 
 def test_runtime_applies_policy_only_when_set():

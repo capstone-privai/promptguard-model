@@ -21,6 +21,17 @@ def short(m):
     return {k: (round(v, 4) if isinstance(v, float) else v) for k, v in m.items() if k in ('tp', 'fp', 'fn', 'precision', 'recall', 'f2')}
 
 
+def trim(q):
+    """A delimiter-policy report: own-validation gate, then development sets (before/after, fixed, broken)."""
+    if not q:
+        return None
+    return dict(policy=q['policy'], eligible=q['eligible'], validation_before=short(q['validation']['before']),
+                validation_after=short(q['validation']['after']), fixed=q['validation']['fixed'], broken=q['validation']['broken'],
+                gold_preservation=q.get('gold_preservation'),
+                development={k: dict(before=short(v['before']), after=short(v['after']), fixed=v['fixed'], broken=v['broken'])
+                             for k, v in q['development'].items()})
+
+
 def main():
     runs = {}
     for spec in sys.argv[1:]:
@@ -35,13 +46,8 @@ def main():
             alignment=read(f'{folder}/alignment.json'),
             history=[dict(epoch=h['epoch'], loss=round(h['loss'], 6), cutoff=h['threshold'], **short(h['validation'])) for h in history],
             selected_epoch=bundle['best_epoch'], cutoff=bundle['threshold'],
-            quote_trim=read(f'runs/pilot-reports/delimiters-pilot-{name.lower()}.json'))
-        if runs[name]['quote_trim']:
-            q = runs[name]['quote_trim']
-            runs[name]['quote_trim'] = dict(eligible=q['eligible'], validation_before=short(q['validation']['before']),
-                                            validation_after=short(q['validation']['after']), fixed=q['validation']['fixed'],
-                                            broken=q['validation']['broken'],
-                                            development={k: dict(fixed=v['fixed'], broken=v['broken']) for k, v in q['development'].items()})
+            quote_trim=trim(read(f'runs/pilot-reports/delimiters-pilot-{name.lower()}.json')),
+            quote_trim_v2=trim(read(f'runs/pilot-reports/delimiters-v2-pilot-{name.lower()}.json')))
     data = {}
     for m in 'ab':
         manifest = read(f'runs/data/span-pilot-step0-{m}/manifest.json')
