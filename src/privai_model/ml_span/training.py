@@ -115,6 +115,8 @@ def train(config):
         model.train();loss_sum=0
         for batch_index,batch in enumerate(loader,1):
             batch={k:v.to(device) for k,v in batch.items()};labels=batch.pop('labels')
+            # Length grouping can batch empty texts together; with no target token the mean loss is 0/0.
+            if not bool((labels!=-100).any()): continue
             optimizer.zero_grad(set_to_none=True)
             logits=model(**batch).logits
             loss=loss_fn(logits.reshape(-1,3),labels.reshape(-1))
