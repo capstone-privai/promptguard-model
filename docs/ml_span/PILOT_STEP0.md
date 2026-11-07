@@ -1,0 +1,159 @@
+# 팀 0단계 파일럿: 모델 A와 B
+
+팀의 ML 학습 데이터 0단계 묶음(`promptguard-data` 브랜치 `ml-train-pilot`, commit `5b812c7`)으로 모델 두 개를 학습했습니다. 목적은 LLM 템플릿을 더 만들 가치가 있는지 판단하는 것입니다. A와 B는 학습 설정이 같고, train·val 파일만 다릅니다.
+
+- **A**: 손 템플릿 + privesc
+- **B**: 손 템플릿 + LLM 템플릿 + privesc
+
+**팀 test·test_ood는 열지 않았습니다.** 팀이 먼저 평가하기로 했으므로, 이 문서의 숫자는 모두 validation 또는 우리 개발셋 결과입니다. 집계는 `reports/ml_span/pilot-step0.json`에 있습니다. 개수·설정만 있고 값이나 원문은 없습니다.
+
+## 데이터
+
+- **빌드와 검증**: 팀 스크립트(`build_ml_handoff.sh`)로 맥과 Colab에서 각각 빌드했습니다. 두 번 모두 데이터 파일 30개가 팀이 커밋한 sha256과 일치했습니다(`OK`).
+- **변환**: `scripts/prepare_pilot_step0.py`가 각 모델 폴더의 sha256을 다시 확인한 뒤 우리 span 형식으로 바꿉니다.
+  - 한 행은 prompt, instructions, tool_output 채널의 item 하나입니다. tool_input은 PromptGuard가 검사하지 않으므로 넣지 않았습니다.
+  - 팀의 train과 val은 한 행도 빼지 않았습니다.
+- **변환 결과 위치**: `runs/data/span-pilot-step0-{a,b}`(Git 제외). 값이 실제 형식이고 privesc에는 SSH 키가 있기 때문입니다.
+
+| | 팀 세션 (train / val) | 학습 행 (train / val) | 정답 span (train / val) | train·val이 공유하는 값 |
+|---|---|---|---|---|
+| A | 1,108 / 80 | 15,818 / 305 | 5,563 / 435 | 24 |
+| B | 1,693 / 155 | 19,385 / 815 | 6,847 / 615 | 86 |
+
+- **값 공유**: 팀은 흔한 값(약한 비밀번호 등)이 split 사이에 반복되는 것을 허용합니다. 그래서 학습 설정에 `shared_key_kinds: [value]`를 두어 값 겹침만 허용했습니다. 그룹·텍스트·템플릿 겹침은 그대로 막습니다.
+- **test 자리**: 학습 스크립트에는 test split이 필요해서 우리 hold-out v11을 넣었습니다. 이 점수는 쓰지 않습니다.
+- **데이터 지문**: A `14897a3b…`, B `cd587c1f…`. 맥과 Colab에서 같았습니다.
+
+## 학습 설정 (A와 B 동일)
+
+`configs/span-pilot-step0-{a,b}.yaml`은 v10 base 레시피를 그대로 씁니다. 두 파일이 데이터 폴더 외에는 같다는 것을 테스트(`tests/ml_span/test_pilot_step0.py`)로 확인합니다.
+
+- **시작 가중치**: mmBERT-small 원본(revision `abc3262`). 우리 v9·v10에서 이어 학습하지 않아, 결과는 팀 데이터만의 효과입니다.
+- **하이퍼파라미터**: 학습률 3e-5, 배치 4(길이별로 묶음), 최대 8 epoch, patience 3, class weight [1, 2, 2], max_length 512, stride 128, seed 110.
+- **선택 방식**: epoch와 cutoff는 각 모델 자신의 val에서 F2로 고릅니다. 팀 설계대로 A는 손 val, B는 손+LLM val입니다. 그래서 두 모델의 val 점수끼리는 비교하지 않습니다.
+- **환경**: Colab Tesla T4, torch 2.14.1. A는 약 68분, B는 약 110분 걸렸습니다.
+
+## 학습 결과 (validation)
+
+![loss 곡선과 epoch별 validation F2](pilot-step0-loss.svg)
+
+| 모델 | 선택 epoch | cutoff | 맞힘 / 오탐 / 놓침 | precision | F2 | 정리 v1 후 F2 | 정리 v2 후 F2 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| A (val 정답 435) | 2 | 0.99 | 388 / 47 / 47 | 0.892 | 0.892 | 0.984 | 1.000 |
+| B (val 정답 615) | 3 | 0.90 | 551 / 55 / 64 | 0.909 | 0.899 | 0.972 | 0.985 |
+
+loss 곡선 원자료는 `reports/ml_span/pilot-step0-loss.csv`에 있습니다. 학습 로그 원본은 Drive에 있습니다.
+
+## 찾은 문제와 고친 것
+
+### 1. B 학습이 손실 NaN으로 멈춤 → 학습 코드 수정
+
+- **증상**: B 첫 학습은 epoch 1 도중 `nonfinite loss`로 멈췄습니다.
+- **원인**: LLM 카드 `c0077`, `p0005`에 텍스트가 빈 item이 9개 있습니다. 길이별 묶기 때문에 이 빈 item들이 한 배치에 모였고, 정답 토큰이 하나도 없는 배치의 평균 손실은 0/0이 됩니다.
+- **수정**: 학습 코드가 이런 배치를 건너뜁니다. A에는 빈 item이 없어 A 학습은 이 경로를 지나지 않습니다.
+- **재학습**: B는 같은 seed로 다시 학습했고, 결과 이름은 `span-mmbert-pilot-step0-b-seed110`입니다.
+- **팀에 알릴 것**: 빈 item 9개는 데이터 쪽 문제입니다.
+
+### 2. 닫는 따옴표를 비밀값에 포함 → 따옴표 정리 옵션
+
+- **증상**: A의 val 오류 47개는 모두 경계 오류였습니다. 놓친 비밀은 없었고, 엉뚱한 곳을 잡은 오탐도 없었습니다. 그중 41개가 값 끝의 닫는 따옴표까지 span에 넣은 경우입니다.
+- **원인**: mmBERT 토크나이저는 `)";`, `.",`처럼 이어진 구두점을 토큰 하나로 묶습니다. 토큰 단위 모델은 값과 따옴표 사이를 자를 수 없습니다. val 정답 435개 중 68개가 토큰 경계로는 정확히 표현할 수 없는 span입니다(`alignment.json`).
+- **정리 규칙**: 런타임 옵션 `delimiter_policy: quote-delimiters-v1`(`src/privai_model/ml_span/delimiters.py`)이 span 바로 앞의 여는 따옴표와 짝이 맞는 닫는 따옴표를 잘라냅니다. 그 뒤에 `;`, `,` 같은 구분자만 남을 때만 자릅니다.
+  - 이스케이프된 `\"`는 자르지 않습니다.
+  - 값 자체가 따옴표로 끝나는 경우(`""`)도 자르지 않습니다. 팀 데이터에 이런 정답이 135개 있었고, 이 정답들은 맞습니다.
+- **안전성**: `data/`와 `runs/data`의 정답 41,948개 중 이 규칙으로 바뀌는 것은 0개입니다. 맞힌 답을 틀리게 만들 수 없습니다.
+- **validation 결과**: 판정 기준은 F2 상승, precision 유지입니다. A와 B 모두 통과했습니다.
+  - A: 40개 고침, 0개 망가짐
+  - B: 45개 고침, 0개 망가짐
+- **기존 모델**: 우리 경계 보정(boundary-v3)은 A에서 2개를 더 틀려 붙이지 않았습니다. v9와 v10에서는 이 규칙이 개발셋 오류를 몇 개 고쳤고(v4 9개, hold-out v11 3개 등) 망가뜨린 것은 없었습니다. 다만 두 모델 자신의 validation에는 해당 사례가 없어서 v9/v10 bundle에는 켜지 않았습니다. 아래 v2도 마찬가지입니다. v2는 v9·v10의 개발셋에서 v1보다 qwen_v2 1개, 팀 val 2개씩을 더 고쳤고, 자신의 validation은 바꾸지 않았습니다.
+
+### 3. 값이 구두점으로 시작할 때 시작 위치가 한 칸 어긋남 → quote-delimiters-v2
+
+- **증상**: 따옴표 정리(v1) 후 A에 남은 오류 7개는 모두 시작 위치 오류였습니다. B에서도 같은 유형이 9개 있었습니다.
+  - 값이 `+`, `#`, `/`로 시작하면 토크나이저가 `"+`, `="#`처럼 앞의 따옴표와 첫 글자를 한 토큰으로 묶습니다. 그래서 span이 한 글자 늦게 시작합니다.
+  - 값이 `%`, `_`로 시작하면 `:%`, `=_`처럼 앞의 구분자와 묶여, span이 구분자부터 시작합니다.
+  - 시작이 어긋나면 v1이 여는 따옴표를 찾지 못해 닫는 따옴표도 남습니다.
+- **규칙**(`quote-delimiters-v2`, 같은 모듈): v1을 적용하기 전에 시작 위치를 고칩니다.
+  - span 바로 앞에 여는 따옴표와 구두점 1~3자가 있으면, 시작을 그 구두점으로 당깁니다. `>`, 괄호, 쉼표처럼 값 앞에 흔히 오는 문자는 제외합니다.
+  - span이 키 이름 바로 뒤의 `=`나 `:`로 시작하면 그 구분자를 빼고, 그 뒤에 여는 따옴표가 있으면 따옴표도 뺍니다.
+- **안전성**: 정답 41,948개 중 바뀌는 것은 0개입니다. 우리 개발셋과 상대 모델의 val에서도 망가뜨린 답이 없었습니다.
+
+| 모델 (val 정답) | 정리 없음 | v1 | v2 |
+|---|---:|---:|---:|
+| A (435) | 388 / 47 / 47 · 0.892 | 428 / 7 / 7 · 0.984 | 435 / 0 / 0 · 1.000 |
+| B (615) | 551 / 55 / 64 · 0.899 | 596 / 10 / 19 · 0.972 | 604 / 2 / 11 · 0.985 |
+
+- **주의**: v2 규칙은 A의 validation 오류를 보고 만들었습니다. 그래서 A val 1.000은 낙관적인 숫자입니다. 독립적인 근거는 다른 셋입니다. v1 대비 B val에서 A가 8개를 더 고쳤고, qwen_v2에서 A가 1개를 더 고쳤습니다. 망가뜨린 것은 없었습니다. 실제 효과는 팀 test에서 확인해야 합니다.
+
+## A와 B의 validation 진단 (참고)
+
+모두 따옴표 정리를 켠 결과입니다. B의 val에 있는 LLM 부분(정답 180)은 B가 학습한 LLM train과 출처가 같습니다. 그래서 B에게 유리한 비교입니다. LLM 템플릿을 늘릴지는 팀의 test(특히 분포가 다른 test_ood)로 판단해야 합니다.
+
+| | A 모델 | B 모델 |
+|---|---|---|
+| 손 val (정답 435) | 428 정확 / 오탐 7 | 428 정확 / 오탐 7 |
+| LLM val (정답 180) | 138 정확 (0.767) / 오탐 121 | 168 정확 (0.933) / 오탐 3 |
+| ACCESS_KEY (9) | 0 | 9 |
+| prompt 채널 (42) | 27 | 42 |
+
+- 손 템플릿에서는 두 모델이 같습니다.
+- LLM 템플릿 형식(설정 파일, 자연어, `KEY=` 환경 변수, 한국어 조사가 붙은 값)에서는 A가 많이 놓치고 오탐도 많습니다.
+- 따옴표 정리 후 A에 남은 오류는 7개입니다. 값이 `+`, `#`, `/`로 시작해 여는 따옴표와 같은 토큰에 묶인 경우와, 앞의 `=`·`:`까지 잡은 경우입니다.
+
+## 서로의 데이터에서 본 A, B, v10 (개발셋, 참고)
+
+우리 개발셋은 이미 여러 번 결과를 본 셋이라 판정에는 쓰지 않습니다. 팀 데이터로만 학습한 모델이 다른 출처의 텍스트에서 어떻게 동작하는지 보려고 쟀습니다. 각 bundle 설정 그대로이고 따옴표 정리는 끈 숫자입니다. v10에는 bundle에 있는 짧은 값 필터, 기능어 필터, 경계 보정이 켜져 있습니다.
+
+| 셋 (정답 수) | v10 | A | B |
+|---|---:|---:|---:|
+| 팀 A val (435) | 127 / 115 / 308 · 0.320 | 388 / 47 / 47 · 0.892 | 389 / 46 / 46 · 0.894 |
+| 팀 B val (615) | 258 / 330 / 357 · 0.423 | 520 / 174 / 95 · 0.824 | 551 / 55 / 64 · 0.899 |
+| fresh_test (192) | 191 / 1 / 1 · 0.995 | 169 / 281 / 23 · 0.694 | 168 / 213 / 24 · 0.731 |
+| v4 (192) | 181 / 12 / 11 · 0.942 | 156 / 252 / 36 · 0.663 | 149 / 94 / 43 · 0.737 |
+| v6 (96) | 82 / 14 / 14 · 0.854 | 54 / 204 / 42 · 0.421 | 31 / 59 / 65 · 0.327 |
+| v7 (160) | 145 / 12 / 15 · 0.910 | 69 / 342 / 91 · 0.328 | 63 / 191 / 97 · 0.352 |
+| qwen_v2 (78) | 76 / 13 / 2 · 0.948 | 63 / 129 / 15 · 0.625 | 75 / 59 / 3 · 0.841 |
+| hold-out v11 (276) | 244 / 83 / 32 · 0.853 | 217 / 495 / 59 · 0.597 | 233 / 212 / 43 · 0.752 |
+| negative_challenge (0) | 오탐 0 | 오탐 35 | 오탐 16 |
+
+칸은 맞힘 / 오탐 / 놓침 · F2입니다.
+
+- **양쪽 모두 상대 데이터에서 약합니다.** v10은 팀 val에서 F2 0.32~0.42이고, A·B는 우리 셋에서 오탐이 많습니다. 데이터마다 무엇을 비밀로 보는지(라벨 기준)와 문장 형식이 달라서, 한쪽 데이터만으로 학습한 모델은 다른 쪽 기준을 배우지 못합니다.
+- **B가 A보다 넓게 일반화합니다.** 손 템플릿 val에서는 A와 같고(389 대 388), 우리 셋 7개 모두에서 오탐이 적습니다. F2는 v6을 빼고 모두 높습니다(v6은 B가 덜 잡고 더 놓침). LLM 템플릿이 손 템플릿 성능을 깎지 않으면서 다른 형식으로 넓혀 준다는 근거입니다. 다만 결정은 팀 test로 해야 합니다.
+- **팀 모델의 오탐 유형**(값은 보지 않고 문자 모양만 집계):
+  - A는 negative_challenge에서 `artifact_sha256` 같은 해시 8개, `X-Request-ID` 값 6개, `[REDACTED]` 같은 가림 표시 8개를 비밀로 잡았습니다. B는 이 셋을 하나도 잡지 않았습니다.
+  - B에 남은 오탐 16개 중 8개는 3자 소문자 단어라 PromptGuard의 6자 미만 필터에 걸립니다. 나머지 8개는 한국어 문장 속 무작위 문자열입니다.
+  - fresh_test·hold-out의 오탐은 대부분 우리 hard negative입니다. 문맥상 비밀이 아니라고 밝힌 무작위 문자열(빌드 digest, 관측값, 예시 값)과 16자리 숫자입니다. 팀 데이터에는 이런 "비밀처럼 생겼지만 문맥상 아닌 값"이 적은 것으로 보입니다.
+- **v10이 팀 val에서 놓치는 것**(B val 기준): PASSWORD 262개 중 159개를 놓칩니다. PRIVATE_KEY는 57개 중 정확히 맞힌 것이 없고 46개가 경계 불일치입니다. 팀 정답은 `-----BEGIN … KEY-----` 머리줄과 꼬리줄까지 포함하고, v10은 본문만 잡습니다(시작이 30~36자 늦고 끝이 약 30자 이릅니다). 라벨 기준 차이입니다.
+- **팀에 제안할 데이터**: 해시·요청 ID·가림 표시·문맥상 예시 값 같은 hard negative를 train에 더하면 다른 출처에서의 오탐을 줄일 수 있을 것입니다.
+
+## 전달물
+
+Drive `MyDrive/promptguard-runs/`(Colab 계정)에 있습니다.
+
+| 모델 | 가중치와 기록 (zip) | 학습 로그 |
+|---|---|---|
+| A | `span-mmbert-pilot-step0-a.zip` | `span-mmbert-pilot-step0-a.log` |
+| B | `span-mmbert-pilot-step0-b-seed110.zip` | `span-mmbert-pilot-step0-b-seed110.log` |
+
+- zip에는 `model/`(가중치, `span_bundle.json`), `config.json`(학습 설정), `history.json`(epoch별 손실과 validation), `alignment.json`이 들어 있습니다. test 평가 파일은 넣지 않았습니다.
+- **따옴표 정리 켜기**: `model/span_bundle.json`에 `"delimiter_policy": "quote-delimiters-v2"`(또는 닫는 따옴표만 고치는 `-v1`)를 추가하고, PromptGuard의 ml-v9 모듈이 이 브랜치 이후의 `promptguard-model`을 쓰게 합니다. 옛 런타임은 이 키를 무시하므로, 그 경우에는 학습된 그대로 동작합니다. zip 안의 bundle에는 이 키가 없으므로, 팀 평가는 학습된 그대로의 모델로 먼저 하면 됩니다.
+- **PromptGuard 쪽 필터**: ml-v9 모듈은 6자 미만 값과 흔한 영어 단어를 자체적으로 버립니다.
+
+## seed 변동
+
+같은 레시피라도 seed에 따라 결과가 크게 흔들립니다. v11 두 seed는 외부 F2가 0.367과 0.498이었습니다. 그래서 seed 111(맥 GPU)과 seed 112(Colab)로 A와 B를 추가 학습하고 있습니다. 결과가 나오면 이 문서와 보고서에 더합니다.
+
+## 재현
+
+```sh
+# 팀 데이터 (promptguard-data를 ml-train-pilot 5b812c7로)
+PRIVESC_DIR=../privesc-llm-data bash ../promptguard-data/metric-detection/scripts/build_ml_handoff.sh
+PYTHONPATH=src python scripts/prepare_pilot_step0.py --team ../promptguard-data/metric-detection --model A
+PYTHONPATH=src python scripts/prepare_pilot_step0.py --team ../promptguard-data/metric-detection --model B
+# 학습: notebooks/colab_train_span.ipynb (START_FROM='backbone', BASE_CONFIG=configs/span-pilot-step0-a.yaml 또는 -b,
+#        REPO_REF='claude/pilot-step0', PREPARE=['bash scripts/colab_prepare_pilot_step0.sh'])
+# validation 진단과 따옴표 정리 판정
+PYTHONPATH=src python scripts/diagnose_pilot_step0.py --checkpoint runs/span-mmbert-pilot-step0-a-seed110/model --model A --team ../promptguard-data/metric-detection
+PYTHONPATH=src python scripts/verify_span_delimiters.py --checkpoint runs/span-mmbert-pilot-step0-a-seed110/model --validation runs/data/span-pilot-step0-a/validation.jsonl --output runs/pilot-reports/delimiters-pilot-a-seed110.json
+```

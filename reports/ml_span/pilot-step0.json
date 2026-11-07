@@ -1,0 +1,2754 @@
+{
+  "notice": "Team step-0 pilot (promptguard-data ml-train-pilot 5b812c7). Model A: hand + privesc; model B: hand + LLM + privesc. Same recipe and seed; only the train and val files differ. Validation only: the team scores its test sets first. Counts and settings only; no text or values.",
+  "data": {
+    "A": {
+      "team_sessions": {
+        "train": 1108,
+        "val": 80
+      },
+      "composition": {
+        "train": {
+          "records": 15818,
+          "positive": 3702,
+          "negative": 12116,
+          "gold_spans": 5563,
+          "families": 136,
+          "sources": {
+            "prompt": 1576,
+            "tool_output": 14242
+          }
+        },
+        "validation": {
+          "records": 305,
+          "positive": 220,
+          "negative": 85,
+          "gold_spans": 435,
+          "families": 16,
+          "sources": {
+            "prompt": 80,
+            "tool_output": 225
+          }
+        },
+        "test": {
+          "records": 504,
+          "positive": 252,
+          "negative": 252,
+          "gold_spans": 276,
+          "families": 74,
+          "sources": {
+            "code": 68,
+            "prompt": 184,
+            "file_read": 48,
+            "tool_output": 68,
+            "log": 48,
+            "markdown": 48,
+            "configuration": 20,
+            "shell": 20
+          }
+        }
+      },
+      "shared_keys": {
+        "train/validation": 24,
+        "train/test": 0,
+        "validation/test": 0
+      },
+      "fingerprint": "14897a3b55f2b98b9e1c1e9310e7d154a93c2c6939884ddc763899cb019f9662",
+      "team_sha256": {
+        "sessions_train.jsonl": "3f4759d5c0082b09a147c777ccbd1c5deb2fdc32eb65331103216248123d8164",
+        "sessions_val.jsonl": "5c74be06d97b99f0054d220ad882cddbcf5accb92648ec36af03f0c7a54a58b1",
+        "gold_train.jsonl": "6dc7dbe58e1582b5111b76062d68fe2a8aab76a99cae56fa3d139a8936a401f9",
+        "gold_val.jsonl": "a434f8990c987affefbd6d57a34c6d4e17e6d4de4df64f86048db35493973486",
+        "labels_train.jsonl": "a8a6ea36b46176e150d26e2f09420de4f14aa19a169792230ae5a1706cf28803",
+        "labels_val.jsonl": "bdbeca38ed785d3c1032d7ffdca842f7709d8170306e1db19b456573793ba221"
+      }
+    },
+    "B": {
+      "team_sessions": {
+        "train": 1693,
+        "val": 155
+      },
+      "composition": {
+        "train": {
+          "records": 19385,
+          "positive": 4617,
+          "negative": 14768,
+          "gold_spans": 6847,
+          "families": 331,
+          "sources": {
+            "prompt": 3091,
+            "tool_output": 16294
+          }
+        },
+        "validation": {
+          "records": 815,
+          "positive": 334,
+          "negative": 481,
+          "gold_spans": 615,
+          "families": 41,
+          "sources": {
+            "prompt": 293,
+            "tool_output": 522
+          }
+        },
+        "test": {
+          "records": 504,
+          "positive": 252,
+          "negative": 252,
+          "gold_spans": 276,
+          "families": 74,
+          "sources": {
+            "code": 68,
+            "prompt": 184,
+            "file_read": 48,
+            "tool_output": 68,
+            "log": 48,
+            "markdown": 48,
+            "configuration": 20,
+            "shell": 20
+          }
+        }
+      },
+      "shared_keys": {
+        "train/validation": 86,
+        "train/test": 0,
+        "validation/test": 0
+      },
+      "fingerprint": "cd587c1f72058f649e155940f3c21dcb540a6e56d3f52d79febdea2f148ed5fd",
+      "team_sha256": {
+        "sessions_train.jsonl": "447d1aacfafb7efa88c7c6872d189e10d8337c4ad709f6c2d114ab97d9cfafb1",
+        "sessions_val.jsonl": "dff827ce9b258d3a6e9ce7cccf1fa1e985f9380e27d078c0c7880423173447ef",
+        "gold_train.jsonl": "40d944a6139d6557cb74d34a809cf09891dc33ad5a0ee303b37b343012bb22a0",
+        "gold_val.jsonl": "ad43c23414cf65b26d7458aa861ac0f1a6382975609a70ff4b4d23e9272b1e9c",
+        "labels_train.jsonl": "173f5c72eac29ab6922c781fbffa951dafc9f3ae39b0bf60a9e68e60050834f7",
+        "labels_val.jsonl": "a14200cca6a222b50aa7eb97dd09494651c6babad572b5f0adfda240958ac584"
+      }
+    }
+  },
+  "runs": {
+    "A-seed110": {
+      "data": "runs/data/span-pilot-step0-a",
+      "device": "cuda",
+      "gpu": "Tesla T4",
+      "commit": "45181087db94dc42379d98b2000b5c6c544ff6af",
+      "settings": {
+        "model_name": "runs/backbones/mmbert-small",
+        "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "seed": 110,
+        "epochs": 8,
+        "patience": 3,
+        "batch_size": 4,
+        "length_grouped_batches": true,
+        "learning_rate": 3e-05,
+        "weight_decay": 0.01,
+        "class_weights": [
+          1.0,
+          2.0,
+          2.0
+        ],
+        "max_length": 512,
+        "stride": 128,
+        "thresholds": [
+          0.5,
+          0.7,
+          0.8,
+          0.9,
+          0.95,
+          0.98,
+          0.99
+        ],
+        "shared_key_kinds": [
+          "value"
+        ]
+      },
+      "alignment": {
+        "train": {
+          "gold_spans": 5563,
+          "exactly_representable_in_a_window": 5061,
+          "boundary_or_window_unrepresentable": 502
+        },
+        "validation": {
+          "gold_spans": 435,
+          "exactly_representable_in_a_window": 367,
+          "boundary_or_window_unrepresentable": 68
+        }
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "loss": 0.033131,
+          "cutoff": 0.9,
+          "tp": 387,
+          "fp": 54,
+          "fn": 48,
+          "precision": 0.8776,
+          "recall": 0.8897,
+          "f2": 0.8872
+        },
+        {
+          "epoch": 2,
+          "loss": 0.004907,
+          "cutoff": 0.99,
+          "tp": 388,
+          "fp": 47,
+          "fn": 47,
+          "precision": 0.892,
+          "recall": 0.892,
+          "f2": 0.892
+        },
+        {
+          "epoch": 3,
+          "loss": 0.003553,
+          "cutoff": 0.9,
+          "tp": 388,
+          "fp": 48,
+          "fn": 47,
+          "precision": 0.8899,
+          "recall": 0.892,
+          "f2": 0.8915
+        },
+        {
+          "epoch": 4,
+          "loss": 0.00159,
+          "cutoff": 0.98,
+          "tp": 388,
+          "fp": 47,
+          "fn": 47,
+          "precision": 0.892,
+          "recall": 0.892,
+          "f2": 0.892
+        },
+        {
+          "epoch": 5,
+          "loss": 0.002862,
+          "cutoff": 0.95,
+          "tp": 387,
+          "fp": 48,
+          "fn": 48,
+          "precision": 0.8897,
+          "recall": 0.8897,
+          "f2": 0.8897
+        }
+      ],
+      "selected_epoch": 2,
+      "cutoff": 0.99,
+      "quote_trim": {
+        "policy": "quote-delimiters-v1",
+        "eligible": true,
+        "validation_before": {
+          "tp": 388,
+          "fp": 47,
+          "fn": 47,
+          "precision": 0.892,
+          "recall": 0.892,
+          "f2": 0.892
+        },
+        "validation_after": {
+          "tp": 428,
+          "fp": 7,
+          "fn": 7,
+          "precision": 0.9839,
+          "recall": 0.9839,
+          "f2": 0.9839
+        },
+        "fixed": 40,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 41948,
+          "changed": 0
+        },
+        "development": {
+          "pilot_b_val": {
+            "before": {
+              "tp": 520,
+              "fp": 174,
+              "fn": 95,
+              "precision": 0.7493,
+              "recall": 0.8455,
+              "f2": 0.8244
+            },
+            "after": {
+              "tp": 566,
+              "fp": 128,
+              "fn": 49,
+              "precision": 0.8156,
+              "recall": 0.9203,
+              "f2": 0.8973
+            },
+            "fixed": 46,
+            "broken": 0
+          },
+          "fresh_test": {
+            "before": {
+              "tp": 169,
+              "fp": 281,
+              "fn": 23,
+              "precision": 0.3756,
+              "recall": 0.8802,
+              "f2": 0.6938
+            },
+            "after": {
+              "tp": 169,
+              "fp": 281,
+              "fn": 23,
+              "precision": 0.3756,
+              "recall": 0.8802,
+              "f2": 0.6938
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 35,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "after": {
+              "tp": 0,
+              "fp": 35,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 156,
+              "fp": 252,
+              "fn": 36,
+              "precision": 0.3824,
+              "recall": 0.8125,
+              "f2": 0.6633
+            },
+            "after": {
+              "tp": 168,
+              "fp": 240,
+              "fn": 24,
+              "precision": 0.4118,
+              "recall": 0.875,
+              "f2": 0.7143
+            },
+            "fixed": 12,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 54,
+              "fp": 204,
+              "fn": 42,
+              "precision": 0.2093,
+              "recall": 0.5625,
+              "f2": 0.4206
+            },
+            "after": {
+              "tp": 54,
+              "fp": 204,
+              "fn": 42,
+              "precision": 0.2093,
+              "recall": 0.5625,
+              "f2": 0.4206
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 69,
+              "fp": 342,
+              "fn": 91,
+              "precision": 0.1679,
+              "recall": 0.4313,
+              "f2": 0.3283
+            },
+            "after": {
+              "tp": 69,
+              "fp": 342,
+              "fn": 91,
+              "precision": 0.1679,
+              "recall": 0.4313,
+              "f2": 0.3283
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 63,
+              "fp": 129,
+              "fn": 15,
+              "precision": 0.3281,
+              "recall": 0.8077,
+              "f2": 0.625
+            },
+            "after": {
+              "tp": 64,
+              "fp": 128,
+              "fn": 14,
+              "precision": 0.3333,
+              "recall": 0.8205,
+              "f2": 0.6349
+            },
+            "fixed": 1,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 217,
+              "fp": 495,
+              "fn": 59,
+              "precision": 0.3048,
+              "recall": 0.7862,
+              "f2": 0.5975
+            },
+            "after": {
+              "tp": 223,
+              "fp": 489,
+              "fn": 53,
+              "precision": 0.3132,
+              "recall": 0.808,
+              "f2": 0.614
+            },
+            "fixed": 6,
+            "broken": 0
+          }
+        }
+      },
+      "quote_trim_v2": {
+        "policy": "quote-delimiters-v2",
+        "eligible": true,
+        "validation_before": {
+          "tp": 388,
+          "fp": 47,
+          "fn": 47,
+          "precision": 0.892,
+          "recall": 0.892,
+          "f2": 0.892
+        },
+        "validation_after": {
+          "tp": 435,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f2": 1.0
+        },
+        "fixed": 47,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 41948,
+          "changed": 0
+        },
+        "development": {
+          "pilot_b_val": {
+            "before": {
+              "tp": 520,
+              "fp": 174,
+              "fn": 95,
+              "precision": 0.7493,
+              "recall": 0.8455,
+              "f2": 0.8244
+            },
+            "after": {
+              "tp": 574,
+              "fp": 120,
+              "fn": 41,
+              "precision": 0.8271,
+              "recall": 0.9333,
+              "f2": 0.91
+            },
+            "fixed": 54,
+            "broken": 0
+          },
+          "fresh_test": {
+            "before": {
+              "tp": 169,
+              "fp": 281,
+              "fn": 23,
+              "precision": 0.3756,
+              "recall": 0.8802,
+              "f2": 0.6938
+            },
+            "after": {
+              "tp": 169,
+              "fp": 281,
+              "fn": 23,
+              "precision": 0.3756,
+              "recall": 0.8802,
+              "f2": 0.6938
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 35,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "after": {
+              "tp": 0,
+              "fp": 35,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 156,
+              "fp": 252,
+              "fn": 36,
+              "precision": 0.3824,
+              "recall": 0.8125,
+              "f2": 0.6633
+            },
+            "after": {
+              "tp": 168,
+              "fp": 240,
+              "fn": 24,
+              "precision": 0.4118,
+              "recall": 0.875,
+              "f2": 0.7143
+            },
+            "fixed": 12,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 54,
+              "fp": 204,
+              "fn": 42,
+              "precision": 0.2093,
+              "recall": 0.5625,
+              "f2": 0.4206
+            },
+            "after": {
+              "tp": 54,
+              "fp": 204,
+              "fn": 42,
+              "precision": 0.2093,
+              "recall": 0.5625,
+              "f2": 0.4206
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 69,
+              "fp": 342,
+              "fn": 91,
+              "precision": 0.1679,
+              "recall": 0.4313,
+              "f2": 0.3283
+            },
+            "after": {
+              "tp": 69,
+              "fp": 342,
+              "fn": 91,
+              "precision": 0.1679,
+              "recall": 0.4313,
+              "f2": 0.3283
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 63,
+              "fp": 129,
+              "fn": 15,
+              "precision": 0.3281,
+              "recall": 0.8077,
+              "f2": 0.625
+            },
+            "after": {
+              "tp": 65,
+              "fp": 127,
+              "fn": 13,
+              "precision": 0.3385,
+              "recall": 0.8333,
+              "f2": 0.6448
+            },
+            "fixed": 2,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 217,
+              "fp": 495,
+              "fn": 59,
+              "precision": 0.3048,
+              "recall": 0.7862,
+              "f2": 0.5975
+            },
+            "after": {
+              "tp": 223,
+              "fp": 489,
+              "fn": 53,
+              "precision": 0.3132,
+              "recall": 0.808,
+              "f2": 0.614
+            },
+            "fixed": 6,
+            "broken": 0
+          }
+        }
+      }
+    },
+    "B-seed110": {
+      "data": "runs/data/span-pilot-step0-b",
+      "device": "cuda",
+      "gpu": "Tesla T4",
+      "commit": "1b7207d600eb86be8a071dd1b9d395dad49f9b95",
+      "settings": {
+        "model_name": "runs/backbones/mmbert-small",
+        "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "seed": 110,
+        "epochs": 8,
+        "patience": 3,
+        "batch_size": 4,
+        "length_grouped_batches": true,
+        "learning_rate": 3e-05,
+        "weight_decay": 0.01,
+        "class_weights": [
+          1.0,
+          2.0,
+          2.0
+        ],
+        "max_length": 512,
+        "stride": 128,
+        "thresholds": [
+          0.5,
+          0.7,
+          0.8,
+          0.9,
+          0.95,
+          0.98,
+          0.99
+        ],
+        "shared_key_kinds": [
+          "value"
+        ]
+      },
+      "alignment": {
+        "train": {
+          "gold_spans": 6847,
+          "exactly_representable_in_a_window": 6290,
+          "boundary_or_window_unrepresentable": 557
+        },
+        "validation": {
+          "gold_spans": 615,
+          "exactly_representable_in_a_window": 536,
+          "boundary_or_window_unrepresentable": 79
+        }
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "loss": 0.031339,
+          "cutoff": 0.9,
+          "tp": 545,
+          "fp": 73,
+          "fn": 70,
+          "precision": 0.8819,
+          "recall": 0.8862,
+          "f2": 0.8853
+        },
+        {
+          "epoch": 2,
+          "loss": 0.008156,
+          "cutoff": 0.7,
+          "tp": 539,
+          "fp": 71,
+          "fn": 76,
+          "precision": 0.8836,
+          "recall": 0.8764,
+          "f2": 0.8779
+        },
+        {
+          "epoch": 3,
+          "loss": 0.00451,
+          "cutoff": 0.9,
+          "tp": 551,
+          "fp": 55,
+          "fn": 64,
+          "precision": 0.9092,
+          "recall": 0.8959,
+          "f2": 0.8986
+        },
+        {
+          "epoch": 4,
+          "loss": 0.002362,
+          "cutoff": 0.9,
+          "tp": 531,
+          "fp": 58,
+          "fn": 84,
+          "precision": 0.9015,
+          "recall": 0.8634,
+          "f2": 0.8708
+        },
+        {
+          "epoch": 5,
+          "loss": 0.003949,
+          "cutoff": 0.9,
+          "tp": 540,
+          "fp": 72,
+          "fn": 75,
+          "precision": 0.8824,
+          "recall": 0.878,
+          "f2": 0.8789
+        },
+        {
+          "epoch": 6,
+          "loss": 0.002728,
+          "cutoff": 0.99,
+          "tp": 547,
+          "fp": 71,
+          "fn": 68,
+          "precision": 0.8851,
+          "recall": 0.8894,
+          "f2": 0.8886
+        }
+      ],
+      "selected_epoch": 3,
+      "cutoff": 0.9,
+      "quote_trim": {
+        "policy": "quote-delimiters-v1",
+        "eligible": true,
+        "validation_before": {
+          "tp": 551,
+          "fp": 55,
+          "fn": 64,
+          "precision": 0.9092,
+          "recall": 0.8959,
+          "f2": 0.8986
+        },
+        "validation_after": {
+          "tp": 596,
+          "fp": 10,
+          "fn": 19,
+          "precision": 0.9835,
+          "recall": 0.9691,
+          "f2": 0.972
+        },
+        "fixed": 45,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 41948,
+          "changed": 0
+        },
+        "development": {
+          "pilot_a_val": {
+            "before": {
+              "tp": 389,
+              "fp": 46,
+              "fn": 46,
+              "precision": 0.8943,
+              "recall": 0.8943,
+              "f2": 0.8943
+            },
+            "after": {
+              "tp": 428,
+              "fp": 7,
+              "fn": 7,
+              "precision": 0.9839,
+              "recall": 0.9839,
+              "f2": 0.9839
+            },
+            "fixed": 39,
+            "broken": 0
+          },
+          "fresh_test": {
+            "before": {
+              "tp": 168,
+              "fp": 213,
+              "fn": 24,
+              "precision": 0.4409,
+              "recall": 0.875,
+              "f2": 0.7311
+            },
+            "after": {
+              "tp": 168,
+              "fp": 213,
+              "fn": 24,
+              "precision": 0.4409,
+              "recall": 0.875,
+              "f2": 0.7311
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 16,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "after": {
+              "tp": 0,
+              "fp": 16,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 149,
+              "fp": 94,
+              "fn": 43,
+              "precision": 0.6132,
+              "recall": 0.776,
+              "f2": 0.7369
+            },
+            "after": {
+              "tp": 161,
+              "fp": 82,
+              "fn": 31,
+              "precision": 0.6626,
+              "recall": 0.8385,
+              "f2": 0.7962
+            },
+            "fixed": 12,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 31,
+              "fp": 59,
+              "fn": 65,
+              "precision": 0.3444,
+              "recall": 0.3229,
+              "f2": 0.327
+            },
+            "after": {
+              "tp": 31,
+              "fp": 59,
+              "fn": 65,
+              "precision": 0.3444,
+              "recall": 0.3229,
+              "f2": 0.327
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 63,
+              "fp": 191,
+              "fn": 97,
+              "precision": 0.248,
+              "recall": 0.3937,
+              "f2": 0.3523
+            },
+            "after": {
+              "tp": 63,
+              "fp": 191,
+              "fn": 97,
+              "precision": 0.248,
+              "recall": 0.3937,
+              "f2": 0.3523
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 75,
+              "fp": 59,
+              "fn": 3,
+              "precision": 0.5597,
+              "recall": 0.9615,
+              "f2": 0.8408
+            },
+            "after": {
+              "tp": 76,
+              "fp": 58,
+              "fn": 2,
+              "precision": 0.5672,
+              "recall": 0.9744,
+              "f2": 0.852
+            },
+            "fixed": 1,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 233,
+              "fp": 212,
+              "fn": 43,
+              "precision": 0.5236,
+              "recall": 0.8442,
+              "f2": 0.7521
+            },
+            "after": {
+              "tp": 239,
+              "fp": 206,
+              "fn": 37,
+              "precision": 0.5371,
+              "recall": 0.8659,
+              "f2": 0.7715
+            },
+            "fixed": 6,
+            "broken": 0
+          }
+        }
+      },
+      "quote_trim_v2": {
+        "policy": "quote-delimiters-v2",
+        "eligible": true,
+        "validation_before": {
+          "tp": 551,
+          "fp": 55,
+          "fn": 64,
+          "precision": 0.9092,
+          "recall": 0.8959,
+          "f2": 0.8986
+        },
+        "validation_after": {
+          "tp": 604,
+          "fp": 2,
+          "fn": 11,
+          "precision": 0.9967,
+          "recall": 0.9821,
+          "f2": 0.985
+        },
+        "fixed": 53,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 41948,
+          "changed": 0
+        },
+        "development": {
+          "pilot_a_val": {
+            "before": {
+              "tp": 389,
+              "fp": 46,
+              "fn": 46,
+              "precision": 0.8943,
+              "recall": 0.8943,
+              "f2": 0.8943
+            },
+            "after": {
+              "tp": 435,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f2": 1.0
+            },
+            "fixed": 46,
+            "broken": 0
+          },
+          "fresh_test": {
+            "before": {
+              "tp": 168,
+              "fp": 213,
+              "fn": 24,
+              "precision": 0.4409,
+              "recall": 0.875,
+              "f2": 0.7311
+            },
+            "after": {
+              "tp": 168,
+              "fp": 213,
+              "fn": 24,
+              "precision": 0.4409,
+              "recall": 0.875,
+              "f2": 0.7311
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 16,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "after": {
+              "tp": 0,
+              "fp": 16,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 149,
+              "fp": 94,
+              "fn": 43,
+              "precision": 0.6132,
+              "recall": 0.776,
+              "f2": 0.7369
+            },
+            "after": {
+              "tp": 161,
+              "fp": 82,
+              "fn": 31,
+              "precision": 0.6626,
+              "recall": 0.8385,
+              "f2": 0.7962
+            },
+            "fixed": 12,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 31,
+              "fp": 59,
+              "fn": 65,
+              "precision": 0.3444,
+              "recall": 0.3229,
+              "f2": 0.327
+            },
+            "after": {
+              "tp": 31,
+              "fp": 59,
+              "fn": 65,
+              "precision": 0.3444,
+              "recall": 0.3229,
+              "f2": 0.327
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 63,
+              "fp": 191,
+              "fn": 97,
+              "precision": 0.248,
+              "recall": 0.3937,
+              "f2": 0.3523
+            },
+            "after": {
+              "tp": 63,
+              "fp": 191,
+              "fn": 97,
+              "precision": 0.248,
+              "recall": 0.3937,
+              "f2": 0.3523
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 75,
+              "fp": 59,
+              "fn": 3,
+              "precision": 0.5597,
+              "recall": 0.9615,
+              "f2": 0.8408
+            },
+            "after": {
+              "tp": 76,
+              "fp": 58,
+              "fn": 2,
+              "precision": 0.5672,
+              "recall": 0.9744,
+              "f2": 0.852
+            },
+            "fixed": 1,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 233,
+              "fp": 212,
+              "fn": 43,
+              "precision": 0.5236,
+              "recall": 0.8442,
+              "f2": 0.7521
+            },
+            "after": {
+              "tp": 239,
+              "fp": 206,
+              "fn": 37,
+              "precision": 0.5371,
+              "recall": 0.8659,
+              "f2": 0.7715
+            },
+            "fixed": 6,
+            "broken": 0
+          }
+        }
+      }
+    }
+  },
+  "quote_trim_on_published_bundles": {
+    "v9": {
+      "quote-delimiters-v1": {
+        "policy": "quote-delimiters-v1",
+        "eligible": false,
+        "validation_before": {
+          "tp": 150,
+          "fp": 17,
+          "fn": 42,
+          "precision": 0.8982,
+          "recall": 0.7812,
+          "f2": 0.8021
+        },
+        "validation_after": {
+          "tp": 150,
+          "fp": 17,
+          "fn": 42,
+          "precision": 0.8982,
+          "recall": 0.7812,
+          "f2": 0.8021
+        },
+        "fixed": 0,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 41948,
+          "changed": 0
+        },
+        "development": {
+          "fresh_test": {
+            "before": {
+              "tp": 159,
+              "fp": 1,
+              "fn": 33,
+              "precision": 0.9938,
+              "recall": 0.8281,
+              "f2": 0.8567
+            },
+            "after": {
+              "tp": 159,
+              "fp": 1,
+              "fn": 33,
+              "precision": 0.9938,
+              "recall": 0.8281,
+              "f2": 0.8567
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f2": null
+            },
+            "after": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f2": null
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 168,
+              "fp": 19,
+              "fn": 24,
+              "precision": 0.8984,
+              "recall": 0.875,
+              "f2": 0.8796
+            },
+            "after": {
+              "tp": 177,
+              "fp": 10,
+              "fn": 15,
+              "precision": 0.9465,
+              "recall": 0.9219,
+              "f2": 0.9267
+            },
+            "fixed": 9,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 68,
+              "fp": 3,
+              "fn": 28,
+              "precision": 0.9577,
+              "recall": 0.7083,
+              "f2": 0.7473
+            },
+            "after": {
+              "tp": 68,
+              "fp": 3,
+              "fn": 28,
+              "precision": 0.9577,
+              "recall": 0.7083,
+              "f2": 0.7473
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 122,
+              "fp": 14,
+              "fn": 38,
+              "precision": 0.8971,
+              "recall": 0.7625,
+              "f2": 0.7861
+            },
+            "after": {
+              "tp": 122,
+              "fp": 14,
+              "fn": 38,
+              "precision": 0.8971,
+              "recall": 0.7625,
+              "f2": 0.7861
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 76,
+              "fp": 40,
+              "fn": 2,
+              "precision": 0.6552,
+              "recall": 0.9744,
+              "f2": 0.8879
+            },
+            "after": {
+              "tp": 76,
+              "fp": 40,
+              "fn": 2,
+              "precision": 0.6552,
+              "recall": 0.9744,
+              "f2": 0.8879
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 219,
+              "fp": 87,
+              "fn": 57,
+              "precision": 0.7157,
+              "recall": 0.7935,
+              "f2": 0.7766
+            },
+            "after": {
+              "tp": 222,
+              "fp": 84,
+              "fn": 54,
+              "precision": 0.7255,
+              "recall": 0.8043,
+              "f2": 0.7872
+            },
+            "fixed": 3,
+            "broken": 0
+          },
+          "pilot_a_val": {
+            "before": {
+              "tp": 161,
+              "fp": 71,
+              "fn": 274,
+              "precision": 0.694,
+              "recall": 0.3701,
+              "f2": 0.4082
+            },
+            "after": {
+              "tp": 168,
+              "fp": 64,
+              "fn": 267,
+              "precision": 0.7241,
+              "recall": 0.3862,
+              "f2": 0.426
+            },
+            "fixed": 7,
+            "broken": 0
+          },
+          "pilot_b_val": {
+            "before": {
+              "tp": 285,
+              "fp": 266,
+              "fn": 330,
+              "precision": 0.5172,
+              "recall": 0.4634,
+              "f2": 0.4733
+            },
+            "after": {
+              "tp": 292,
+              "fp": 259,
+              "fn": 323,
+              "precision": 0.5299,
+              "recall": 0.4748,
+              "f2": 0.4849
+            },
+            "fixed": 7,
+            "broken": 0
+          }
+        }
+      },
+      "quote-delimiters-v2": {
+        "policy": "quote-delimiters-v2",
+        "eligible": false,
+        "validation_before": {
+          "tp": 151,
+          "fp": 17,
+          "fn": 41,
+          "precision": 0.8988,
+          "recall": 0.7865,
+          "f2": 0.8066
+        },
+        "validation_after": {
+          "tp": 151,
+          "fp": 17,
+          "fn": 41,
+          "precision": 0.8988,
+          "recall": 0.7865,
+          "f2": 0.8066
+        },
+        "fixed": 0,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 49686,
+          "changed": 0
+        },
+        "development": {
+          "fresh_test": {
+            "before": {
+              "tp": 159,
+              "fp": 1,
+              "fn": 33,
+              "precision": 0.9938,
+              "recall": 0.8281,
+              "f2": 0.8567
+            },
+            "after": {
+              "tp": 159,
+              "fp": 1,
+              "fn": 33,
+              "precision": 0.9938,
+              "recall": 0.8281,
+              "f2": 0.8567
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f2": null
+            },
+            "after": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f2": null
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 168,
+              "fp": 19,
+              "fn": 24,
+              "precision": 0.8984,
+              "recall": 0.875,
+              "f2": 0.8796
+            },
+            "after": {
+              "tp": 177,
+              "fp": 10,
+              "fn": 15,
+              "precision": 0.9465,
+              "recall": 0.9219,
+              "f2": 0.9267
+            },
+            "fixed": 9,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 68,
+              "fp": 3,
+              "fn": 28,
+              "precision": 0.9577,
+              "recall": 0.7083,
+              "f2": 0.7473
+            },
+            "after": {
+              "tp": 68,
+              "fp": 3,
+              "fn": 28,
+              "precision": 0.9577,
+              "recall": 0.7083,
+              "f2": 0.7473
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 122,
+              "fp": 14,
+              "fn": 38,
+              "precision": 0.8971,
+              "recall": 0.7625,
+              "f2": 0.7861
+            },
+            "after": {
+              "tp": 122,
+              "fp": 14,
+              "fn": 38,
+              "precision": 0.8971,
+              "recall": 0.7625,
+              "f2": 0.7861
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 76,
+              "fp": 40,
+              "fn": 2,
+              "precision": 0.6552,
+              "recall": 0.9744,
+              "f2": 0.8879
+            },
+            "after": {
+              "tp": 77,
+              "fp": 39,
+              "fn": 1,
+              "precision": 0.6638,
+              "recall": 0.9872,
+              "f2": 0.8995
+            },
+            "fixed": 1,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 219,
+              "fp": 87,
+              "fn": 57,
+              "precision": 0.7157,
+              "recall": 0.7935,
+              "f2": 0.7766
+            },
+            "after": {
+              "tp": 222,
+              "fp": 84,
+              "fn": 54,
+              "precision": 0.7255,
+              "recall": 0.8043,
+              "f2": 0.7872
+            },
+            "fixed": 3,
+            "broken": 0
+          },
+          "pilot_a_val": {
+            "before": {
+              "tp": 161,
+              "fp": 71,
+              "fn": 274,
+              "precision": 0.694,
+              "recall": 0.3701,
+              "f2": 0.4082
+            },
+            "after": {
+              "tp": 170,
+              "fp": 62,
+              "fn": 265,
+              "precision": 0.7328,
+              "recall": 0.3908,
+              "f2": 0.431
+            },
+            "fixed": 9,
+            "broken": 0
+          },
+          "pilot_b_val": {
+            "before": {
+              "tp": 285,
+              "fp": 266,
+              "fn": 330,
+              "precision": 0.5172,
+              "recall": 0.4634,
+              "f2": 0.4733
+            },
+            "after": {
+              "tp": 294,
+              "fp": 257,
+              "fn": 321,
+              "precision": 0.5336,
+              "recall": 0.478,
+              "f2": 0.4882
+            },
+            "fixed": 9,
+            "broken": 0
+          }
+        }
+      }
+    },
+    "v10": {
+      "quote-delimiters-v1": {
+        "policy": "quote-delimiters-v1",
+        "eligible": false,
+        "validation_before": {
+          "tp": 181,
+          "fp": 9,
+          "fn": 11,
+          "precision": 0.9526,
+          "recall": 0.9427,
+          "f2": 0.9447
+        },
+        "validation_after": {
+          "tp": 181,
+          "fp": 9,
+          "fn": 11,
+          "precision": 0.9526,
+          "recall": 0.9427,
+          "f2": 0.9447
+        },
+        "fixed": 0,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 41948,
+          "changed": 0
+        },
+        "development": {
+          "fresh_test": {
+            "before": {
+              "tp": 191,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.9948,
+              "recall": 0.9948,
+              "f2": 0.9948
+            },
+            "after": {
+              "tp": 191,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.9948,
+              "recall": 0.9948,
+              "f2": 0.9948
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f2": null
+            },
+            "after": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f2": null
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 181,
+              "fp": 12,
+              "fn": 11,
+              "precision": 0.9378,
+              "recall": 0.9427,
+              "f2": 0.9417
+            },
+            "after": {
+              "tp": 190,
+              "fp": 3,
+              "fn": 2,
+              "precision": 0.9845,
+              "recall": 0.9896,
+              "f2": 0.9886
+            },
+            "fixed": 9,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 82,
+              "fp": 14,
+              "fn": 14,
+              "precision": 0.8542,
+              "recall": 0.8542,
+              "f2": 0.8542
+            },
+            "after": {
+              "tp": 82,
+              "fp": 14,
+              "fn": 14,
+              "precision": 0.8542,
+              "recall": 0.8542,
+              "f2": 0.8542
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 145,
+              "fp": 12,
+              "fn": 15,
+              "precision": 0.9236,
+              "recall": 0.9062,
+              "f2": 0.9097
+            },
+            "after": {
+              "tp": 145,
+              "fp": 12,
+              "fn": 15,
+              "precision": 0.9236,
+              "recall": 0.9062,
+              "f2": 0.9097
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 76,
+              "fp": 13,
+              "fn": 2,
+              "precision": 0.8539,
+              "recall": 0.9744,
+              "f2": 0.9476
+            },
+            "after": {
+              "tp": 77,
+              "fp": 12,
+              "fn": 1,
+              "precision": 0.8652,
+              "recall": 0.9872,
+              "f2": 0.9601
+            },
+            "fixed": 1,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 244,
+              "fp": 83,
+              "fn": 32,
+              "precision": 0.7462,
+              "recall": 0.8841,
+              "f2": 0.8526
+            },
+            "after": {
+              "tp": 247,
+              "fp": 80,
+              "fn": 29,
+              "precision": 0.7554,
+              "recall": 0.8949,
+              "f2": 0.863
+            },
+            "fixed": 3,
+            "broken": 0
+          },
+          "pilot_a_val": {
+            "before": {
+              "tp": 127,
+              "fp": 115,
+              "fn": 308,
+              "precision": 0.5248,
+              "recall": 0.292,
+              "f2": 0.3204
+            },
+            "after": {
+              "tp": 132,
+              "fp": 110,
+              "fn": 303,
+              "precision": 0.5455,
+              "recall": 0.3034,
+              "f2": 0.333
+            },
+            "fixed": 5,
+            "broken": 0
+          },
+          "pilot_b_val": {
+            "before": {
+              "tp": 258,
+              "fp": 330,
+              "fn": 357,
+              "precision": 0.4388,
+              "recall": 0.4195,
+              "f2": 0.4232
+            },
+            "after": {
+              "tp": 263,
+              "fp": 325,
+              "fn": 352,
+              "precision": 0.4473,
+              "recall": 0.4276,
+              "f2": 0.4314
+            },
+            "fixed": 5,
+            "broken": 0
+          }
+        }
+      },
+      "quote-delimiters-v2": {
+        "policy": "quote-delimiters-v2",
+        "eligible": false,
+        "validation_before": {
+          "tp": 182,
+          "fp": 9,
+          "fn": 10,
+          "precision": 0.9529,
+          "recall": 0.9479,
+          "f2": 0.9489
+        },
+        "validation_after": {
+          "tp": 182,
+          "fp": 9,
+          "fn": 10,
+          "precision": 0.9529,
+          "recall": 0.9479,
+          "f2": 0.9489
+        },
+        "fixed": 0,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 49686,
+          "changed": 0
+        },
+        "development": {
+          "fresh_test": {
+            "before": {
+              "tp": 191,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.9948,
+              "recall": 0.9948,
+              "f2": 0.9948
+            },
+            "after": {
+              "tp": 191,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.9948,
+              "recall": 0.9948,
+              "f2": 0.9948
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f2": null
+            },
+            "after": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f2": null
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 181,
+              "fp": 12,
+              "fn": 11,
+              "precision": 0.9378,
+              "recall": 0.9427,
+              "f2": 0.9417
+            },
+            "after": {
+              "tp": 190,
+              "fp": 3,
+              "fn": 2,
+              "precision": 0.9845,
+              "recall": 0.9896,
+              "f2": 0.9886
+            },
+            "fixed": 9,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 82,
+              "fp": 14,
+              "fn": 14,
+              "precision": 0.8542,
+              "recall": 0.8542,
+              "f2": 0.8542
+            },
+            "after": {
+              "tp": 82,
+              "fp": 14,
+              "fn": 14,
+              "precision": 0.8542,
+              "recall": 0.8542,
+              "f2": 0.8542
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 145,
+              "fp": 12,
+              "fn": 15,
+              "precision": 0.9236,
+              "recall": 0.9062,
+              "f2": 0.9097
+            },
+            "after": {
+              "tp": 145,
+              "fp": 12,
+              "fn": 15,
+              "precision": 0.9236,
+              "recall": 0.9062,
+              "f2": 0.9097
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 76,
+              "fp": 13,
+              "fn": 2,
+              "precision": 0.8539,
+              "recall": 0.9744,
+              "f2": 0.9476
+            },
+            "after": {
+              "tp": 78,
+              "fp": 11,
+              "fn": 0,
+              "precision": 0.8764,
+              "recall": 1.0,
+              "f2": 0.9726
+            },
+            "fixed": 2,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 244,
+              "fp": 83,
+              "fn": 32,
+              "precision": 0.7462,
+              "recall": 0.8841,
+              "f2": 0.8526
+            },
+            "after": {
+              "tp": 247,
+              "fp": 80,
+              "fn": 29,
+              "precision": 0.7554,
+              "recall": 0.8949,
+              "f2": 0.863
+            },
+            "fixed": 3,
+            "broken": 0
+          },
+          "pilot_a_val": {
+            "before": {
+              "tp": 127,
+              "fp": 115,
+              "fn": 308,
+              "precision": 0.5248,
+              "recall": 0.292,
+              "f2": 0.3204
+            },
+            "after": {
+              "tp": 134,
+              "fp": 108,
+              "fn": 301,
+              "precision": 0.5537,
+              "recall": 0.308,
+              "f2": 0.338
+            },
+            "fixed": 7,
+            "broken": 0
+          },
+          "pilot_b_val": {
+            "before": {
+              "tp": 258,
+              "fp": 330,
+              "fn": 357,
+              "precision": 0.4388,
+              "recall": 0.4195,
+              "f2": 0.4232
+            },
+            "after": {
+              "tp": 265,
+              "fp": 323,
+              "fn": 350,
+              "precision": 0.4507,
+              "recall": 0.4309,
+              "f2": 0.4347
+            },
+            "fixed": 7,
+            "broken": 0
+          }
+        }
+      }
+    }
+  },
+  "diagnostics": {
+    "diag-modelA-on-Aval-none": {
+      "model": "A",
+      "checkpoint": "runs/span-mmbert-pilot-step0-a/model",
+      "threshold": 0.99,
+      "delimiter_policy": null,
+      "rows": 305,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 388,
+            "boundary": 47
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "exact": 388,
+            "boundary": 47
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 388,
+            "boundary": 47
+          }
+        },
+        "type": {
+          "PASSWORD": {
+            "exact": 161,
+            "boundary": 44
+          },
+          "PRIVATE_KEY": {
+            "exact": 45
+          },
+          "SECRET": {
+            "exact": 64
+          },
+          "TOKEN": {
+            "exact": 118,
+            "boundary": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 47
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 47
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 47
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 47
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelA-on-Aval-quote-delimiters-v1": {
+      "model": "A",
+      "checkpoint": "runs/span-mmbert-pilot-step0-a/model",
+      "threshold": 0.99,
+      "delimiter_policy": "quote-delimiters-v1",
+      "rows": 305,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "type": {
+          "PASSWORD": {
+            "exact": 200,
+            "boundary": 5
+          },
+          "PRIVATE_KEY": {
+            "exact": 45
+          },
+          "SECRET": {
+            "exact": 64
+          },
+          "TOKEN": {
+            "exact": 119,
+            "boundary": 2
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 7
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 7
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 7
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 7
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelA-on-Bval-none": {
+      "model": "B",
+      "checkpoint": "runs/span-mmbert-pilot-step0-a/model",
+      "threshold": 0.99,
+      "delimiter_policy": null,
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 520,
+            "boundary": 73,
+            "missed": 22
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 24,
+            "boundary": 13,
+            "missed": 5
+          },
+          "tool_output": {
+            "exact": 496,
+            "boundary": 60,
+            "missed": 17
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 388,
+            "boundary": 47
+          },
+          "llm": {
+            "exact": 132,
+            "boundary": 26,
+            "missed": 22
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "boundary": 6,
+            "missed": 3
+          },
+          "PASSWORD": {
+            "exact": 200,
+            "boundary": 54,
+            "missed": 8
+          },
+          "PRIVATE_KEY": {
+            "exact": 50,
+            "missed": 1,
+            "boundary": 6
+          },
+          "SECRET": {
+            "exact": 101,
+            "boundary": 4,
+            "missed": 10
+          },
+          "TOKEN": {
+            "exact": 169,
+            "boundary": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 174
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 19
+          },
+          "tool_output": {
+            "fp": 155
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 47
+          },
+          "llm": {
+            "fp": 127
+          }
+        },
+        "where": {
+          "labelled_base64_blob": {
+            "fp": 3
+          },
+          "labelled_descriptor": {
+            "fp": 1
+          },
+          "labelled_fingerprint": {
+            "fp": 2
+          },
+          "labelled_hash": {
+            "fp": 1
+          },
+          "labelled_identifier": {
+            "fp": 3
+          },
+          "labelled_opaque_value": {
+            "fp": 3
+          },
+          "labelled_pii": {
+            "fp": 3
+          },
+          "labelled_prefix_redaction": {
+            "fp": 4
+          },
+          "overlaps_gold": {
+            "fp": 74
+          },
+          "unlabelled": {
+            "fp": 80
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelA-on-Bval-quote-delimiters-v1": {
+      "model": "B",
+      "checkpoint": "runs/span-mmbert-pilot-step0-a/model",
+      "threshold": 0.99,
+      "delimiter_policy": "quote-delimiters-v1",
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 566,
+            "boundary": 27,
+            "missed": 22
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 27,
+            "boundary": 10,
+            "missed": 5
+          },
+          "tool_output": {
+            "exact": 539,
+            "boundary": 17,
+            "missed": 17
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 428,
+            "boundary": 7
+          },
+          "llm": {
+            "exact": 138,
+            "boundary": 20,
+            "missed": 22
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "boundary": 6,
+            "missed": 3
+          },
+          "PASSWORD": {
+            "exact": 245,
+            "boundary": 9,
+            "missed": 8
+          },
+          "PRIVATE_KEY": {
+            "exact": 50,
+            "missed": 1,
+            "boundary": 6
+          },
+          "SECRET": {
+            "exact": 101,
+            "boundary": 4,
+            "missed": 10
+          },
+          "TOKEN": {
+            "exact": 170,
+            "boundary": 2
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 128
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 16
+          },
+          "tool_output": {
+            "fp": 112
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 7
+          },
+          "llm": {
+            "fp": 121
+          }
+        },
+        "where": {
+          "labelled_base64_blob": {
+            "fp": 3
+          },
+          "labelled_descriptor": {
+            "fp": 1
+          },
+          "labelled_fingerprint": {
+            "fp": 2
+          },
+          "labelled_hash": {
+            "fp": 1
+          },
+          "labelled_identifier": {
+            "fp": 3
+          },
+          "labelled_opaque_value": {
+            "fp": 3
+          },
+          "labelled_pii": {
+            "fp": 3
+          },
+          "labelled_prefix_redaction": {
+            "fp": 4
+          },
+          "overlaps_gold": {
+            "fp": 28
+          },
+          "unlabelled": {
+            "fp": 80
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelB-on-Aval-none": {
+      "model": "A",
+      "checkpoint": "runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": null,
+      "rows": 305,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 389,
+            "boundary": 46
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "exact": 389,
+            "boundary": 46
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 389,
+            "boundary": 46
+          }
+        },
+        "type": {
+          "PASSWORD": {
+            "exact": 161,
+            "boundary": 44
+          },
+          "PRIVATE_KEY": {
+            "exact": 45
+          },
+          "SECRET": {
+            "exact": 64
+          },
+          "TOKEN": {
+            "exact": 119,
+            "boundary": 2
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 46
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 46
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 46
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 46
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelB-on-Aval-quote-delimiters-v1": {
+      "model": "A",
+      "checkpoint": "runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": "quote-delimiters-v1",
+      "rows": 305,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "type": {
+          "PASSWORD": {
+            "exact": 200,
+            "boundary": 5
+          },
+          "PRIVATE_KEY": {
+            "exact": 45
+          },
+          "SECRET": {
+            "exact": 64
+          },
+          "TOKEN": {
+            "exact": 119,
+            "boundary": 2
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 7
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 7
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 7
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 7
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelB-on-Bval-none": {
+      "model": "B",
+      "checkpoint": "runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": null,
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 551,
+            "boundary": 54,
+            "missed": 10
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 39,
+            "boundary": 3
+          },
+          "tool_output": {
+            "exact": 512,
+            "boundary": 51,
+            "missed": 10
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 389,
+            "boundary": 46
+          },
+          "llm": {
+            "exact": 162,
+            "missed": 10,
+            "boundary": 8
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 203,
+            "boundary": 52,
+            "missed": 7
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 115
+          },
+          "TOKEN": {
+            "exact": 167,
+            "boundary": 2,
+            "missed": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 55
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 3
+          },
+          "tool_output": {
+            "fp": 52
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 46
+          },
+          "llm": {
+            "fp": 9
+          }
+        },
+        "where": {
+          "labelled_prefix_redaction": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 54
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelB-on-Bval-quote-delimiters-v1": {
+      "model": "B",
+      "checkpoint": "runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": "quote-delimiters-v1",
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 596,
+            "boundary": 9,
+            "missed": 10
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 42
+          },
+          "tool_output": {
+            "exact": 554,
+            "boundary": 9,
+            "missed": 10
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 428,
+            "boundary": 7
+          },
+          "llm": {
+            "exact": 168,
+            "missed": 10,
+            "boundary": 2
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 248,
+            "boundary": 7,
+            "missed": 7
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 115
+          },
+          "TOKEN": {
+            "exact": 167,
+            "boundary": 2,
+            "missed": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 10
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 10
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 7
+          },
+          "llm": {
+            "fp": 3
+          }
+        },
+        "where": {
+          "labelled_prefix_redaction": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 9
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-v10-on-Bval-bundle": {
+      "model": "B",
+      "checkpoint": "models/span-detector-v10",
+      "threshold": 0.9856988658706943,
+      "delimiter_policy": null,
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 258,
+            "boundary": 106,
+            "missed": 251
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 33,
+            "boundary": 3,
+            "missed": 6
+          },
+          "tool_output": {
+            "exact": 225,
+            "boundary": 103,
+            "missed": 245
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 127,
+            "boundary": 87,
+            "missed": 221
+          },
+          "llm": {
+            "exact": 131,
+            "missed": 30,
+            "boundary": 19
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "missed": 159,
+            "exact": 59,
+            "boundary": 44
+          },
+          "PRIVATE_KEY": {
+            "missed": 11,
+            "boundary": 46
+          },
+          "SECRET": {
+            "exact": 84,
+            "missed": 30,
+            "boundary": 1
+          },
+          "TOKEN": {
+            "exact": 106,
+            "boundary": 15,
+            "missed": 51
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 330
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 20
+          },
+          "tool_output": {
+            "fp": 310
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 115
+          },
+          "llm": {
+            "fp": 215
+          }
+        },
+        "where": {
+          "labelled_config_scalar": {
+            "fp": 12
+          },
+          "labelled_doc_example": {
+            "fp": 2
+          },
+          "labelled_fingerprint": {
+            "fp": 1
+          },
+          "labelled_hash": {
+            "fp": 13
+          },
+          "labelled_identifier": {
+            "fp": 17
+          },
+          "labelled_non_credential": {
+            "fp": 1
+          },
+          "labelled_pii": {
+            "fp": 11
+          },
+          "labelled_prefix_example": {
+            "fp": 4
+          },
+          "labelled_prefix_redaction": {
+            "fp": 18
+          },
+          "labelled_resource_name": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 109
+          },
+          "unlabelled": {
+            "fp": 141
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    }
+  }
+}

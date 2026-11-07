@@ -55,7 +55,7 @@ def test_runtime_uses_filter_after_boundary_refinement():
     detector.model = lambda **kw: SimpleNamespace(logits=torch.tensor([[[0., 20., 0.]]]))
     detector.tokenizer = None
     detector.max_length, detector.stride = 512, 128
-    detector.candidate_filter, detector.min_value_length = POLICY, None
+    detector.candidate_filter, detector.min_value_length, detector.delimiter_policy = POLICY, None, None
     text = 'Written by the author.'
     span = finding(text, 'by')
     detector.boundary_refiner = SimpleNamespace(refine=lambda text, spans: [span])

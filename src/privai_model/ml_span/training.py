@@ -84,7 +84,7 @@ def train(config):
     output=Path(config['output_dir'])
     if output.exists() and any(output.iterdir()): raise FileExistsError('choose a new output directory')
     splits={name:load(Path(config['data_dir'])/(name+'.jsonl')) for name in ('train','validation','test')}
-    assert_disjoint(splits)
+    assert_disjoint(splits,tuple(config.get('shared_key_kinds',())))
     for name in ('train','validation'):
         if {bool(r['spans']) for r in splits[name]}!={True,False}: raise ValueError('both classes required')
     output.mkdir(parents=True);write_json(output/'config.json',config)
@@ -115,6 +115,8 @@ def train(config):
         model.train();loss_sum=0
         for batch_index,batch in enumerate(loader,1):
             batch={k:v.to(device) for k,v in batch.items()};labels=batch.pop('labels')
+            # Length grouping can batch empty texts together; with no target token the mean loss is 0/0.
+            if not bool((labels!=-100).any()): continue
             optimizer.zero_grad(set_to_none=True)
             logits=model(**batch).logits
             loss=loss_fn(logits.reshape(-1,3),labels.reshape(-1))

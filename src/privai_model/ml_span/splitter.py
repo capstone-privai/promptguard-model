@@ -5,11 +5,13 @@ from privai_model.data.split import split_groups
 from .schema import group_keys, digest
 
 
-def assert_disjoint(splits):
+def assert_disjoint(splits,shared_kinds=()):
+    """shared_kinds names key kinds (e.g. 'value') that may recur across splits, for data built under another policy."""
     seen={}
     for name,rows in splits.items():
         for row in rows:
             for key in group_keys(row):
+                if key[0] in shared_kinds: continue
                 if key in seen and seen[key]!=name: raise ValueError('split leakage detected')
                 seen[key]=name
 
