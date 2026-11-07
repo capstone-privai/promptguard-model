@@ -54,11 +54,10 @@ def main():
         data[m.upper()] = {k: manifest[k] for k in ('team_sessions', 'composition', 'shared_keys', 'fingerprint', 'team_sha256')}
     baselines = {}
     for name in ('v9', 'v10'):
-        q = read(f'runs/pilot-reports/delimiters-{name}.json')
-        if q:
-            baselines[name] = dict(own_validation_fixed=q['validation']['fixed'], eligible=q['eligible'],
-                                   development={k: dict(fixed=v['fixed'], broken=v['broken'], f2_before=round(v['before']['f2'] or 0, 4),
-                                                        f2_after=round(v['after']['f2'] or 0, 4)) for k, v in q['development'].items()})
+        for prefix in ('delimiters', 'delimiters-v2'):
+            q = read(f'runs/pilot-reports/{prefix}-{name}.json')
+            if q:
+                baselines.setdefault(name, {})[q['policy']] = trim(q)
     report = dict(
         notice=('Team step-0 pilot (promptguard-data ml-train-pilot 5b812c7). Model A: hand + privesc; model B: hand + '
                 'LLM + privesc. Same recipe and seed; only the train and val files differ. Validation only: the team '
