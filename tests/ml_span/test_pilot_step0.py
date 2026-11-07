@@ -20,6 +20,13 @@ def test_a_and_b_differ_only_in_data():
     assert a['shared_key_kinds'] == ['value']
 
 
+def test_b_hn_differs_from_b_only_in_data():
+    b, bhn = recipe('b'), recipe('bhn')
+    assert b.keys() == bhn.keys()
+    assert {k for k in b if b[k] != bhn[k]} == DATA_KEYS
+    assert bhn['data_dir'].endswith('-bhn')
+
+
 def test_pilot_uses_the_v10_base_recipe():
     base = yaml.safe_load((ROOT / 'configs/span-mmbert-context-v10-base.yaml').read_text())
     a = recipe('a')

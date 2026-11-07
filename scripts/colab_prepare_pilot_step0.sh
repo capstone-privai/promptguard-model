@@ -11,4 +11,5 @@ PRIVESC_DIR=${PRIVESC_DIR:-$TEAM/../privesc-llm-data} bash "$TEAM/metric-detecti
 for model in A B; do
   [ -d "runs/data/span-pilot-step0-${model,,}" ] || PYTHONPATH=src python scripts/prepare_pilot_step0.py --team "$TEAM/metric-detection" --model $model
 done
-python -c "import json; [print('pilot', m, json.load(open(f'runs/data/span-pilot-step0-{m}/manifest.json'))['fingerprint']) for m in 'ab']"
+[ -d runs/data/span-pilot-step0-bhn ] || PYTHONPATH=src python scripts/prepare_pilot_negatives.py > /dev/null
+python -c "import json; [print('pilot', m, json.load(open(f'runs/data/span-pilot-step0-{m}/manifest.json'))['fingerprint']) for m in ('a', 'b', 'bhn')]"
