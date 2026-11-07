@@ -1,7 +1,7 @@
 """Loss curves for the step-0 pilot: training loss from the run log, validation F2 from history.json.
 
 Writes one self-contained SVG (two stacked panels, no second y-axis) and a CSV of the plotted points.
-Usage: plot_pilot_loss.py OUT_STEM LABEL=RUN_DIR:LOG ... (RUN_DIR holds history.json and model/span_bundle.json)
+Usage: plot_pilot_loss.py OUT_STEM [--note=TEXT] LABEL=RUN_DIR:LOG ... (RUN_DIR holds history.json and model/span_bundle.json)
 """
 import json
 import math
@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 COLORS = [('#2a78d6', '#3987e5'), ('#eb6834', '#d95926'), ('#1baf7a', '#199e70'), ('#eda100', '#c98500')]
-W, PAD_L, PAD_R, PANEL_H, GAP, TOP = 760, 64, 120, 220, 70, 48
+W, PAD_L, PAD_R, PANEL_H, GAP, TOP = 820, 64, 190, 220, 70, 48
 
 
 def parse(spec):
@@ -27,6 +27,8 @@ def parse(spec):
 
 def main():
     out, specs = Path(sys.argv[1]), sys.argv[2:]
+    note = next((a.split('=', 1)[1] for a in specs if a.startswith('--note=')), None)
+    specs = [a for a in specs if not a.startswith('--note=')]
     runs = [parse(s) for s in specs]
     epochs = max(max(h['epoch'] for h in r['history']) for r in runs)
     losses = [l for r in runs for _, l in r['steps']] + [h['loss'] for r in runs for h in r['history']]
@@ -50,6 +52,8 @@ def main():
          f'<rect width="{W}" height="{h_total}" fill="var(--surface)"/>',
          f'<text class="t" x="{PAD_L}" y="22">Training loss (mean within each epoch, log scale)</text>',
          f'<text class="t" x="{PAD_L}" y="{top2 - 26}">Validation exact-span F2 by epoch (ring = selected epoch)</text>']
+    if note:
+        s.append(f'<text x="{PAD_L}" y="{top2 - 10}">{note}</text>')
     for d in range(lo, hi + 1):
         yy = y1(10 ** d)
         s.append(f'<line class="g" x1="{PAD_L}" x2="{W - PAD_R}" y1="{yy:.1f}" y2="{yy:.1f}"/><text x="{PAD_L - 8}" y="{yy + 4:.1f}" text-anchor="end">1e{d}</text>')
@@ -84,8 +88,8 @@ def main():
         last = r['history'][-1]
         s.append(f'<text x="{x(last["epoch"]) + 10:.1f}" y="{y2(last["validation"]["f2"] or 0) + 4 + 14 * i:.1f}" style="fill:var(--ink)">{r["label"]}</text>')
     lx = W - PAD_R + 16
-    for i, r in enumerate(runs):
-        s.append(f'<rect x="{lx}" y="{TOP + 18 * i}" width="12" height="3" rx="1.5" fill="var(--s{i})"/><text x="{lx + 18}" y="{TOP + 18 * i + 5}" style="fill:var(--ink)">{r["label"]}</text>')
+    for i, r in enumerate(runs if len(runs) > 1 else []):  # one series: the title and direct label name it
+        s.append(f'<rect x="{lx}" y="{TOP - 30 + 18 * i}" width="12" height="3" rx="1.5" fill="var(--s{i})"/><text x="{lx + 18}" y="{TOP - 30 + 18 * i + 5}" style="fill:var(--ink)">{r["label"]}</text>')
     s.append('</svg>')
     out.with_suffix('.svg').write_text('\n'.join(s) + '\n')
     out.with_suffix('.csv').write_text('\n'.join(rows) + '\n')

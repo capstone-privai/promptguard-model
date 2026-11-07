@@ -1,0 +1,1222 @@
+{
+  "notice": "Team step-0 pilot (promptguard-data ml-train-pilot 5b812c7). Model A: hand + privesc; model B: hand + LLM + privesc. Same recipe and seed; only the train and val files differ. Validation only: the team scores its test sets first. Counts and settings only; no text or values.",
+  "data": {
+    "A": {
+      "team_sessions": {
+        "train": 1108,
+        "val": 80
+      },
+      "composition": {
+        "train": {
+          "records": 15818,
+          "positive": 3702,
+          "negative": 12116,
+          "gold_spans": 5563,
+          "families": 136,
+          "sources": {
+            "prompt": 1576,
+            "tool_output": 14242
+          }
+        },
+        "validation": {
+          "records": 305,
+          "positive": 220,
+          "negative": 85,
+          "gold_spans": 435,
+          "families": 16,
+          "sources": {
+            "prompt": 80,
+            "tool_output": 225
+          }
+        },
+        "test": {
+          "records": 504,
+          "positive": 252,
+          "negative": 252,
+          "gold_spans": 276,
+          "families": 74,
+          "sources": {
+            "code": 68,
+            "prompt": 184,
+            "file_read": 48,
+            "tool_output": 68,
+            "log": 48,
+            "markdown": 48,
+            "configuration": 20,
+            "shell": 20
+          }
+        }
+      },
+      "shared_keys": {
+        "train/validation": 24,
+        "train/test": 0,
+        "validation/test": 0
+      },
+      "fingerprint": "14897a3b55f2b98b9e1c1e9310e7d154a93c2c6939884ddc763899cb019f9662",
+      "team_sha256": {
+        "sessions_train.jsonl": "3f4759d5c0082b09a147c777ccbd1c5deb2fdc32eb65331103216248123d8164",
+        "sessions_val.jsonl": "5c74be06d97b99f0054d220ad882cddbcf5accb92648ec36af03f0c7a54a58b1",
+        "gold_train.jsonl": "6dc7dbe58e1582b5111b76062d68fe2a8aab76a99cae56fa3d139a8936a401f9",
+        "gold_val.jsonl": "a434f8990c987affefbd6d57a34c6d4e17e6d4de4df64f86048db35493973486",
+        "labels_train.jsonl": "a8a6ea36b46176e150d26e2f09420de4f14aa19a169792230ae5a1706cf28803",
+        "labels_val.jsonl": "bdbeca38ed785d3c1032d7ffdca842f7709d8170306e1db19b456573793ba221"
+      }
+    },
+    "B": {
+      "team_sessions": {
+        "train": 1693,
+        "val": 155
+      },
+      "composition": {
+        "train": {
+          "records": 19385,
+          "positive": 4617,
+          "negative": 14768,
+          "gold_spans": 6847,
+          "families": 331,
+          "sources": {
+            "prompt": 3091,
+            "tool_output": 16294
+          }
+        },
+        "validation": {
+          "records": 815,
+          "positive": 334,
+          "negative": 481,
+          "gold_spans": 615,
+          "families": 41,
+          "sources": {
+            "prompt": 293,
+            "tool_output": 522
+          }
+        },
+        "test": {
+          "records": 504,
+          "positive": 252,
+          "negative": 252,
+          "gold_spans": 276,
+          "families": 74,
+          "sources": {
+            "code": 68,
+            "prompt": 184,
+            "file_read": 48,
+            "tool_output": 68,
+            "log": 48,
+            "markdown": 48,
+            "configuration": 20,
+            "shell": 20
+          }
+        }
+      },
+      "shared_keys": {
+        "train/validation": 86,
+        "train/test": 0,
+        "validation/test": 0
+      },
+      "fingerprint": "cd587c1f72058f649e155940f3c21dcb540a6e56d3f52d79febdea2f148ed5fd",
+      "team_sha256": {
+        "sessions_train.jsonl": "447d1aacfafb7efa88c7c6872d189e10d8337c4ad709f6c2d114ab97d9cfafb1",
+        "sessions_val.jsonl": "dff827ce9b258d3a6e9ce7cccf1fa1e985f9380e27d078c0c7880423173447ef",
+        "gold_train.jsonl": "40d944a6139d6557cb74d34a809cf09891dc33ad5a0ee303b37b343012bb22a0",
+        "gold_val.jsonl": "ad43c23414cf65b26d7458aa861ac0f1a6382975609a70ff4b4d23e9272b1e9c",
+        "labels_train.jsonl": "173f5c72eac29ab6922c781fbffa951dafc9f3ae39b0bf60a9e68e60050834f7",
+        "labels_val.jsonl": "a14200cca6a222b50aa7eb97dd09494651c6babad572b5f0adfda240958ac584"
+      }
+    }
+  },
+  "runs": {
+    "A-seed110": {
+      "data": "runs/data/span-pilot-step0-a",
+      "device": "cuda",
+      "gpu": "Tesla T4",
+      "commit": "45181087db94dc42379d98b2000b5c6c544ff6af",
+      "settings": {
+        "model_name": "runs/backbones/mmbert-small",
+        "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "seed": 110,
+        "epochs": 8,
+        "patience": 3,
+        "batch_size": 4,
+        "length_grouped_batches": true,
+        "learning_rate": 3e-05,
+        "weight_decay": 0.01,
+        "class_weights": [
+          1.0,
+          2.0,
+          2.0
+        ],
+        "max_length": 512,
+        "stride": 128,
+        "thresholds": [
+          0.5,
+          0.7,
+          0.8,
+          0.9,
+          0.95,
+          0.98,
+          0.99
+        ],
+        "shared_key_kinds": [
+          "value"
+        ]
+      },
+      "alignment": {
+        "train": {
+          "gold_spans": 5563,
+          "exactly_representable_in_a_window": 5061,
+          "boundary_or_window_unrepresentable": 502
+        },
+        "validation": {
+          "gold_spans": 435,
+          "exactly_representable_in_a_window": 367,
+          "boundary_or_window_unrepresentable": 68
+        }
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "loss": 0.033131,
+          "cutoff": 0.9,
+          "tp": 387,
+          "fp": 54,
+          "fn": 48,
+          "precision": 0.8776,
+          "recall": 0.8897,
+          "f2": 0.8872
+        },
+        {
+          "epoch": 2,
+          "loss": 0.004907,
+          "cutoff": 0.99,
+          "tp": 388,
+          "fp": 47,
+          "fn": 47,
+          "precision": 0.892,
+          "recall": 0.892,
+          "f2": 0.892
+        },
+        {
+          "epoch": 3,
+          "loss": 0.003553,
+          "cutoff": 0.9,
+          "tp": 388,
+          "fp": 48,
+          "fn": 47,
+          "precision": 0.8899,
+          "recall": 0.892,
+          "f2": 0.8915
+        },
+        {
+          "epoch": 4,
+          "loss": 0.00159,
+          "cutoff": 0.98,
+          "tp": 388,
+          "fp": 47,
+          "fn": 47,
+          "precision": 0.892,
+          "recall": 0.892,
+          "f2": 0.892
+        },
+        {
+          "epoch": 5,
+          "loss": 0.002862,
+          "cutoff": 0.95,
+          "tp": 387,
+          "fp": 48,
+          "fn": 48,
+          "precision": 0.8897,
+          "recall": 0.8897,
+          "f2": 0.8897
+        }
+      ],
+      "selected_epoch": 2,
+      "cutoff": 0.99,
+      "quote_trim": {
+        "eligible": true,
+        "validation_before": {
+          "tp": 388,
+          "fp": 47,
+          "fn": 47,
+          "precision": 0.892,
+          "recall": 0.892,
+          "f2": 0.892
+        },
+        "validation_after": {
+          "tp": 428,
+          "fp": 7,
+          "fn": 7,
+          "precision": 0.9839,
+          "recall": 0.9839,
+          "f2": 0.9839
+        },
+        "fixed": 40,
+        "broken": 0,
+        "development": {
+          "pilot_b_val": {
+            "fixed": 46,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "fixed": 6,
+            "broken": 0
+          }
+        }
+      }
+    },
+    "B-seed110": {
+      "data": "runs/data/span-pilot-step0-b",
+      "device": "cuda",
+      "gpu": "Tesla T4",
+      "commit": "1b7207d600eb86be8a071dd1b9d395dad49f9b95",
+      "settings": {
+        "model_name": "runs/backbones/mmbert-small",
+        "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "seed": 110,
+        "epochs": 8,
+        "patience": 3,
+        "batch_size": 4,
+        "length_grouped_batches": true,
+        "learning_rate": 3e-05,
+        "weight_decay": 0.01,
+        "class_weights": [
+          1.0,
+          2.0,
+          2.0
+        ],
+        "max_length": 512,
+        "stride": 128,
+        "thresholds": [
+          0.5,
+          0.7,
+          0.8,
+          0.9,
+          0.95,
+          0.98,
+          0.99
+        ],
+        "shared_key_kinds": [
+          "value"
+        ]
+      },
+      "alignment": {
+        "train": {
+          "gold_spans": 6847,
+          "exactly_representable_in_a_window": 6290,
+          "boundary_or_window_unrepresentable": 557
+        },
+        "validation": {
+          "gold_spans": 615,
+          "exactly_representable_in_a_window": 536,
+          "boundary_or_window_unrepresentable": 79
+        }
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "loss": 0.031339,
+          "cutoff": 0.9,
+          "tp": 545,
+          "fp": 73,
+          "fn": 70,
+          "precision": 0.8819,
+          "recall": 0.8862,
+          "f2": 0.8853
+        },
+        {
+          "epoch": 2,
+          "loss": 0.008156,
+          "cutoff": 0.7,
+          "tp": 539,
+          "fp": 71,
+          "fn": 76,
+          "precision": 0.8836,
+          "recall": 0.8764,
+          "f2": 0.8779
+        },
+        {
+          "epoch": 3,
+          "loss": 0.00451,
+          "cutoff": 0.9,
+          "tp": 551,
+          "fp": 55,
+          "fn": 64,
+          "precision": 0.9092,
+          "recall": 0.8959,
+          "f2": 0.8986
+        },
+        {
+          "epoch": 4,
+          "loss": 0.002362,
+          "cutoff": 0.9,
+          "tp": 531,
+          "fp": 58,
+          "fn": 84,
+          "precision": 0.9015,
+          "recall": 0.8634,
+          "f2": 0.8708
+        },
+        {
+          "epoch": 5,
+          "loss": 0.003949,
+          "cutoff": 0.9,
+          "tp": 540,
+          "fp": 72,
+          "fn": 75,
+          "precision": 0.8824,
+          "recall": 0.878,
+          "f2": 0.8789
+        },
+        {
+          "epoch": 6,
+          "loss": 0.002728,
+          "cutoff": 0.99,
+          "tp": 547,
+          "fp": 71,
+          "fn": 68,
+          "precision": 0.8851,
+          "recall": 0.8894,
+          "f2": 0.8886
+        }
+      ],
+      "selected_epoch": 3,
+      "cutoff": 0.9,
+      "quote_trim": {
+        "eligible": true,
+        "validation_before": {
+          "tp": 551,
+          "fp": 55,
+          "fn": 64,
+          "precision": 0.9092,
+          "recall": 0.8959,
+          "f2": 0.8986
+        },
+        "validation_after": {
+          "tp": 596,
+          "fp": 10,
+          "fn": 19,
+          "precision": 0.9835,
+          "recall": 0.9691,
+          "f2": 0.972
+        },
+        "fixed": 45,
+        "broken": 0,
+        "development": {
+          "pilot_a_val": {
+            "fixed": 39,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "fixed": 6,
+            "broken": 0
+          }
+        }
+      }
+    }
+  },
+  "quote_trim_on_published_bundles": {
+    "v9": {
+      "own_validation_fixed": 0,
+      "eligible": false,
+      "development": {
+        "fresh_test": {
+          "fixed": 0,
+          "broken": 0,
+          "f2_before": 0.8567,
+          "f2_after": 0.8567
+        },
+        "negative_challenge": {
+          "fixed": 0,
+          "broken": 0,
+          "f2_before": 0,
+          "f2_after": 0
+        },
+        "v4": {
+          "fixed": 9,
+          "broken": 0,
+          "f2_before": 0.8796,
+          "f2_after": 0.9267
+        },
+        "v6": {
+          "fixed": 0,
+          "broken": 0,
+          "f2_before": 0.7473,
+          "f2_after": 0.7473
+        },
+        "v7": {
+          "fixed": 0,
+          "broken": 0,
+          "f2_before": 0.7861,
+          "f2_after": 0.7861
+        },
+        "qwen_v2": {
+          "fixed": 0,
+          "broken": 0,
+          "f2_before": 0.8879,
+          "f2_after": 0.8879
+        },
+        "holdout_v11": {
+          "fixed": 3,
+          "broken": 0,
+          "f2_before": 0.7766,
+          "f2_after": 0.7872
+        },
+        "pilot_a_val": {
+          "fixed": 7,
+          "broken": 0,
+          "f2_before": 0.4082,
+          "f2_after": 0.426
+        },
+        "pilot_b_val": {
+          "fixed": 7,
+          "broken": 0,
+          "f2_before": 0.4733,
+          "f2_after": 0.4849
+        }
+      }
+    },
+    "v10": {
+      "own_validation_fixed": 0,
+      "eligible": false,
+      "development": {
+        "fresh_test": {
+          "fixed": 0,
+          "broken": 0,
+          "f2_before": 0.9948,
+          "f2_after": 0.9948
+        },
+        "negative_challenge": {
+          "fixed": 0,
+          "broken": 0,
+          "f2_before": 0,
+          "f2_after": 0
+        },
+        "v4": {
+          "fixed": 9,
+          "broken": 0,
+          "f2_before": 0.9417,
+          "f2_after": 0.9886
+        },
+        "v6": {
+          "fixed": 0,
+          "broken": 0,
+          "f2_before": 0.8542,
+          "f2_after": 0.8542
+        },
+        "v7": {
+          "fixed": 0,
+          "broken": 0,
+          "f2_before": 0.9097,
+          "f2_after": 0.9097
+        },
+        "qwen_v2": {
+          "fixed": 1,
+          "broken": 0,
+          "f2_before": 0.9476,
+          "f2_after": 0.9601
+        },
+        "holdout_v11": {
+          "fixed": 3,
+          "broken": 0,
+          "f2_before": 0.8526,
+          "f2_after": 0.863
+        },
+        "pilot_a_val": {
+          "fixed": 5,
+          "broken": 0,
+          "f2_before": 0.3204,
+          "f2_after": 0.333
+        },
+        "pilot_b_val": {
+          "fixed": 5,
+          "broken": 0,
+          "f2_before": 0.4232,
+          "f2_after": 0.4314
+        }
+      }
+    }
+  },
+  "diagnostics": {
+    "diag-modelA-on-Aval-none": {
+      "model": "A",
+      "checkpoint": "runs/span-mmbert-pilot-step0-a/model",
+      "threshold": 0.99,
+      "delimiter_policy": null,
+      "rows": 305,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 388,
+            "boundary": 47
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "exact": 388,
+            "boundary": 47
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 388,
+            "boundary": 47
+          }
+        },
+        "type": {
+          "PASSWORD": {
+            "exact": 161,
+            "boundary": 44
+          },
+          "PRIVATE_KEY": {
+            "exact": 45
+          },
+          "SECRET": {
+            "exact": 64
+          },
+          "TOKEN": {
+            "exact": 118,
+            "boundary": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 47
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 47
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 47
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 47
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelA-on-Aval-quote-delimiters-v1": {
+      "model": "A",
+      "checkpoint": "runs/span-mmbert-pilot-step0-a/model",
+      "threshold": 0.99,
+      "delimiter_policy": "quote-delimiters-v1",
+      "rows": 305,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "type": {
+          "PASSWORD": {
+            "exact": 200,
+            "boundary": 5
+          },
+          "PRIVATE_KEY": {
+            "exact": 45
+          },
+          "SECRET": {
+            "exact": 64
+          },
+          "TOKEN": {
+            "exact": 119,
+            "boundary": 2
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 7
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 7
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 7
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 7
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelA-on-Bval-none": {
+      "model": "B",
+      "checkpoint": "runs/span-mmbert-pilot-step0-a/model",
+      "threshold": 0.99,
+      "delimiter_policy": null,
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 520,
+            "boundary": 73,
+            "missed": 22
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 24,
+            "boundary": 13,
+            "missed": 5
+          },
+          "tool_output": {
+            "exact": 496,
+            "boundary": 60,
+            "missed": 17
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 388,
+            "boundary": 47
+          },
+          "llm": {
+            "exact": 132,
+            "boundary": 26,
+            "missed": 22
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "boundary": 6,
+            "missed": 3
+          },
+          "PASSWORD": {
+            "exact": 200,
+            "boundary": 54,
+            "missed": 8
+          },
+          "PRIVATE_KEY": {
+            "exact": 50,
+            "missed": 1,
+            "boundary": 6
+          },
+          "SECRET": {
+            "exact": 101,
+            "boundary": 4,
+            "missed": 10
+          },
+          "TOKEN": {
+            "exact": 169,
+            "boundary": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 174
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 19
+          },
+          "tool_output": {
+            "fp": 155
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 47
+          },
+          "llm": {
+            "fp": 127
+          }
+        },
+        "where": {
+          "labelled_base64_blob": {
+            "fp": 3
+          },
+          "labelled_descriptor": {
+            "fp": 1
+          },
+          "labelled_fingerprint": {
+            "fp": 2
+          },
+          "labelled_hash": {
+            "fp": 1
+          },
+          "labelled_identifier": {
+            "fp": 3
+          },
+          "labelled_opaque_value": {
+            "fp": 3
+          },
+          "labelled_pii": {
+            "fp": 3
+          },
+          "labelled_prefix_redaction": {
+            "fp": 4
+          },
+          "overlaps_gold": {
+            "fp": 74
+          },
+          "unlabelled": {
+            "fp": 80
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelA-on-Bval-quote-delimiters-v1": {
+      "model": "B",
+      "checkpoint": "runs/span-mmbert-pilot-step0-a/model",
+      "threshold": 0.99,
+      "delimiter_policy": "quote-delimiters-v1",
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 566,
+            "boundary": 27,
+            "missed": 22
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 27,
+            "boundary": 10,
+            "missed": 5
+          },
+          "tool_output": {
+            "exact": 539,
+            "boundary": 17,
+            "missed": 17
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 428,
+            "boundary": 7
+          },
+          "llm": {
+            "exact": 138,
+            "boundary": 20,
+            "missed": 22
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "boundary": 6,
+            "missed": 3
+          },
+          "PASSWORD": {
+            "exact": 245,
+            "boundary": 9,
+            "missed": 8
+          },
+          "PRIVATE_KEY": {
+            "exact": 50,
+            "missed": 1,
+            "boundary": 6
+          },
+          "SECRET": {
+            "exact": 101,
+            "boundary": 4,
+            "missed": 10
+          },
+          "TOKEN": {
+            "exact": 170,
+            "boundary": 2
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 128
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 16
+          },
+          "tool_output": {
+            "fp": 112
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 7
+          },
+          "llm": {
+            "fp": 121
+          }
+        },
+        "where": {
+          "labelled_base64_blob": {
+            "fp": 3
+          },
+          "labelled_descriptor": {
+            "fp": 1
+          },
+          "labelled_fingerprint": {
+            "fp": 2
+          },
+          "labelled_hash": {
+            "fp": 1
+          },
+          "labelled_identifier": {
+            "fp": 3
+          },
+          "labelled_opaque_value": {
+            "fp": 3
+          },
+          "labelled_pii": {
+            "fp": 3
+          },
+          "labelled_prefix_redaction": {
+            "fp": 4
+          },
+          "overlaps_gold": {
+            "fp": 28
+          },
+          "unlabelled": {
+            "fp": 80
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelB-on-Aval-none": {
+      "model": "A",
+      "checkpoint": "runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": null,
+      "rows": 305,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 389,
+            "boundary": 46
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "exact": 389,
+            "boundary": 46
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 389,
+            "boundary": 46
+          }
+        },
+        "type": {
+          "PASSWORD": {
+            "exact": 161,
+            "boundary": 44
+          },
+          "PRIVATE_KEY": {
+            "exact": 45
+          },
+          "SECRET": {
+            "exact": 64
+          },
+          "TOKEN": {
+            "exact": 119,
+            "boundary": 2
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 46
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 46
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 46
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 46
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelB-on-Aval-quote-delimiters-v1": {
+      "model": "A",
+      "checkpoint": "runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": "quote-delimiters-v1",
+      "rows": 305,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 428,
+            "boundary": 7
+          }
+        },
+        "type": {
+          "PASSWORD": {
+            "exact": 200,
+            "boundary": 5
+          },
+          "PRIVATE_KEY": {
+            "exact": 45
+          },
+          "SECRET": {
+            "exact": 64
+          },
+          "TOKEN": {
+            "exact": 119,
+            "boundary": 2
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 7
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 7
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 7
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 7
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelB-on-Bval-none": {
+      "model": "B",
+      "checkpoint": "runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": null,
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 551,
+            "boundary": 54,
+            "missed": 10
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 39,
+            "boundary": 3
+          },
+          "tool_output": {
+            "exact": 512,
+            "boundary": 51,
+            "missed": 10
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 389,
+            "boundary": 46
+          },
+          "llm": {
+            "exact": 162,
+            "missed": 10,
+            "boundary": 8
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 203,
+            "boundary": 52,
+            "missed": 7
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 115
+          },
+          "TOKEN": {
+            "exact": 167,
+            "boundary": 2,
+            "missed": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 55
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 3
+          },
+          "tool_output": {
+            "fp": 52
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 46
+          },
+          "llm": {
+            "fp": 9
+          }
+        },
+        "where": {
+          "labelled_prefix_redaction": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 54
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-modelB-on-Bval-quote-delimiters-v1": {
+      "model": "B",
+      "checkpoint": "runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": "quote-delimiters-v1",
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 596,
+            "boundary": 9,
+            "missed": 10
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 42
+          },
+          "tool_output": {
+            "exact": 554,
+            "boundary": 9,
+            "missed": 10
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 428,
+            "boundary": 7
+          },
+          "llm": {
+            "exact": 168,
+            "missed": 10,
+            "boundary": 2
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 248,
+            "boundary": 7,
+            "missed": 7
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 115
+          },
+          "TOKEN": {
+            "exact": 167,
+            "boundary": 2,
+            "missed": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 10
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 10
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 7
+          },
+          "llm": {
+            "fp": 3
+          }
+        },
+        "where": {
+          "labelled_prefix_redaction": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 9
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    }
+  }
+}

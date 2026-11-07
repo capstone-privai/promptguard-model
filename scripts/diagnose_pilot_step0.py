@@ -29,6 +29,7 @@ def main():
     p.add_argument('--team', required=True, help='promptguard-data/metric-detection after build_ml_handoff.sh')
     p.add_argument('--device', default='cpu')
     p.add_argument('--threshold', type=float, help='defaults to the bundle cutoff')
+    p.add_argument('--delimiter-policy', help='e.g. quote-delimiters-v1 (defaults to the bundle setting)')
     p.add_argument('--output')
     args = p.parse_args()
     handoff = Path(args.team) / 'ml_handoff' / f'model_{args.model}'
@@ -41,7 +42,7 @@ def main():
             kinds[f"team_step0:{l['session_id']}:{l['item_id']}"].append((l['start'], l['end'], l['kind']))
     for s in read(handoff / 'sessions_val.jsonl'):
         groups[s['session_id']] = s['meta']['group_id']
-    detector = MLSpanDetector(ROOT / args.checkpoint, device=args.device)
+    detector = MLSpanDetector(ROOT / args.checkpoint, device=args.device, delimiter_policy=args.delimiter_policy)
     threshold = detector.threshold if args.threshold is None else args.threshold
     gold_stats = defaultdict(Counter)   # (dimension, value) -> exact / boundary / missed
     fp_stats = defaultdict(Counter)
@@ -71,7 +72,7 @@ def main():
         for (dim, value), c in sorted(stats.items()):
             out.setdefault(dim, {})[value] = dict(c)
         return out
-    report = dict(model=args.model, checkpoint=args.checkpoint, threshold=threshold, rows=len(rows),
+    report = dict(model=args.model, checkpoint=args.checkpoint, threshold=threshold, delimiter_policy=detector.delimiter_policy, rows=len(rows),
                   gold=table(gold_stats), false_positives=table(fp_stats),
                   notice='Validation only; counts by gold type, template origin, channel and labelled non-secret kind.')
     text = json.dumps(report, indent=2)
