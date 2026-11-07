@@ -33,7 +33,8 @@ def team_rows(sessions_path, gold_path, labels_path, prefix):
     for g in read(gold_path):
         gold.setdefault((g['session_id'], g['item_id']), []).append((g['span']['start'], g['span']['end']))
     for l in read(labels_path) if labels_path else []:
-        labels.setdefault((l['session_id'], l['item_id']), []).append((l['start'], l['end']))
+        if l['end'] > l['start']:  # kind 'empty' marks an empty value with a zero-length interval: nothing to register
+            labels.setdefault((l['session_id'], l['item_id']), []).append((l['start'], l['end']))
     rows = []
     for session in read(sessions_path):
         group = session['meta']['group_id']

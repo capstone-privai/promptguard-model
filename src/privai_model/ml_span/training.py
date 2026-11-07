@@ -84,7 +84,7 @@ def train(config):
     output=Path(config['output_dir'])
     if output.exists() and any(output.iterdir()): raise FileExistsError('choose a new output directory')
     splits={name:load(Path(config['data_dir'])/(name+'.jsonl')) for name in ('train','validation','test')}
-    assert_disjoint(splits)
+    assert_disjoint(splits,tuple(config.get('shared_key_kinds',())))
     for name in ('train','validation'):
         if {bool(r['spans']) for r in splits[name]}!={True,False}: raise ValueError('both classes required')
     output.mkdir(parents=True);write_json(output/'config.json',config)
