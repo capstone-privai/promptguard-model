@@ -1,4 +1,4 @@
-# Pilot follow-up, model B+HN: model B's train plus our secret-free hard negatives (scripts/prepare_pilot_negatives.py).
+# Pilot follow-up, model B+HN: model B's train plus our secret-free hard negatives (scripts/prepare_pilot_plus_ours.py bhn).
 # Validation is B's; every other line matches model B so a gap can be put on the added negatives.
 model_name: runs/backbones/mmbert-small
 backbone_id: jhu-clsp/mmBERT-small (team step-0 pilot, model B plus our hard negatives, from base)
