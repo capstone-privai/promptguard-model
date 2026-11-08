@@ -119,7 +119,7 @@ loss 곡선 원자료는 `reports/ml_span/pilot-step0-loss.csv`에 있습니다.
 칸은 맞힘 / 오탐 / 놓침 · F2입니다.
 
 - **양쪽 모두 상대 데이터에서 약합니다.** v10은 팀 val에서 F2 0.32~0.42이고, A·B는 우리 셋에서 오탐이 많습니다. 데이터마다 무엇을 비밀로 보는지(라벨 기준)와 문장 형식이 달라서, 한쪽 데이터만으로 학습한 모델은 다른 쪽 기준을 배우지 못합니다.
-- **B가 A보다 넓게 일반화합니다.** 손 템플릿 val에서는 A와 같고(389 대 388), 우리 셋 7개 모두에서 오탐이 적습니다. F2는 v6을 빼고 모두 높습니다(v6은 B가 덜 잡고 더 놓침). LLM 템플릿이 손 템플릿 성능을 깎지 않으면서 다른 형식으로 넓혀 준다는 근거입니다. 다만 결정은 팀 test로 해야 합니다.
+- **B가 A보다 넓게 일반화합니다.** 손 템플릿 val에서는 A와 같고(389 대 388), 우리 셋 7개 모두에서 오탐이 적습니다. F2는 v6을 빼고 모두 높습니다(v6은 B가 덜 잡고 더 놓침). LLM 템플릿이 손 템플릿 성능을 깎지 않으면서 다른 형식으로 넓혀 준다는 근거입니다. seed 112에서도 오탐이 적은 것은 같았고, F2는 v4·v6에서 A가 높았습니다(아래 "seed 변동"). 다만 결정은 팀 test로 해야 합니다.
 - **팀 모델의 오탐 유형**(값은 보지 않고 문자 모양만 집계):
   - A는 negative_challenge에서 `artifact_sha256` 같은 해시 8개, `X-Request-ID` 값 6개, `[REDACTED]` 같은 가림 표시 8개를 비밀로 잡았습니다. B는 이 셋을 하나도 잡지 않았습니다.
   - B에 남은 오탐 16개 중 8개는 3자 소문자 단어라 PromptGuard의 6자 미만 필터에 걸립니다. 나머지 8개는 한국어 문장 속 무작위 문자열입니다.
@@ -135,6 +135,8 @@ Drive `MyDrive/promptguard-runs/`(Colab 계정)에 있습니다.
 |---|---|---|
 | A | `span-mmbert-pilot-step0-a.zip` | `span-mmbert-pilot-step0-a.log` |
 | B | `span-mmbert-pilot-step0-b-seed110.zip` | `span-mmbert-pilot-step0-b-seed110.log` |
+| A, seed 112 | 폴더 `span-mmbert-pilot-step0-a-seed112/` | `span-mmbert-pilot-step0-a-seed112.log` |
+| B, seed 112 | 폴더 `span-mmbert-pilot-step0-b-seed112/` | `span-mmbert-pilot-step0-b-seed112.log` |
 
 - zip에는 `model/`(가중치, `span_bundle.json`), `config.json`(학습 설정), `history.json`(epoch별 손실과 validation), `alignment.json`이 들어 있습니다. test 평가 파일은 넣지 않았습니다.
 - **따옴표 정리 켜기**: `model/span_bundle.json`에 `"delimiter_policy": "quote-delimiters-v2"`(또는 닫는 따옴표만 고치는 `-v1`)를 추가하고, PromptGuard의 ml-v9 모듈이 이 브랜치 이후의 `promptguard-model`을 쓰게 합니다. 옛 런타임은 이 키를 무시하므로, 그 경우에는 학습된 그대로 동작합니다. zip 안의 bundle에는 이 키가 없으므로, 팀 평가는 학습된 그대로의 모델로 먼저 하면 됩니다.
@@ -142,7 +144,34 @@ Drive `MyDrive/promptguard-runs/`(Colab 계정)에 있습니다.
 
 ## seed 변동
 
-같은 레시피라도 seed에 따라 결과가 크게 흔들립니다. v11 두 seed는 외부 F2가 0.367과 0.498이었습니다. 그래서 seed 111(맥 GPU)과 seed 112(Colab)로 A와 B를 추가 학습하고 있습니다. 결과가 나오면 이 문서와 보고서에 더합니다.
+같은 레시피라도 seed에 따라 결과가 흔들릴 수 있습니다(v11 두 seed는 외부 F2가 0.367과 0.498). 그래서 A와 B를 seed 112로 한 번 더 학습했습니다(Colab T4, 설정은 seed만 다름). seed 111(맥 GPU)은 메모리 스왑으로 느려 아직 학습 중입니다.
+
+| 모델 · seed | 선택 epoch | cutoff | 맞힘 / 오탐 / 놓침 | precision | F2 | 정리 v1 후 F2 | 정리 v2 후 F2 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| A · 110 | 2 | 0.99 | 388 / 47 / 47 | 0.892 | 0.892 | 0.984 | 1.000 |
+| A · 112 | 3 | 0.98 | 389 / 46 / 46 | 0.894 | 0.894 | 0.984 | 0.998 |
+| B · 110 | 3 | 0.90 | 551 / 55 / 64 | 0.909 | 0.899 | 0.972 | 0.985 |
+| B · 112 | 7 | 0.70 | 552 / 59 / 63 | 0.903 | 0.899 | 0.972 | 0.985 |
+
+- **자기 val에서는 seed 차이가 거의 없습니다**(F2 차이 0.002 이하).
+- **따옴표 정리 v2**: seed 112에서도 망가뜨린 답 없이 A 45개, B 53개를 고쳤습니다. v2 규칙은 seed 110 A의 오류를 보고 만들었으므로 seed 112의 오류는 규칙을 만들 때 보지 않은 것입니다. 다만 같은 val 셋이라 완전히 독립적인 확인은 아닙니다.
+- **다른 출처의 데이터에서는 seed 차이가 큽니다**(개발셋, 참고, 따옴표 정리 끈 숫자):
+
+| 셋 (정답 수) | A · 110 | A · 112 | B · 110 | B · 112 |
+|---|---:|---:|---:|---:|
+| 상대 모델의 val | 0.824 (174) | 0.809 (84) | 0.894 (46) | 0.892 (48) |
+| fresh_test (192) | 0.694 (281) | 0.696 (315) | 0.731 (213) | 0.771 (197) |
+| v4 (192) | 0.663 (252) | 0.671 (277) | 0.737 (94) | 0.591 (150) |
+| v6 (96) | 0.421 (204) | 0.509 (163) | 0.327 (59) | 0.357 (123) |
+| v7 (160) | 0.328 (342) | 0.282 (364) | 0.352 (191) | 0.294 (239) |
+| qwen_v2 (78) | 0.625 (129) | 0.568 (109) | 0.841 (59) | 0.862 (43) |
+| hold-out v11 (276) | 0.597 (495) | 0.628 (400) | 0.752 (212) | 0.758 (178) |
+| negative_challenge (0) | (35) | (17) | (16) | (12) |
+
+칸은 F2 (오탐 수)입니다.
+
+- B가 A보다 오탐이 적다는 점은 두 seed 모두 7개 셋 전부에서 같습니다. F2는 v4·v6에서 seed에 따라 뒤집힙니다. 이 두 셋에서는 B가 더 많이 놓치기 때문입니다.
+- val 점수가 같은 두 모델이 다른 출처에서는 F2가 0.15까지 차이 납니다(B의 v4). 팀 test, 특히 분포가 다른 test_ood의 A·B 차이가 작다면 seed 차이일 수 있습니다. 가능하면 두 seed를 모두 평가해 주세요.
 
 ## 재현
 
@@ -156,4 +185,7 @@ PYTHONPATH=src python scripts/prepare_pilot_step0.py --team ../promptguard-data/
 # validation 진단과 따옴표 정리 판정
 PYTHONPATH=src python scripts/diagnose_pilot_step0.py --checkpoint runs/span-mmbert-pilot-step0-a-seed110/model --model A --team ../promptguard-data/metric-detection
 PYTHONPATH=src python scripts/verify_span_delimiters.py --checkpoint runs/span-mmbert-pilot-step0-a-seed110/model --validation runs/data/span-pilot-step0-a/validation.jsonl --output runs/pilot-reports/delimiters-pilot-a-seed110.json
+# Colab에서 학습한 seed 112: GPU에서 판정한 뒤 기록(가중치 제외)을 한 줄 JSON으로 옮겨 옴
+bash scripts/colab_verify_pilot.sh span-mmbert-pilot-step0-a-seed112 span-mmbert-pilot-step0-b-seed112   # Colab 저장소 폴더에서
+python scripts/run_summary.py import summary-a-seed112.json runs                                          # 로컬
 ```

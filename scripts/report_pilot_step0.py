@@ -49,9 +49,11 @@ def main():
             quote_trim=trim(read(f'runs/pilot-reports/delimiters-pilot-{name.lower()}.json')),
             quote_trim_v2=trim(read(f'runs/pilot-reports/delimiters-v2-pilot-{name.lower()}.json')))
     data = {}
-    for m in 'ab':
+    for m in ('a', 'b', 'bhn'):
         manifest = read(f'runs/data/span-pilot-step0-{m}/manifest.json')
-        data[m.upper()] = {k: manifest[k] for k in ('team_sessions', 'composition', 'shared_keys', 'fingerprint', 'team_sha256')}
+        if manifest:
+            data[m.upper()] = {k: manifest[k] for k in ('team_sessions', 'composition', 'shared_keys', 'fingerprint',
+                                                        'team_sha256', 'base', 'added') if k in manifest}
     baselines = {}
     for name in ('v9', 'v10'):
         for prefix in ('delimiters', 'delimiters-v2'):
@@ -60,7 +62,8 @@ def main():
                 baselines.setdefault(name, {})[q['policy']] = trim(q)
     report = dict(
         notice=('Team step-0 pilot (promptguard-data ml-train-pilot 5b812c7). Model A: hand + privesc; model B: hand + '
-                'LLM + privesc. Same recipe and seed; only the train and val files differ. Validation only: the team '
+                'LLM + privesc. Same recipe; only the train and val files differ, and each seed is a separate run. '
+                'B+HN (follow-up) is B plus our secret-free hard negatives, selected on B val. Validation only: the team '
                 'scores its test sets first. Counts and settings only; no text or values.'),
         data=data, runs=runs, quote_trim_on_published_bundles=baselines,
         diagnostics={p.stem: read(f'runs/pilot-reports/{p.name}') for p in sorted((ROOT / 'runs/pilot-reports').glob('diag-*.json'))})
