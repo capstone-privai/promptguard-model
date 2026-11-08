@@ -22,6 +22,16 @@ def read(path):
     return [json.loads(line) for line in open(path, encoding='utf-8')]
 
 
+def shape(value):
+    """A false positive's character shape (length bucket, character classes, form), never the value itself."""
+    n = len(value)
+    size = '<8' if n < 8 else '8-15' if n < 16 else '16-31' if n < 32 else '32+'
+    classes = ''.join(c for c, test in (('l', str.islower), ('u', str.isupper), ('d', str.isdigit)) if any(map(test, value)))
+    classes += 's' if any(not ch.isalnum() and not ch.isspace() for ch in value) else ''
+    form = 'hex' if n >= 8 and all(ch in '0123456789abcdefABCDEF' for ch in value) else 'spaced' if any(ch.isspace() for ch in value) else '-'
+    return f'{size}/{classes}/{form}'
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--checkpoint', required=True)
@@ -46,6 +56,7 @@ def main():
     threshold = detector.threshold if args.threshold is None else args.threshold
     gold_stats = defaultdict(Counter)   # (dimension, value) -> exact / boundary / missed
     fp_stats = defaultdict(Counter)
+    fp_shapes = defaultdict(Counter)   # where -> shape -> count
     for row in rows:
         session = row['id'].split(':')[1]
         src = origin(groups[session])
@@ -67,6 +78,7 @@ def main():
                 where = f'labelled_{hit[0]}' if hit else 'unlabelled'
             for key in (('all', 'all'), ('origin', src), ('channel', channel), ('where', where)):
                 fp_stats[key]['fp'] += 1
+            fp_shapes[where][shape(row['text'][c:d])] += 1
     def table(stats):
         out = {}
         for (dim, value), c in sorted(stats.items()):
@@ -74,6 +86,7 @@ def main():
         return out
     report = dict(model=args.model, checkpoint=args.checkpoint, threshold=threshold, delimiter_policy=detector.delimiter_policy, rows=len(rows),
                   gold=table(gold_stats), false_positives=table(fp_stats),
+                  false_positive_shapes={w: dict(c) for w, c in sorted(fp_shapes.items())},
                   notice='Validation only; counts by gold type, template origin, channel and labelled non-secret kind.')
     text = json.dumps(report, indent=2)
     if args.output:
