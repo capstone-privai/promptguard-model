@@ -1,0 +1,23 @@
+# Pilot follow-up, model B+HN: model B's train plus our secret-free hard negatives (scripts/prepare_pilot_plus_ours.py bhn).
+# Validation is B's; every other line matches model B so a gap can be put on the added negatives.
+model_name: runs/backbones/mmbert-small
+backbone_id: jhu-clsp/mmBERT-small (team step-0 pilot, model B plus our hard negatives, from base)
+backbone_revision: abc32620dd4f6ab06f5fbe905dc25f310618e09f
+local_files_only: true
+data_dir: runs/data/span-pilot-step0-bhn
+output_dir: runs/span-mmbert-pilot-step0-bhn
+shared_key_kinds: [value]
+seed: 110
+epochs: 8
+patience: 3
+batch_size: 4
+length_grouped_batches: true
+progress_every_batches: 200
+learning_rate: 0.00003
+weight_decay: 0.01
+class_weights: [1.0, 2.0, 2.0]
+max_length: 512
+stride: 128
+thresholds: [0.5, 0.7, 0.8, 0.9, 0.95, 0.98, 0.99]
+device: mps
+threads: 4

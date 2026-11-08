@@ -40,7 +40,7 @@ def scanning_detector(spans, min_value_length):
     detector.threshold, detector.device, detector.tokenizer = .5, 'cpu', None
     detector.model = lambda **kw: SimpleNamespace(logits=torch.tensor([[[0., 20., 0.]]]))
     detector.max_length, detector.stride = 512, 128
-    detector.candidate_filter, detector.min_value_length = POLICY, min_value_length
+    detector.candidate_filter, detector.min_value_length, detector.delimiter_policy = POLICY, min_value_length, None
     detector.boundary_refiner = SimpleNamespace(refine=lambda text, _: spans)
     return detector
 
