@@ -4120,6 +4120,563 @@
     }
   },
   "diagnostics": {
+    "diag-b-seed110-on-Bval-none": {
+      "model": "B",
+      "checkpoint": "/content/drive/MyDrive/promptguard-runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": null,
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 551,
+            "boundary": 54,
+            "missed": 10
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 39,
+            "boundary": 3
+          },
+          "tool_output": {
+            "exact": 512,
+            "boundary": 51,
+            "missed": 10
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 389,
+            "boundary": 46
+          },
+          "llm": {
+            "exact": 162,
+            "missed": 10,
+            "boundary": 8
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 203,
+            "boundary": 52,
+            "missed": 7
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 115
+          },
+          "TOKEN": {
+            "exact": 167,
+            "boundary": 2,
+            "missed": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 55
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 3
+          },
+          "tool_output": {
+            "fp": 52
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 46
+          },
+          "llm": {
+            "fp": 9
+          }
+        },
+        "where": {
+          "labelled_prefix_redaction": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 54
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-b-seed110-on-Bval-quote-delimiters-v2": {
+      "model": "B",
+      "checkpoint": "/content/drive/MyDrive/promptguard-runs/span-mmbert-pilot-step0-b-seed110/model",
+      "threshold": 0.9,
+      "delimiter_policy": "quote-delimiters-v2",
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 604,
+            "missed": 10,
+            "boundary": 1
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 42
+          },
+          "tool_output": {
+            "exact": 562,
+            "missed": 10,
+            "boundary": 1
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 435
+          },
+          "llm": {
+            "exact": 169,
+            "missed": 10,
+            "boundary": 1
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 254,
+            "missed": 7,
+            "boundary": 1
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 115
+          },
+          "TOKEN": {
+            "exact": 169,
+            "missed": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 2
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 2
+          }
+        },
+        "origin": {
+          "llm": {
+            "fp": 2
+          }
+        },
+        "where": {
+          "labelled_prefix_redaction": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 1
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-b-seed112-on-Bval-none": {
+      "model": "B",
+      "checkpoint": "/content/drive/MyDrive/promptguard-runs/span-mmbert-pilot-step0-b-seed112/model",
+      "threshold": 0.7,
+      "delimiter_policy": null,
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 552,
+            "boundary": 58,
+            "missed": 5
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 38,
+            "boundary": 3,
+            "missed": 1
+          },
+          "tool_output": {
+            "exact": 514,
+            "boundary": 55,
+            "missed": 4
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 388,
+            "boundary": 47
+          },
+          "llm": {
+            "exact": 164,
+            "missed": 5,
+            "boundary": 11
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 206,
+            "boundary": 56
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 111,
+            "missed": 4
+          },
+          "TOKEN": {
+            "exact": 169,
+            "boundary": 2,
+            "missed": 1
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 59
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 3
+          },
+          "tool_output": {
+            "fp": 56
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 48
+          },
+          "llm": {
+            "fp": 11
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 58
+          },
+          "unlabelled": {
+            "fp": 1
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-b-seed112-on-Bval-quote-delimiters-v2": {
+      "model": "B",
+      "checkpoint": "/content/drive/MyDrive/promptguard-runs/span-mmbert-pilot-step0-b-seed112/model",
+      "threshold": 0.7,
+      "delimiter_policy": "quote-delimiters-v2",
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 605,
+            "boundary": 5,
+            "missed": 5
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 41,
+            "missed": 1
+          },
+          "tool_output": {
+            "exact": 564,
+            "boundary": 5,
+            "missed": 4
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 434,
+            "boundary": 1
+          },
+          "llm": {
+            "exact": 171,
+            "missed": 5,
+            "boundary": 4
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 257,
+            "boundary": 5
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 111,
+            "missed": 4
+          },
+          "TOKEN": {
+            "exact": 171,
+            "missed": 1
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 6
+          }
+        },
+        "channel": {
+          "tool_output": {
+            "fp": 6
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 2
+          },
+          "llm": {
+            "fp": 4
+          }
+        },
+        "where": {
+          "overlaps_gold": {
+            "fp": 5
+          },
+          "unlabelled": {
+            "fp": 1
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-bv10-seed110-on-Bval-none": {
+      "model": "B",
+      "checkpoint": "/content/drive/MyDrive/promptguard-runs/span-mmbert-pilot-step0-bv10-seed110/model",
+      "threshold": 0.99,
+      "delimiter_policy": null,
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 552,
+            "boundary": 55,
+            "missed": 8
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 39,
+            "boundary": 3
+          },
+          "tool_output": {
+            "exact": 513,
+            "boundary": 52,
+            "missed": 8
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 389,
+            "boundary": 46
+          },
+          "llm": {
+            "exact": 163,
+            "missed": 8,
+            "boundary": 9
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 204,
+            "boundary": 53,
+            "missed": 5
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 113,
+            "missed": 2
+          },
+          "TOKEN": {
+            "exact": 169,
+            "boundary": 2,
+            "missed": 1
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 68
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 4
+          },
+          "tool_output": {
+            "fp": 64
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 51
+          },
+          "llm": {
+            "fp": 17
+          }
+        },
+        "where": {
+          "labelled_base64_blob": {
+            "fp": 1
+          },
+          "labelled_identifier": {
+            "fp": 5
+          },
+          "labelled_pii": {
+            "fp": 1
+          },
+          "labelled_resource_name": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 55
+          },
+          "unlabelled": {
+            "fp": 5
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-bv10-seed110-on-Bval-quote-delimiters-v2": {
+      "model": "B",
+      "checkpoint": "/content/drive/MyDrive/promptguard-runs/span-mmbert-pilot-step0-bv10-seed110/model",
+      "threshold": 0.99,
+      "delimiter_policy": "quote-delimiters-v2",
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 605,
+            "missed": 8,
+            "boundary": 2
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 42
+          },
+          "tool_output": {
+            "exact": 563,
+            "missed": 8,
+            "boundary": 2
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 435
+          },
+          "llm": {
+            "exact": 170,
+            "missed": 8,
+            "boundary": 2
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 255,
+            "missed": 5,
+            "boundary": 2
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 113,
+            "missed": 2
+          },
+          "TOKEN": {
+            "exact": 171,
+            "missed": 1
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 15
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 1
+          },
+          "tool_output": {
+            "fp": 14
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 5
+          },
+          "llm": {
+            "fp": 10
+          }
+        },
+        "where": {
+          "labelled_base64_blob": {
+            "fp": 1
+          },
+          "labelled_identifier": {
+            "fp": 5
+          },
+          "labelled_pii": {
+            "fp": 1
+          },
+          "labelled_resource_name": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 2
+          },
+          "unlabelled": {
+            "fp": 5
+          }
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
     "diag-modelA-on-Aval-none": {
       "model": "A",
       "checkpoint": "runs/span-mmbert-pilot-step0-a/model",
