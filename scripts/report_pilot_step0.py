@@ -63,7 +63,8 @@ def main():
     report = dict(
         notice=('Team step-0 pilot (promptguard-data ml-train-pilot 5b812c7). Model A: hand + privesc; model B: hand + '
                 'LLM + privesc. Same recipe; only the train and val files differ, and each seed is a separate run. '
-                'B+HN (follow-up) is B plus our secret-free hard negatives, selected on B val. Validation only: the team '
+                'B+HN (follow-up) is B plus our secret-free hard negatives, selected on B val. B+v10 (follow-up) is B plus '
+                'all of our v10 train, selected on B val plus v10 validation. Validation only: the team '
                 'scores its test sets first. Counts and settings only; no text or values.'),
         data=data, runs=runs, quote_trim_on_published_bundles=baselines,
         diagnostics={p.stem: read(f'runs/pilot-reports/{p.name}') for p in sorted((ROOT / 'runs/pilot-reports').glob('diag-*.json'))})
