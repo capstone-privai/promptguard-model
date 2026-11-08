@@ -141,6 +141,9 @@ def train(config):
         if f2>best:
             best=f2;stale=0;selected_threshold=threshold;best_epoch=epoch
             model.save_pretrained(checkpoint);tokenizer.save_pretrained(checkpoint)
+            # A full disk (e.g. a mounted Google Drive) can drop the weights without an error; stop now, not after the run.
+            weights_file=checkpoint/'model.safetensors'
+            if not weights_file.is_file() or weights_file.stat().st_size==0: raise OSError(f'weights were not saved to {checkpoint}')
         else: stale+=1
         if stale>=config.get('patience',2): break
     parameters=sum(p.numel() for p in model.parameters())
