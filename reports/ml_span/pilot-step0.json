@@ -1,5 +1,5 @@
 {
-  "notice": "Team step-0 pilot (promptguard-data ml-train-pilot 5b812c7). Model A: hand + privesc; model B: hand + LLM + privesc. Same recipe; only the train and val files differ, and each seed is a separate run. B+HN (follow-up) is B plus our secret-free hard negatives, selected on B val. Validation only: the team scores its test sets first. Counts and settings only; no text or values.",
+  "notice": "Team step-0 pilot (promptguard-data ml-train-pilot 5b812c7). Model A: hand + privesc; model B: hand + LLM + privesc. Same recipe; only the train and val files differ, and each seed is a separate run. B+HN (follow-up) is B plus our secret-free hard negatives, selected on B val. B+v10 (follow-up) is B plus all of our v10 train, selected on B val plus v10 validation. Validation only: the team scores its test sets first. Counts and settings only; no text or values.",
   "data": {
     "A": {
       "team_sessions": {
@@ -3279,6 +3279,592 @@
           }
         }
       }
+    },
+    "BV10-seed112": {
+      "data": "runs/data/span-pilot-step0-bv10",
+      "device": "cuda",
+      "gpu": "Tesla T4",
+      "commit": "c3af5b042c09ae486e810cf5e06d6aca54e45dad",
+      "settings": {
+        "model_name": "runs/backbones/mmbert-small",
+        "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "seed": 112,
+        "epochs": 8,
+        "patience": 3,
+        "batch_size": 4,
+        "length_grouped_batches": true,
+        "learning_rate": 3e-05,
+        "weight_decay": 0.01,
+        "class_weights": [
+          1.0,
+          2.0,
+          2.0
+        ],
+        "max_length": 512,
+        "stride": 128,
+        "thresholds": [
+          0.5,
+          0.7,
+          0.8,
+          0.9,
+          0.95,
+          0.98,
+          0.99
+        ],
+        "shared_key_kinds": [
+          "value"
+        ]
+      },
+      "alignment": {
+        "train": {
+          "gold_spans": 10367,
+          "exactly_representable_in_a_window": 9599,
+          "boundary_or_window_unrepresentable": 768
+        },
+        "validation": {
+          "gold_spans": 807,
+          "exactly_representable_in_a_window": 716,
+          "boundary_or_window_unrepresentable": 91
+        }
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "loss": 0.045064,
+          "cutoff": 0.9,
+          "tp": 727,
+          "fp": 80,
+          "fn": 80,
+          "precision": 0.9009,
+          "recall": 0.9009,
+          "f2": 0.9009
+        },
+        {
+          "epoch": 2,
+          "loss": 0.01005,
+          "cutoff": 0.8,
+          "tp": 701,
+          "fp": 75,
+          "fn": 106,
+          "precision": 0.9034,
+          "recall": 0.8686,
+          "f2": 0.8754
+        },
+        {
+          "epoch": 3,
+          "loss": 0.00709,
+          "cutoff": 0.8,
+          "tp": 721,
+          "fp": 83,
+          "fn": 86,
+          "precision": 0.8968,
+          "recall": 0.8934,
+          "f2": 0.8941
+        },
+        {
+          "epoch": 4,
+          "loss": 0.004438,
+          "cutoff": 0.7,
+          "tp": 730,
+          "fp": 71,
+          "fn": 77,
+          "precision": 0.9114,
+          "recall": 0.9046,
+          "f2": 0.9059
+        },
+        {
+          "epoch": 5,
+          "loss": 0.003835,
+          "cutoff": 0.7,
+          "tp": 716,
+          "fp": 87,
+          "fn": 91,
+          "precision": 0.8917,
+          "recall": 0.8872,
+          "f2": 0.8881
+        },
+        {
+          "epoch": 6,
+          "loss": 0.002686,
+          "cutoff": 0.98,
+          "tp": 708,
+          "fp": 81,
+          "fn": 99,
+          "precision": 0.8973,
+          "recall": 0.8773,
+          "f2": 0.8813
+        },
+        {
+          "epoch": 7,
+          "loss": 0.002822,
+          "cutoff": 0.8,
+          "tp": 694,
+          "fp": 74,
+          "fn": 113,
+          "precision": 0.9036,
+          "recall": 0.86,
+          "f2": 0.8684
+        }
+      ],
+      "selected_epoch": 4,
+      "cutoff": 0.7,
+      "interrupted": null,
+      "quote_trim": {
+        "policy": "quote-delimiters-v1",
+        "eligible": true,
+        "validation_before": {
+          "tp": 730,
+          "fp": 71,
+          "fn": 77,
+          "precision": 0.9114,
+          "recall": 0.9046,
+          "f2": 0.9059
+        },
+        "validation_after": {
+          "tp": 775,
+          "fp": 26,
+          "fn": 32,
+          "precision": 0.9675,
+          "recall": 0.9603,
+          "f2": 0.9618
+        },
+        "fixed": 45,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 53270,
+          "changed": 0
+        },
+        "development": {
+          "pilot_a_val": {
+            "before": {
+              "tp": 389,
+              "fp": 46,
+              "fn": 46,
+              "precision": 0.8943,
+              "recall": 0.8943,
+              "f2": 0.8943
+            },
+            "after": {
+              "tp": 428,
+              "fp": 7,
+              "fn": 7,
+              "precision": 0.9839,
+              "recall": 0.9839,
+              "f2": 0.9839
+            },
+            "fixed": 39,
+            "broken": 0
+          },
+          "pilot_b_val": {
+            "before": {
+              "tp": 550,
+              "fp": 59,
+              "fn": 65,
+              "precision": 0.9031,
+              "recall": 0.8943,
+              "f2": 0.8961
+            },
+            "after": {
+              "tp": 595,
+              "fp": 14,
+              "fn": 20,
+              "precision": 0.977,
+              "recall": 0.9675,
+              "f2": 0.9694
+            },
+            "fixed": 45,
+            "broken": 0
+          },
+          "v10_val": {
+            "before": {
+              "tp": 180,
+              "fp": 12,
+              "fn": 12,
+              "precision": 0.9375,
+              "recall": 0.9375,
+              "f2": 0.9375
+            },
+            "after": {
+              "tp": 180,
+              "fp": 12,
+              "fn": 12,
+              "precision": 0.9375,
+              "recall": 0.9375,
+              "f2": 0.9375
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "fresh_test": {
+            "before": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "after": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "after": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 177,
+              "fp": 18,
+              "fn": 15,
+              "precision": 0.9077,
+              "recall": 0.9219,
+              "f2": 0.919
+            },
+            "after": {
+              "tp": 189,
+              "fp": 6,
+              "fn": 3,
+              "precision": 0.9692,
+              "recall": 0.9844,
+              "f2": 0.9813
+            },
+            "fixed": 12,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 86,
+              "fp": 10,
+              "fn": 10,
+              "precision": 0.8958,
+              "recall": 0.8958,
+              "f2": 0.8958
+            },
+            "after": {
+              "tp": 86,
+              "fp": 10,
+              "fn": 10,
+              "precision": 0.8958,
+              "recall": 0.8958,
+              "f2": 0.8958
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 134,
+              "fp": 19,
+              "fn": 26,
+              "precision": 0.8758,
+              "recall": 0.8375,
+              "f2": 0.8449
+            },
+            "after": {
+              "tp": 134,
+              "fp": 19,
+              "fn": 26,
+              "precision": 0.8758,
+              "recall": 0.8375,
+              "f2": 0.8449
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 76,
+              "fp": 12,
+              "fn": 2,
+              "precision": 0.8636,
+              "recall": 0.9744,
+              "f2": 0.95
+            },
+            "after": {
+              "tp": 77,
+              "fp": 11,
+              "fn": 1,
+              "precision": 0.875,
+              "recall": 0.9872,
+              "f2": 0.9625
+            },
+            "fixed": 1,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 241,
+              "fp": 55,
+              "fn": 35,
+              "precision": 0.8142,
+              "recall": 0.8732,
+              "f2": 0.8607
+            },
+            "after": {
+              "tp": 247,
+              "fp": 49,
+              "fn": 29,
+              "precision": 0.8345,
+              "recall": 0.8949,
+              "f2": 0.8821
+            },
+            "fixed": 6,
+            "broken": 0
+          }
+        }
+      },
+      "quote_trim_v2": {
+        "policy": "quote-delimiters-v2",
+        "eligible": true,
+        "validation_before": {
+          "tp": 730,
+          "fp": 71,
+          "fn": 77,
+          "precision": 0.9114,
+          "recall": 0.9046,
+          "f2": 0.9059
+        },
+        "validation_after": {
+          "tp": 783,
+          "fp": 18,
+          "fn": 24,
+          "precision": 0.9775,
+          "recall": 0.9703,
+          "f2": 0.9717
+        },
+        "fixed": 53,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 53270,
+          "changed": 0
+        },
+        "development": {
+          "pilot_a_val": {
+            "before": {
+              "tp": 389,
+              "fp": 46,
+              "fn": 46,
+              "precision": 0.8943,
+              "recall": 0.8943,
+              "f2": 0.8943
+            },
+            "after": {
+              "tp": 435,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f2": 1.0
+            },
+            "fixed": 46,
+            "broken": 0
+          },
+          "pilot_b_val": {
+            "before": {
+              "tp": 550,
+              "fp": 59,
+              "fn": 65,
+              "precision": 0.9031,
+              "recall": 0.8943,
+              "f2": 0.8961
+            },
+            "after": {
+              "tp": 603,
+              "fp": 6,
+              "fn": 12,
+              "precision": 0.9901,
+              "recall": 0.9805,
+              "f2": 0.9824
+            },
+            "fixed": 53,
+            "broken": 0
+          },
+          "v10_val": {
+            "before": {
+              "tp": 180,
+              "fp": 12,
+              "fn": 12,
+              "precision": 0.9375,
+              "recall": 0.9375,
+              "f2": 0.9375
+            },
+            "after": {
+              "tp": 180,
+              "fp": 12,
+              "fn": 12,
+              "precision": 0.9375,
+              "recall": 0.9375,
+              "f2": 0.9375
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "fresh_test": {
+            "before": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "after": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "after": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 177,
+              "fp": 18,
+              "fn": 15,
+              "precision": 0.9077,
+              "recall": 0.9219,
+              "f2": 0.919
+            },
+            "after": {
+              "tp": 189,
+              "fp": 6,
+              "fn": 3,
+              "precision": 0.9692,
+              "recall": 0.9844,
+              "f2": 0.9813
+            },
+            "fixed": 12,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 86,
+              "fp": 10,
+              "fn": 10,
+              "precision": 0.8958,
+              "recall": 0.8958,
+              "f2": 0.8958
+            },
+            "after": {
+              "tp": 86,
+              "fp": 10,
+              "fn": 10,
+              "precision": 0.8958,
+              "recall": 0.8958,
+              "f2": 0.8958
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 134,
+              "fp": 19,
+              "fn": 26,
+              "precision": 0.8758,
+              "recall": 0.8375,
+              "f2": 0.8449
+            },
+            "after": {
+              "tp": 134,
+              "fp": 19,
+              "fn": 26,
+              "precision": 0.8758,
+              "recall": 0.8375,
+              "f2": 0.8449
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 76,
+              "fp": 12,
+              "fn": 2,
+              "precision": 0.8636,
+              "recall": 0.9744,
+              "f2": 0.95
+            },
+            "after": {
+              "tp": 78,
+              "fp": 10,
+              "fn": 0,
+              "precision": 0.8864,
+              "recall": 1.0,
+              "f2": 0.975
+            },
+            "fixed": 2,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 241,
+              "fp": 55,
+              "fn": 35,
+              "precision": 0.8142,
+              "recall": 0.8732,
+              "f2": 0.8607
+            },
+            "after": {
+              "tp": 247,
+              "fp": 49,
+              "fn": 29,
+              "precision": 0.8345,
+              "recall": 0.8949,
+              "f2": 0.8821
+            },
+            "fixed": 6,
+            "broken": 0
+          }
+        }
+      }
     }
   },
   "quote_trim_on_published_bundles": {
@@ -4741,6 +5327,213 @@
           "8-15/ld/-": 3
         }
       }
+    },
+    "diag-bv10-seed112-on-Bval-none": {
+      "model": "B",
+      "checkpoint": "/content/drive/MyDrive/promptguard-runs/span-mmbert-pilot-step0-bv10-seed112/model",
+      "threshold": 0.7,
+      "delimiter_policy": null,
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 550,
+            "boundary": 58,
+            "missed": 7
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 37,
+            "boundary": 5
+          },
+          "tool_output": {
+            "exact": 513,
+            "boundary": 53,
+            "missed": 7
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 389,
+            "boundary": 46
+          },
+          "llm": {
+            "exact": 161,
+            "boundary": 12,
+            "missed": 7
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 204,
+            "boundary": 54,
+            "missed": 4
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 114,
+            "boundary": 1
+          },
+          "TOKEN": {
+            "exact": 166,
+            "boundary": 3,
+            "missed": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 59
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 6
+          },
+          "tool_output": {
+            "fp": 53
+          }
+        },
+        "origin": {
+          "hand": {
+            "fp": 46
+          },
+          "llm": {
+            "fp": 13
+          }
+        },
+        "where": {
+          "labelled_pii": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 58
+          }
+        }
+      },
+      "false_positive_shapes": {
+        "labelled_pii": {
+          "16-31/uds/-": 1
+        },
+        "overlaps_gold": {
+          "16-31/luds/-": 23,
+          "32+/luds/-": 6,
+          "8-15/luds/-": 11,
+          "16-31/lds/-": 10,
+          "8-15/lus/-": 2,
+          "32+/lds/-": 2,
+          "16-31/lus/-": 1,
+          "32+/lud/-": 1,
+          "<8/lud/-": 2
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+    },
+    "diag-bv10-seed112-on-Bval-quote-delimiters-v2": {
+      "model": "B",
+      "checkpoint": "/content/drive/MyDrive/promptguard-runs/span-mmbert-pilot-step0-bv10-seed112/model",
+      "threshold": 0.7,
+      "delimiter_policy": "quote-delimiters-v2",
+      "rows": 815,
+      "gold": {
+        "all": {
+          "all": {
+            "exact": 603,
+            "boundary": 5,
+            "missed": 7
+          }
+        },
+        "channel": {
+          "prompt": {
+            "exact": 40,
+            "boundary": 2
+          },
+          "tool_output": {
+            "exact": 563,
+            "missed": 7,
+            "boundary": 3
+          }
+        },
+        "origin": {
+          "hand": {
+            "exact": 435
+          },
+          "llm": {
+            "exact": 168,
+            "boundary": 5,
+            "missed": 7
+          }
+        },
+        "type": {
+          "ACCESS_KEY": {
+            "exact": 9
+          },
+          "PASSWORD": {
+            "exact": 255,
+            "missed": 4,
+            "boundary": 3
+          },
+          "PRIVATE_KEY": {
+            "exact": 57
+          },
+          "SECRET": {
+            "exact": 114,
+            "boundary": 1
+          },
+          "TOKEN": {
+            "exact": 168,
+            "boundary": 1,
+            "missed": 3
+          }
+        }
+      },
+      "false_positives": {
+        "all": {
+          "all": {
+            "fp": 6
+          }
+        },
+        "channel": {
+          "prompt": {
+            "fp": 3
+          },
+          "tool_output": {
+            "fp": 3
+          }
+        },
+        "origin": {
+          "llm": {
+            "fp": 6
+          }
+        },
+        "where": {
+          "labelled_pii": {
+            "fp": 1
+          },
+          "overlaps_gold": {
+            "fp": 5
+          }
+        }
+      },
+      "false_positive_shapes": {
+        "labelled_pii": {
+          "16-31/uds/-": 1
+        },
+        "overlaps_gold": {
+          "32+/lud/-": 1,
+          "<8/lud/-": 2,
+          "32+/luds/-": 1,
+          "16-31/luds/-": 1
+        }
+      },
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
     },
     "diag-modelA-on-Aval-none": {
       "model": "A",
