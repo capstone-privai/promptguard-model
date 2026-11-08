@@ -4209,7 +4209,22 @@
           }
         }
       },
-      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind.",
+      "false_positive_shapes": {
+        "labelled_prefix_redaction": {
+          "8-15/lu/-": 1
+        },
+        "overlaps_gold": {
+          "16-31/luds/-": 22,
+          "32+/luds/-": 5,
+          "8-15/luds/-": 11,
+          "16-31/lds/-": 10,
+          "8-15/lus/-": 2,
+          "32+/lds/-": 2,
+          "16-31/lus/-": 1,
+          "8-15/lud/-": 1
+        }
+      }
     },
     "diag-b-seed110-on-Bval-quote-delimiters-v2": {
       "model": "B",
@@ -4574,7 +4589,35 @@
           }
         }
       },
-      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind.",
+      "false_positive_shapes": {
+        "labelled_base64_blob": {
+          "32+/luds/-": 1
+        },
+        "labelled_identifier": {
+          "32+/lud/-": 5
+        },
+        "labelled_pii": {
+          "16-31/uds/-": 1
+        },
+        "labelled_resource_name": {
+          "8-15/ld/-": 1
+        },
+        "overlaps_gold": {
+          "16-31/luds/-": 23,
+          "32+/luds/-": 5,
+          "8-15/luds/-": 11,
+          "16-31/lds/-": 10,
+          "8-15/lus/-": 2,
+          "32+/lds/-": 2,
+          "16-31/lus/-": 1,
+          "<8/ld/-": 1
+        },
+        "unlabelled": {
+          "16-31/ud/-": 2,
+          "8-15/ld/-": 3
+        }
+      }
     },
     "diag-bv10-seed110-on-Bval-quote-delimiters-v2": {
       "model": "B",
@@ -4675,7 +4718,29 @@
           }
         }
       },
-      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind."
+      "notice": "Validation only; counts by gold type, template origin, channel and labelled non-secret kind.",
+      "false_positive_shapes": {
+        "labelled_base64_blob": {
+          "32+/luds/-": 1
+        },
+        "labelled_identifier": {
+          "32+/lud/-": 5
+        },
+        "labelled_pii": {
+          "16-31/uds/-": 1
+        },
+        "labelled_resource_name": {
+          "8-15/ld/-": 1
+        },
+        "overlaps_gold": {
+          "16-31/luds/-": 1,
+          "<8/ld/-": 1
+        },
+        "unlabelled": {
+          "16-31/ud/-": 2,
+          "8-15/ld/-": 3
+        }
+      }
     },
     "diag-modelA-on-Aval-none": {
       "model": "A",
