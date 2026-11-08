@@ -45,11 +45,11 @@ def main():
             commit=(config.get('colab') or {}).get('commit'), settings={k: config.get(k) for k in SETTINGS},
             alignment=read(f'{folder}/alignment.json'),
             history=[dict(epoch=h['epoch'], loss=round(h['loss'], 6), cutoff=h['threshold'], **short(h['validation'])) for h in history],
-            selected_epoch=bundle['best_epoch'], cutoff=bundle['threshold'],
+            selected_epoch=bundle['best_epoch'], cutoff=bundle['threshold'], interrupted=bundle.get('interrupted'),
             quote_trim=trim(read(f'runs/pilot-reports/delimiters-pilot-{name.lower()}.json')),
             quote_trim_v2=trim(read(f'runs/pilot-reports/delimiters-v2-pilot-{name.lower()}.json')))
     data = {}
-    for m in ('a', 'b', 'bhn'):
+    for m in ('a', 'b', 'bhn', 'bv10'):
         manifest = read(f'runs/data/span-pilot-step0-{m}/manifest.json')
         if manifest:
             data[m.upper()] = {k: manifest[k] for k in ('team_sessions', 'composition', 'shared_keys', 'fingerprint',

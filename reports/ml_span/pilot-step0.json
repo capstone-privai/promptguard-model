@@ -186,6 +186,76 @@
         "rows": 3208,
         "filter": "kind == 'hard_negative' and no spans"
       }
+    },
+    "BV10": {
+      "team_sessions": {
+        "train": 1693,
+        "val": 155
+      },
+      "composition": {
+        "train": {
+          "records": 25689,
+          "positive": 7713,
+          "negative": 17976,
+          "gold_spans": 10367,
+          "families": 695,
+          "sources": {
+            "prompt": 4251,
+            "tool_output": 17052,
+            "configuration": 924,
+            "log": 1094,
+            "markdown": 460,
+            "negative": 88,
+            "code": 1118,
+            "shell": 286,
+            "file_read": 416
+          }
+        },
+        "validation": {
+          "records": 1199,
+          "positive": 526,
+          "negative": 673,
+          "gold_spans": 807,
+          "families": 49,
+          "sources": {
+            "prompt": 389,
+            "tool_output": 618,
+            "log": 96,
+            "file_read": 48,
+            "markdown": 48
+          }
+        },
+        "test": {
+          "records": 504,
+          "positive": 252,
+          "negative": 252,
+          "gold_spans": 276,
+          "families": 74,
+          "sources": {
+            "code": 68,
+            "prompt": 184,
+            "file_read": 48,
+            "tool_output": 68,
+            "log": 48,
+            "markdown": 48,
+            "configuration": 20,
+            "shell": 20
+          }
+        }
+      },
+      "fingerprint": "da7cbb416f09b3a7938c66a3dfe298b3c7af1e49c48151d09786840d6e3e37e3",
+      "base": {
+        "data": "runs/data/span-pilot-step0-b",
+        "fingerprint": "cd587c1f72058f649e155940f3c21dcb540a6e56d3f52d79febdea2f148ed5fd"
+      },
+      "added": {
+        "source": "data/span-context-v10",
+        "rows": {
+          "train": 6304,
+          "validation": 384
+        },
+        "filter": "all rows"
+      }
     }
   },
   "runs": {
@@ -295,6 +365,7 @@
       ],
       "selected_epoch": 2,
       "cutoff": 0.99,
+      "interrupted": null,
       "quote_trim": {
         "policy": "quote-delimiters-v1",
         "eligible": true,
@@ -789,6 +860,7 @@
       ],
       "selected_epoch": 3,
       "cutoff": 0.9,
+      "interrupted": null,
       "quote_trim": {
         "policy": "quote-delimiters-v1",
         "eligible": true,
@@ -1283,6 +1355,7 @@
       ],
       "selected_epoch": 3,
       "cutoff": 0.98,
+      "interrupted": null,
       "quote_trim": {
         "policy": "quote-delimiters-v1",
         "eligible": true,
@@ -1799,6 +1872,7 @@
       ],
       "selected_epoch": 7,
       "cutoff": 0.7,
+      "interrupted": null,
       "quote_trim": {
         "policy": "quote-delimiters-v1",
         "eligible": true,
@@ -2282,6 +2356,7 @@
       ],
       "selected_epoch": 2,
       "cutoff": 0.95,
+      "interrupted": null,
       "quote_trim": {
         "policy": "quote-delimiters-v1",
         "eligible": true,
@@ -2654,6 +2729,552 @@
               "f2": 0.6449
             },
             "fixed": 6,
+            "broken": 0
+          }
+        }
+      }
+    },
+    "BV10-seed110": {
+      "data": "runs/data/span-pilot-step0-bv10",
+      "device": "cuda",
+      "gpu": "Tesla T4",
+      "commit": "0463d7d2df01ee5be19d00c253f764bdb7539f32",
+      "settings": {
+        "model_name": "runs/backbones/mmbert-small",
+        "backbone_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+        "seed": 110,
+        "epochs": 8,
+        "patience": 3,
+        "batch_size": 4,
+        "length_grouped_batches": true,
+        "learning_rate": 3e-05,
+        "weight_decay": 0.01,
+        "class_weights": [
+          1.0,
+          2.0,
+          2.0
+        ],
+        "max_length": 512,
+        "stride": 128,
+        "thresholds": [
+          0.5,
+          0.7,
+          0.8,
+          0.9,
+          0.95,
+          0.98,
+          0.99
+        ],
+        "shared_key_kinds": [
+          "value"
+        ]
+      },
+      "alignment": {
+        "train": {
+          "gold_spans": 10367,
+          "exactly_representable_in_a_window": 9599,
+          "boundary_or_window_unrepresentable": 768
+        },
+        "validation": {
+          "gold_spans": 807,
+          "exactly_representable_in_a_window": 716,
+          "boundary_or_window_unrepresentable": 91
+        }
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "loss": 0.039261,
+          "cutoff": 0.7,
+          "tp": 694,
+          "fp": 108,
+          "fn": 113,
+          "precision": 0.8653,
+          "recall": 0.86,
+          "f2": 0.861
+        },
+        {
+          "epoch": 2,
+          "loss": 0.009085,
+          "cutoff": 0.99,
+          "tp": 729,
+          "fp": 71,
+          "fn": 78,
+          "precision": 0.9113,
+          "recall": 0.9033,
+          "f2": 0.9049
+        },
+        {
+          "epoch": 3,
+          "loss": 0.006678,
+          "cutoff": 0.99,
+          "tp": 732,
+          "fp": 80,
+          "fn": 75,
+          "precision": 0.9015,
+          "recall": 0.9071,
+          "f2": 0.9059
+        }
+      ],
+      "selected_epoch": 3,
+      "cutoff": 0.99,
+      "interrupted": {
+        "completed_epochs": 3,
+        "epochs": 8,
+        "note": "training stopped early; bundle written by scripts/finish_interrupted_run.py"
+      },
+      "quote_trim": {
+        "policy": "quote-delimiters-v1",
+        "eligible": true,
+        "validation_before": {
+          "tp": 732,
+          "fp": 80,
+          "fn": 75,
+          "precision": 0.9015,
+          "recall": 0.9071,
+          "f2": 0.9059
+        },
+        "validation_after": {
+          "tp": 777,
+          "fp": 35,
+          "fn": 30,
+          "precision": 0.9569,
+          "recall": 0.9628,
+          "f2": 0.9616
+        },
+        "fixed": 45,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 53270,
+          "changed": 0
+        },
+        "development": {
+          "pilot_a_val": {
+            "before": {
+              "tp": 389,
+              "fp": 51,
+              "fn": 46,
+              "precision": 0.8841,
+              "recall": 0.8943,
+              "f2": 0.8922
+            },
+            "after": {
+              "tp": 428,
+              "fp": 12,
+              "fn": 7,
+              "precision": 0.9727,
+              "recall": 0.9839,
+              "f2": 0.9817
+            },
+            "fixed": 39,
+            "broken": 0
+          },
+          "pilot_b_val": {
+            "before": {
+              "tp": 552,
+              "fp": 68,
+              "fn": 63,
+              "precision": 0.8903,
+              "recall": 0.8976,
+              "f2": 0.8961
+            },
+            "after": {
+              "tp": 597,
+              "fp": 23,
+              "fn": 18,
+              "precision": 0.9629,
+              "recall": 0.9707,
+              "f2": 0.9692
+            },
+            "fixed": 45,
+            "broken": 0
+          },
+          "v10_val": {
+            "before": {
+              "tp": 180,
+              "fp": 12,
+              "fn": 12,
+              "precision": 0.9375,
+              "recall": 0.9375,
+              "f2": 0.9375
+            },
+            "after": {
+              "tp": 180,
+              "fp": 12,
+              "fn": 12,
+              "precision": 0.9375,
+              "recall": 0.9375,
+              "f2": 0.9375
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "fresh_test": {
+            "before": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "after": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "after": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 177,
+              "fp": 15,
+              "fn": 15,
+              "precision": 0.9219,
+              "recall": 0.9219,
+              "f2": 0.9219
+            },
+            "after": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "fixed": 12,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 86,
+              "fp": 13,
+              "fn": 10,
+              "precision": 0.8687,
+              "recall": 0.8958,
+              "f2": 0.8903
+            },
+            "after": {
+              "tp": 86,
+              "fp": 13,
+              "fn": 10,
+              "precision": 0.8687,
+              "recall": 0.8958,
+              "f2": 0.8903
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 133,
+              "fp": 16,
+              "fn": 27,
+              "precision": 0.8926,
+              "recall": 0.8313,
+              "f2": 0.8428
+            },
+            "after": {
+              "tp": 133,
+              "fp": 16,
+              "fn": 27,
+              "precision": 0.8926,
+              "recall": 0.8313,
+              "f2": 0.8428
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 76,
+              "fp": 6,
+              "fn": 2,
+              "precision": 0.9268,
+              "recall": 0.9744,
+              "f2": 0.9645
+            },
+            "after": {
+              "tp": 77,
+              "fp": 5,
+              "fn": 1,
+              "precision": 0.939,
+              "recall": 0.9872,
+              "f2": 0.9772
+            },
+            "fixed": 1,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 236,
+              "fp": 48,
+              "fn": 40,
+              "precision": 0.831,
+              "recall": 0.8551,
+              "f2": 0.8501
+            },
+            "after": {
+              "tp": 246,
+              "fp": 38,
+              "fn": 30,
+              "precision": 0.8662,
+              "recall": 0.8913,
+              "f2": 0.8862
+            },
+            "fixed": 10,
+            "broken": 0
+          }
+        }
+      },
+      "quote_trim_v2": {
+        "policy": "quote-delimiters-v2",
+        "eligible": true,
+        "validation_before": {
+          "tp": 732,
+          "fp": 80,
+          "fn": 75,
+          "precision": 0.9015,
+          "recall": 0.9071,
+          "f2": 0.9059
+        },
+        "validation_after": {
+          "tp": 785,
+          "fp": 27,
+          "fn": 22,
+          "precision": 0.9667,
+          "recall": 0.9727,
+          "f2": 0.9715
+        },
+        "fixed": 53,
+        "broken": 0,
+        "gold_preservation": {
+          "spans_checked": 53270,
+          "changed": 0
+        },
+        "development": {
+          "pilot_a_val": {
+            "before": {
+              "tp": 389,
+              "fp": 51,
+              "fn": 46,
+              "precision": 0.8841,
+              "recall": 0.8943,
+              "f2": 0.8922
+            },
+            "after": {
+              "tp": 435,
+              "fp": 5,
+              "fn": 0,
+              "precision": 0.9886,
+              "recall": 1.0,
+              "f2": 0.9977
+            },
+            "fixed": 46,
+            "broken": 0
+          },
+          "pilot_b_val": {
+            "before": {
+              "tp": 552,
+              "fp": 68,
+              "fn": 63,
+              "precision": 0.8903,
+              "recall": 0.8976,
+              "f2": 0.8961
+            },
+            "after": {
+              "tp": 605,
+              "fp": 15,
+              "fn": 10,
+              "precision": 0.9758,
+              "recall": 0.9837,
+              "f2": 0.9821
+            },
+            "fixed": 53,
+            "broken": 0
+          },
+          "v10_val": {
+            "before": {
+              "tp": 180,
+              "fp": 12,
+              "fn": 12,
+              "precision": 0.9375,
+              "recall": 0.9375,
+              "f2": 0.9375
+            },
+            "after": {
+              "tp": 180,
+              "fp": 12,
+              "fn": 12,
+              "precision": 0.9375,
+              "recall": 0.9375,
+              "f2": 0.9375
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "fresh_test": {
+            "before": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "after": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "negative_challenge": {
+            "before": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "after": {
+              "tp": 0,
+              "fp": 8,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": null,
+              "f2": 0.0
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v4": {
+            "before": {
+              "tp": 177,
+              "fp": 15,
+              "fn": 15,
+              "precision": 0.9219,
+              "recall": 0.9219,
+              "f2": 0.9219
+            },
+            "after": {
+              "tp": 189,
+              "fp": 3,
+              "fn": 3,
+              "precision": 0.9844,
+              "recall": 0.9844,
+              "f2": 0.9844
+            },
+            "fixed": 12,
+            "broken": 0
+          },
+          "v6": {
+            "before": {
+              "tp": 86,
+              "fp": 13,
+              "fn": 10,
+              "precision": 0.8687,
+              "recall": 0.8958,
+              "f2": 0.8903
+            },
+            "after": {
+              "tp": 86,
+              "fp": 13,
+              "fn": 10,
+              "precision": 0.8687,
+              "recall": 0.8958,
+              "f2": 0.8903
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "v7": {
+            "before": {
+              "tp": 133,
+              "fp": 16,
+              "fn": 27,
+              "precision": 0.8926,
+              "recall": 0.8313,
+              "f2": 0.8428
+            },
+            "after": {
+              "tp": 133,
+              "fp": 16,
+              "fn": 27,
+              "precision": 0.8926,
+              "recall": 0.8313,
+              "f2": 0.8428
+            },
+            "fixed": 0,
+            "broken": 0
+          },
+          "qwen_v2": {
+            "before": {
+              "tp": 76,
+              "fp": 6,
+              "fn": 2,
+              "precision": 0.9268,
+              "recall": 0.9744,
+              "f2": 0.9645
+            },
+            "after": {
+              "tp": 78,
+              "fp": 4,
+              "fn": 0,
+              "precision": 0.9512,
+              "recall": 1.0,
+              "f2": 0.9898
+            },
+            "fixed": 2,
+            "broken": 0
+          },
+          "holdout_v11": {
+            "before": {
+              "tp": 236,
+              "fp": 48,
+              "fn": 40,
+              "precision": 0.831,
+              "recall": 0.8551,
+              "f2": 0.8501
+            },
+            "after": {
+              "tp": 246,
+              "fp": 38,
+              "fn": 30,
+              "precision": 0.8662,
+              "recall": 0.8913,
+              "f2": 0.8862
+            },
+            "fixed": 10,
             "broken": 0
           }
         }
