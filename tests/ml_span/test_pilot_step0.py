@@ -52,3 +52,20 @@ def test_shared_values_allowed_only_when_named():
     splits['validation'][0]['family_id'] = 'f1'
     with pytest.raises(ValueError, match='leakage'):
         assert_disjoint(splits, ('value',))
+
+
+def test_interrupted_run_gets_the_best_completed_epoch(tmp_path):
+    import json, sys
+    sys.path.insert(0, str(ROOT / 'scripts'))
+    from finish_interrupted_run import finish
+    (tmp_path / 'model').mkdir()
+    (tmp_path / 'model/model.safetensors').write_bytes(b'x')
+    (tmp_path / 'config.json').write_text(json.dumps(recipe('b')))
+    epochs = [(1, .7, .86), (2, .99, .905), (3, .5, .905)]   # a tie keeps the earlier epoch, as training does
+    (tmp_path / 'history.json').write_text(json.dumps([dict(epoch=e, threshold=t, validation=dict(f2=f)) for e, t, f in epochs]))
+    finish(tmp_path)
+    bundle = json.loads((tmp_path / 'model/span_bundle.json').read_text())
+    assert (bundle['best_epoch'], bundle['threshold']) == (2, .99)
+    assert bundle['interrupted']['completed_epochs'] == 3
+    with pytest.raises(FileExistsError):
+        finish(tmp_path)
