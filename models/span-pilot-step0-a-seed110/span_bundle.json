@@ -1,0 +1,16 @@
+{
+  "schema_version": "ml-span-bundle-v1",
+  "max_length": 512,
+  "stride": 128,
+  "threshold": 0.99,
+  "threshold_source": "synthetic validation F2",
+  "backbone": "jhu-clsp/mmBERT-small (team step-0 pilot, model A, from base)",
+  "revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "label_mapping": {
+    "0": "O",
+    "1": "B-SECRET",
+    "2": "I-SECRET"
+  },
+  "best_epoch": 2,
+  "production_ready": false
+}
