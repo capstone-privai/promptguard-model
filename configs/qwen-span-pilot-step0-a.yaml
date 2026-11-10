@@ -9,7 +9,7 @@ local_files_only: false
 sft_dir: runs/qwen-span/pilot-step0-a/sft
 output_dir: runs/qwen-span/pilot-step0-a/adapter
 device: auto            # mps on Apple silicon; run from a normal Terminal, not a sandboxed shell
-dtype: bfloat16         # float32 ran out of T4 memory (15 GB) on model B's 10,158-token row; A uses the same so A and B match
+dtype: float32          # on a T4, model B's 10,158-token row peaks at 11.3 GB of 14.6 GB in training; bfloat16 runs out
 seed: 20261029
 epochs: 3
 gradient_accumulation: 16

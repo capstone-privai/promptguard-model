@@ -1,4 +1,4 @@
-"""The Qwen step-0 pilot reuses the Qwen recipe: A and B differ only in data; length limits and dtype change."""
+"""The Qwen step-0 pilot reuses the Qwen recipe: A and B differ only in data, and only length limits change."""
 import importlib.util
 from argparse import Namespace
 from pathlib import Path
@@ -27,8 +27,7 @@ def test_a_and_b_differ_only_in_data():
 def test_pilot_keeps_the_qwen_recipe_apart_from_length_limits():
     base, pilot = config('qwen-span-coder-0.5b'), config('qwen-span-pilot-step0-b')
     assert set(base) == set(pilot)
-    assert {k for k in base if base[k] != pilot[k]} == {'sft_dir', 'output_dir', 'max_length', 'max_new_tokens', 'dtype'}
-    assert pilot['dtype'] == 'bfloat16'  # the recipe's documented fallback when float32 does not fit
+    assert {k for k in base if base[k] != pilot[k]} == {'sft_dir', 'output_dir', 'max_length', 'max_new_tokens'}
     assert pilot['max_length'] >= 10158 and pilot['max_new_tokens'] >= 1322  # longest B train row, longest val answer
 
 
