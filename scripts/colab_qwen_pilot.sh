@@ -21,7 +21,7 @@ CFG=configs/qwen-span-pilot-step0-$m.yaml
 # save_every only sets how often the resumable checkpoint is written; the training itself is unchanged.
 SETS=(--set output_dir=$OUT/adapter --set save_every=100)
 mkdir -p "$OUT"
-export QWEN_PREDICTIONS=$OUT/predictions PYTHONPATH=src USE_TF=0
+export QWEN_PREDICTIONS=$OUT/predictions PYTHONPATH=src USE_TF=0 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 python -c "import torch, sys; sys.exit(0 if torch.cuda.is_available() else 'no GPU: stop here, do not train on CPU')"
 python -c "import peft" 2>/dev/null || pip install -q "peft>=0.13,<1"
 pip uninstall -q -y torchao 2>/dev/null || true  # peft rejects Colab's torchao, which is only used for quantization
