@@ -11,6 +11,10 @@ from .function_words import POLICY as FUNCTION_WORD_POLICY, filter_function_word
 from .short_values import check_min_value_length, filter_short_values
 from .delimiters import POLICIES as DELIMITER_POLICIES, trim_quote_delimiters
 
+# The default ml-span bundle. PromptGuard reads this to pick the model, so change it in the same PR that makes a
+# new model the default; a README change alone is not followed, and new folders under models/ are not picked up.
+DEFAULT_BUNDLE = Path(__file__).resolve().parents[3] / 'models' / 'span-detector-v10'
+
 
 def threshold_check(value):
     if not isinstance(value,(int,float)) or not math.isfinite(value) or not 0<=value<=1:

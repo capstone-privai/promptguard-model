@@ -25,6 +25,15 @@ def test_v10_bundle_uses_validation_cutoff_and_runtime_filter():
         assert (V10 / name).exists()
 
 
+def test_default_bundle_is_v10():
+    # PromptGuard follows DEFAULT_BUNDLE, so it must name an existing, loadable bundle folder.
+    from privai_model.ml_span.runtime import DEFAULT_BUNDLE
+    assert DEFAULT_BUNDLE == V10
+    assert read('models/span-detector-v10/span_bundle.json')['schema_version'] == 'ml-span-bundle-v1'
+    for name in ['model.safetensors', 'tokenizer.json', 'config.json']:
+        assert (DEFAULT_BUNDLE / name).exists()
+
+
 def test_length_guard_is_validation_neutral_and_v9_bundle_untouched():
     report = read('reports/ml_span/min-value-length.json')
     assert report['min_value_length'] == PROMPTGUARD_MIN_VALUE_LENGTH and report['gold_preservation']['suppressed'] == 0
