@@ -1,0 +1,28 @@
+# Team step-0 pilot, model A, on the Qwen recipe of configs/qwen-span-coder-0.5b.yaml. Only the data and two
+# length limits differ. The adapter epoch and cutoff are chosen on the team's model-A val only
+# (scripts/qwen_span.py select --eval validation=runs/data/span-pilot-step0-a/validation.jsonl).
+model_name: Qwen/Qwen2.5-Coder-0.5B-Instruct
+# Pin for reproducibility after the first download: copy the commit hash from
+# ~/.cache/huggingface/hub/models--Qwen--Qwen2.5-Coder-0.5B-Instruct/refs/main
+revision: ea3f2471cf1b1f0db85067f1ef93848e38e88c25
+local_files_only: false
+sft_dir: runs/qwen-span/pilot-step0-a/sft
+output_dir: runs/qwen-span/pilot-step0-a/adapter
+device: auto            # mps on Apple silicon; run from a normal Terminal, not a sandboxed shell
+dtype: float32          # 0.5B fits in 16 GB; bfloat16 halves memory if needed
+seed: 20261029
+epochs: 3
+gradient_accumulation: 16
+learning_rate: 0.0002
+weight_decay: 0.0
+warmup_ratio: 0.05
+max_grad_norm: 1.0
+max_length: 10240       # model B train has rows up to 10,158 tokens (A: 3,110); rows above abort, nothing is truncated
+gradient_checkpointing: true
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+log_every: 5
+save_every: 25
+max_new_tokens: 2048    # team val answers reach 1,322 tokens (PEM keys); 512 would cut them
