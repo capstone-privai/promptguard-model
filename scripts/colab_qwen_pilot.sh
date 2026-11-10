@@ -20,6 +20,8 @@ CFG=configs/qwen-span-pilot-step0-$m.yaml
 # Saving the optimizer state to Drive every 25 steps (the recipe's default) would write about 100 MB a minute.
 # save_every only sets how often the resumable checkpoint is written; the training itself is unchanged.
 SETS=(--set output_dir=$OUT/adapter --set save_every=100)
+# QWEN_DTYPE=float32|bfloat16 overrides the config's dtype for the probe, training and prediction alike.
+if [ -n "${QWEN_DTYPE:-}" ]; then SETS+=(--set dtype=$QWEN_DTYPE); fi
 mkdir -p "$OUT"
 export QWEN_PREDICTIONS=$OUT/predictions PYTHONPATH=src USE_TF=0 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 python -c "import torch, sys; sys.exit(0 if torch.cuda.is_available() else 'no GPU: stop here, do not train on CPU')"
@@ -31,7 +33,7 @@ python scripts/qwen_span.py prepare --train-dir runs/data/span-pilot-step0-$m --
 
 if [ ! -f "$OUT/adapter/last/state.json" ]; then
   # Before hours of training, check that the longest prompt and the longest answer fit in GPU memory.
-  python - "$CFG" <<'EOF'
+  python - "$CFG" "${QWEN_DTYPE:-}" <<'EOF'
 import sys, yaml, torch
 from pathlib import Path
 from privai_model.qwen_span.modeling import load_model, load_tokenizer, completion_loss
@@ -41,10 +43,18 @@ tokenizer = load_tokenizer(config['model_name'], config['revision'])
 encoded = encode_all(tokenizer, read_sft(Path(config['sft_dir']) / 'train.jsonl'))
 longest = max(encoded, key=lambda e: len(e['input_ids']))
 longest_answer = max(encoded, key=lambda e: len(e['input_ids']) - e['prompt_length'])
-model = load_model(config['model_name'], config['dtype'], config['revision'])
+dtype = sys.argv[2] or config['dtype']
+# Set the model up exactly as train() does. In particular it must be in training mode: Hugging Face skips
+# gradient checkpointing in eval mode, which would keep every layer's activations and overstate memory.
+model = load_model(config['model_name'], dtype, config['revision'])
 model.config.use_cache = False
 model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant': False})
-model = lora_model(model, config).to('cuda')
+model = lora_model(model, config)
+for p in model.parameters():
+    if p.requires_grad:
+        p.data = p.data.float()
+model.to('cuda').train()
+print('probe dtype', dtype, flush=True)
 for name, e in (('longest row', longest), ('longest answer', longest_answer)):
     torch.cuda.reset_peak_memory_stats()
     loss = completion_loss(model, torch.tensor([e['input_ids']], device='cuda'), e['prompt_length'])
@@ -53,6 +63,7 @@ for name, e in (('longest row', longest), ('longest answer', longest_answer)):
     print(f"{name}: {len(e['input_ids'])} tokens ({len(e['input_ids']) - e['prompt_length']} answer), "
           f"peak {torch.cuda.max_memory_allocated() / 2**30:.1f} GB of {torch.cuda.get_device_properties(0).total_memory / 2**30:.1f} GB", flush=True)
 EOF
+  [ -z "${PROBE_ONLY:-}" ] || exit 0
   resume=()
 else
   resume=(--resume)
