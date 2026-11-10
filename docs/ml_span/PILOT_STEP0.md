@@ -222,12 +222,17 @@ loss 곡선 원자료는 `reports/ml_span/pilot-step0-loss.csv`에 있습니다.
 
 ## 전달물
 
-**GitHub**: 모델 A와 B(seed 110)는 이 저장소의 `models/`에 들어 있습니다. 가중치는 Git LFS로 저장했습니다.
+**GitHub**: 아래 모델은 이 저장소의 `models/`에 들어 있습니다. 가중치는 Git LFS로 저장했습니다.
 
-| 모델 | 폴더 | 불러오기 |
-|---|---|---|
-| A | [`models/span-pilot-step0-a-seed110/`](../../models/span-pilot-step0-a-seed110/README.md) | `MLSpanDetector('models/span-pilot-step0-a-seed110')` |
-| B | [`models/span-pilot-step0-b-seed110/`](../../models/span-pilot-step0-b-seed110/README.md) | `MLSpanDetector('models/span-pilot-step0-b-seed110')` |
+| 모델 | 폴더 | 선택 epoch · cutoff | 비고 |
+|---|---|---|---|
+| A | [`models/span-pilot-step0-a-seed110/`](../../models/span-pilot-step0-a-seed110/README.md) | 2 · 0.99 | 전달물 |
+| B | [`models/span-pilot-step0-b-seed110/`](../../models/span-pilot-step0-b-seed110/README.md) | 3 · 0.90 | 전달물 |
+| A, seed 112 | [`models/span-pilot-step0-a-seed112/`](../../models/span-pilot-step0-a-seed112/README.md) | 3 · 0.98 | seed 비교용 |
+| B, seed 112 | [`models/span-pilot-step0-b-seed112/`](../../models/span-pilot-step0-b-seed112/README.md) | 7 · 0.70 | seed 비교용 |
+| B+v10, seed 112 | [`models/span-pilot-step0-bv10-seed112/`](../../models/span-pilot-step0-bv10-seed112/README.md) | 4 · 0.70 | 후속 실험(우리 v10 train 추가) |
+
+- 불러오기: `MLSpanDetector('models/<폴더 이름>')`
 
 - 받는 방법: `git lfs pull --include='models/span-pilot-step0-*'`
 - 각 폴더에는 가중치, 토크나이저, `span_bundle.json`이 있습니다. 학습한 그대로이고, 따옴표 정리는 꺼져 있습니다.
