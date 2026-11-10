@@ -34,3 +34,8 @@ data/span-code-refinement-*/
 !models/qwen-span-v2/**
 !models/qwen-span-v3/
 !models/qwen-span-v3/**
+# Team step-0 pilot models A and B (seed 110), published for the team's evaluation.
+!models/span-pilot-step0-a-seed110/
+!models/span-pilot-step0-a-seed110/**
+!models/span-pilot-step0-b-seed110/
+!models/span-pilot-step0-b-seed110/**

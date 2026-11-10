@@ -222,7 +222,17 @@ loss 곡선 원자료는 `reports/ml_span/pilot-step0-loss.csv`에 있습니다.
 
 ## 전달물
 
-Drive `MyDrive/promptguard-runs/`(Colab 계정)에 있습니다.
+**GitHub**: 모델 A와 B(seed 110)는 이 저장소의 `models/`에 들어 있습니다. 가중치는 Git LFS로 저장했습니다.
+
+| 모델 | 폴더 | 불러오기 |
+|---|---|---|
+| A | [`models/span-pilot-step0-a-seed110/`](../../models/span-pilot-step0-a-seed110/README.md) | `MLSpanDetector('models/span-pilot-step0-a-seed110')` |
+| B | [`models/span-pilot-step0-b-seed110/`](../../models/span-pilot-step0-b-seed110/README.md) | `MLSpanDetector('models/span-pilot-step0-b-seed110')` |
+
+- 받는 방법: `git lfs pull --include='models/span-pilot-step0-*'`
+- 각 폴더에는 가중치, 토크나이저, `span_bundle.json`이 있습니다. 학습한 그대로이고, 따옴표 정리는 꺼져 있습니다.
+
+**Drive**: `MyDrive/promptguard-runs/`(Colab 계정)에도 같은 모델과 학습 기록이 있습니다.
 
 | 모델 | 가중치와 기록 (zip) | 학습 로그 |
 |---|---|---|
