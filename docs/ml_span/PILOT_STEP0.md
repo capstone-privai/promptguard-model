@@ -247,8 +247,42 @@ loss 곡선 원자료는 `reports/ml_span/pilot-step0-loss.csv`에 있습니다.
 | B, seed 112 | 폴더 `span-mmbert-pilot-step0-b-seed112/` | `span-mmbert-pilot-step0-b-seed112.log` |
 
 - zip에는 `model/`(가중치, `span_bundle.json`), `config.json`(학습 설정), `history.json`(epoch별 손실과 validation), `alignment.json`이 들어 있습니다. test 평가 파일은 넣지 않았습니다.
-- **따옴표 정리 켜기**: `model/span_bundle.json`에 `"delimiter_policy": "quote-delimiters-v2"`(또는 닫는 따옴표만 고치는 `-v1`)를 추가하고, PromptGuard의 ml-v9 모듈이 이 브랜치 이후의 `promptguard-model`을 쓰게 합니다. 옛 런타임은 이 키를 무시하므로, 그 경우에는 학습된 그대로 동작합니다. zip 안의 bundle에는 이 키가 없으므로, 팀 평가는 학습된 그대로의 모델로 먼저 하면 됩니다.
-- **PromptGuard 쪽 필터**: ml-v9 모듈은 6자 미만 값과 흔한 영어 단어를 자체적으로 버립니다.
+- **따옴표 정리 켜기**: `model/span_bundle.json`에 `"delimiter_policy": "quote-delimiters-v2"`(또는 닫는 따옴표만 고치는 `-v1`)를 추가하고, PromptGuard의 ml-span 모듈이 이 브랜치 이후의 `promptguard-model`을 쓰게 합니다. 옛 런타임은 이 키를 무시하므로, 그 경우에는 학습된 그대로 동작합니다. 올린 bundle에는 이 키가 없으므로, 팀 평가는 학습된 그대로의 모델로 먼저 하면 됩니다.
+- **PromptGuard 쪽 필터**: ml-span·ml-v9 모듈은 6자 미만 값과 흔한 영어 단어를 자체적으로 버립니다.
+
+## 팀 test로 평가하는 방법
+
+팀 test와 test_ood는 팀이 먼저 평가합니다. 팀이 쓰는 채점기(`promptguard-data`의 `metric-detection/scripts/evaluate.py`)로 PromptGuard를 거쳐 평가하고, PromptGuard의 `ml-span` 모듈이 파일럿 모델을 쓰게 합니다.
+
+1. **모델 받기**: `promptguard-model`에서 `git pull`, `git lfs pull --include='models/span-pilot-step0-*'`.
+2. **평가 데이터 만들기**:
+   - `promptguard-data`를 `ml-train-pilot`(5b812c7)에 두고 `build_ml_handoff.sh`를 실행합니다.
+   - train·val과 함께 `metric-detection/data_test/sessions_mleval_*_test.jsonl`, `*_test_ood.jsonl`과 그 정답(`data_answer/`)이 만들어집니다.
+3. **PromptGuard 설정** (`promptguard-claude-demoV0` main `9e80dc4` 이후):
+   - 평가용 사본의 `src/detector/detector.json`에서 `ml-span` 항목의 `options.checkpoint`를 `"default"` 대신 평가할 폴더로 바꿉니다. A는 `"models/span-pilot-step0-a-seed110"`, B는 `"models/span-pilot-step0-b-seed110"`입니다. 경로는 `options.repository`(`promptguard-model`) 기준입니다.
+   - `threshold`는 넣지 않습니다. 그래야 각 bundle의 cutoff(A 0.99, B 0.90)를 씁니다.
+   - 다른 값은 그대로 둡니다. GPU에서는 `device`만 `"cuda"`로 바꿔도 됩니다.
+   - `ml-v9` 항목의 checkpoint는 바꾸지 않습니다. 그러면 결과가 v9로 표시됩니다.
+4. **실행**: `promptguard-data` 폴더에서 모델과 test 파일마다 한 번씩 실행합니다.
+
+   ```sh
+   PG_DETECTOR_ENABLE=ml-span python metric-detection/scripts/evaluate.py run --system promptguard \
+     --system-root ../promptguard-claude-demoV0 --use ml_eval --require-adapters ml-span \
+     --sessions metric-detection/data_test/sessions_mleval_<입력>_test.jsonl --out results/pilot-a/test
+   ```
+
+   - `--require-adapters ml-span`이 있으면 모델을 불러오지 못했을 때 점수를 내지 않고 멈춥니다.
+   - 팀의 `colab/evaluate_ml.ipynb`(ml-train-pilot)도 같은 명령을 씁니다. 다만 가중치 확인 셀이 `ml-v9`와 `ml-qwen`만 알므로, `ENABLE="ml-span"`으로 쓰려면 그 셀에 `ml-span` 경로를 넣어야 합니다.
+5. **비교**: A와 B는 같은 test 파일, 같은 PromptGuard 설정으로 돌립니다. 그래야 차이를 학습 데이터 탓으로 볼 수 있습니다. ML 없이(`PG_DETECTOR_ENABLE` 없이) 한 번 더 돌리면 ML이 더한 몫을 따로 볼 수 있습니다.
+
+**읽을 때 주의할 점**:
+- 이 점수는 규칙 탐지기와 ML을 함께 돌린 PromptGuard 전체의 점수입니다.
+- ML 쪽에는 PromptGuard 설정이 더해집니다. 그래서 이 문서의 모델 단독 validation 숫자와 다릅니다.
+  - 6자 미만 값을 버립니다.
+  - 2,000자가 넘는 텍스트는 자격증명 단서가 있는 줄 앞뒤 2줄만 봅니다.
+  - 그렇게 해도 6,000자가 넘으면 ML은 건너뛰고 다른 탐지기에 맡깁니다.
+  - 4초 시간 제한이 있습니다.
+- seed 112(`models/span-pilot-step0-{a,b}-seed112`)와 B+v10(`models/span-pilot-step0-bv10-seed112`)도 checkpoint만 바꿔 같은 방법으로 평가할 수 있습니다. seed 차이가 큰 셋이 있으므로(아래 "seed 변동"), 가능하면 두 seed를 모두 평가합니다.
 
 ## seed 변동
 
