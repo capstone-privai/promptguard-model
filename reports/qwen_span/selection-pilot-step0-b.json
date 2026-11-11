@@ -1,0 +1,171 @@
+{
+  "postfilter": false,
+  "policy": "Validation only. Per adapter: cutoff maximizing exact F2 over all observed confidences (precision tie-break), restricted to precision >= min_precision when given. Adapter with highest eligible F2 is selected. Frozen before scoring any other dataset.",
+  "min_precision": null,
+  "v9_validation": null,
+  "candidates": {
+    "pilot-b-e1": {
+      "raw": {
+        "records": 815,
+        "gold_spans": 615,
+        "threshold": 0.0,
+        "exact": {
+          "tp": 412,
+          "fp": 2,
+          "fn": 203,
+          "precision": 0.9951690821256038,
+          "recall": 0.6699186991869919,
+          "f1": 0.8007774538386784,
+          "f2": 0.7167710508002784
+        },
+        "invalid_outputs": {
+          "truncated": 1
+        },
+        "invalid_output_rate": 0.001226993865030675,
+        "answer_items": {
+          "ok": 414,
+          "hallucinated": 4,
+          "bad_occurrence": 0,
+          "duplicate": 1,
+          "malformed_item": 1
+        },
+        "hallucinated_items": 4,
+        "bad_occurrence_items": 0,
+        "negative_rows_with_findings": 0,
+        "overlap_recall": 0.6715447154471544,
+        "latency": {
+          "unit": "ms/input",
+          "calls": 815,
+          "mean": 1602.527343220854,
+          "p50": 233.0621080000128,
+          "p95": 5144.21818400001
+        }
+      },
+      "calibration": {
+        "selected": {
+          "threshold": 0.9221017070383584,
+          "tp": 412,
+          "fp": 2,
+          "fn": 203,
+          "precision": 0.9951690821256038,
+          "recall": 0.6699186991869919,
+          "f1": 0.8007774538386784,
+          "f2": 0.7167710508002784
+        },
+        "eligible": true,
+        "minimum_precision": null,
+        "cutoffs_evaluated": 412
+      }
+    },
+    "pilot-b-e2": {
+      "raw": {
+        "records": 815,
+        "gold_spans": 615,
+        "threshold": 0.0,
+        "exact": {
+          "tp": 591,
+          "fp": 6,
+          "fn": 24,
+          "precision": 0.9899497487437185,
+          "recall": 0.9609756097560975,
+          "f1": 0.9752475247524752,
+          "f2": 0.9666339548577036
+        },
+        "invalid_outputs": {},
+        "invalid_output_rate": 0.0,
+        "answer_items": {
+          "ok": 597,
+          "hallucinated": 3,
+          "bad_occurrence": 1,
+          "duplicate": 0,
+          "malformed_item": 0
+        },
+        "hallucinated_items": 3,
+        "bad_occurrence_items": 1,
+        "negative_rows_with_findings": 0,
+        "overlap_recall": 0.9658536585365853,
+        "latency": {
+          "unit": "ms/input",
+          "calls": 815,
+          "mean": 1991.326281905536,
+          "p50": 239.4735749994652,
+          "p95": 7167.256587999873
+        }
+      },
+      "calibration": {
+        "selected": {
+          "threshold": 0.9762683060198465,
+          "tp": 591,
+          "fp": 3,
+          "fn": 24,
+          "precision": 0.9949494949494949,
+          "recall": 0.9609756097560975,
+          "f1": 0.9776674937965261,
+          "f2": 0.9675834970530451
+        },
+        "eligible": true,
+        "minimum_precision": null,
+        "cutoffs_evaluated": 597
+      }
+    },
+    "pilot-b-e3": {
+      "raw": {
+        "records": 815,
+        "gold_spans": 615,
+        "threshold": 0.0,
+        "exact": {
+          "tp": 591,
+          "fp": 4,
+          "fn": 24,
+          "precision": 0.9932773109243698,
+          "recall": 0.9609756097560975,
+          "f1": 0.9768595041322314,
+          "f2": 0.967266775777414
+        },
+        "invalid_outputs": {},
+        "invalid_output_rate": 0.0,
+        "answer_items": {
+          "ok": 595,
+          "hallucinated": 4,
+          "bad_occurrence": 1,
+          "duplicate": 0,
+          "malformed_item": 0
+        },
+        "hallucinated_items": 4,
+        "bad_occurrence_items": 1,
+        "negative_rows_with_findings": 0,
+        "overlap_recall": 0.9658536585365853,
+        "latency": {
+          "unit": "ms/input",
+          "calls": 815,
+          "mean": 2005.5597004098215,
+          "p50": 234.68567200052348,
+          "p95": 7498.90117599989
+        }
+      },
+      "calibration": {
+        "selected": {
+          "threshold": 0.9830714345874607,
+          "tp": 591,
+          "fp": 2,
+          "fn": 24,
+          "precision": 0.9966273187183811,
+          "recall": 0.9609756097560975,
+          "f1": 0.9784768211920529,
+          "f2": 0.967900425810678
+        },
+        "eligible": true,
+        "minimum_precision": null,
+        "cutoffs_evaluated": 595
+      }
+    }
+  },
+  "selected": {
+    "tag": "pilot-b-e3",
+    "threshold": 0.9830714345874607
+  },
+  "validation": {
+    "path": "runs/data/span-pilot-step0-b/validation.jsonl",
+    "rows": 815
+  }
+}
