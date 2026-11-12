@@ -19,7 +19,10 @@ VAL=runs/data/span-pilot-step0-$m/validation.jsonl
 CFG=configs/qwen-span-pilot-step0-$m.yaml
 # Saving the optimizer state to Drive every 25 steps (the recipe's default) would write about 100 MB a minute.
 # save_every only sets how often the resumable checkpoint is written; the training itself is unchanged.
-SETS=(--set output_dir=$OUT/adapter --set save_every=100)
+# Drive keeps every overwritten version of that ~105 MB checkpoint for 30 days, and those versions count
+# against the Drive quota. QWEN_SAVE_EVERY raises the interval when space runs short; a larger interval only
+# means more steps to redo after a runtime reset.
+SETS=(--set output_dir=$OUT/adapter --set save_every=${QWEN_SAVE_EVERY:-100})
 # QWEN_DTYPE=float32|bfloat16 overrides the config's dtype for the probe, training and prediction alike.
 if [ -n "${QWEN_DTYPE:-}" ]; then SETS+=(--set dtype=$QWEN_DTYPE); fi
 mkdir -p "$OUT"
