@@ -11,6 +11,7 @@ See docs/ml_span/QWEN_SPAN.md for the full sequence.
 """
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 import yaml
@@ -23,7 +24,8 @@ from privai_model.ml_span.schema import load  # noqa: E402
 from privai_model.qwen_span import data as qdata  # noqa: E402
 from privai_model.qwen_span import evaluation as qeval  # noqa: E402
 
-PREDICTIONS = Path('runs/qwen-span/predictions')
+# QWEN_PREDICTIONS moves predictions elsewhere (e.g. Google Drive on Colab, so a runtime reset keeps finished rows).
+PREDICTIONS = Path(os.environ.get('QWEN_PREDICTIONS', 'runs/qwen-span/predictions'))
 REPORTS = Path('reports/qwen_span')
 V9_REPORT = Path('reports/ml_span/context-v9-comparison.json')
 
@@ -38,8 +40,19 @@ def load_config(path, overrides):
     return config
 
 
+def eval_sets(args):
+    """The evaluation sets by name. --eval NAME=PATH (repeatable) replaces the default v9 list entirely,
+    e.g. --eval validation=runs/data/span-pilot-step0-b/validation.jsonl for another training set's validation."""
+    if not getattr(args, 'eval', None):
+        return dict(qdata.EVAL_SETS)
+    sets = dict(item.split('=', 1) for item in args.eval)
+    if 'validation' not in sets:
+        raise SystemExit('--eval must name a validation set: selection uses it')
+    return sets
+
+
 def cmd_prepare(args):
-    manifest = qdata.prepare(ROOT, args.sft_dir, extra_train=args.extra_train)
+    manifest = qdata.prepare(ROOT, args.sft_dir, train_dir=args.train_dir, eval_sets=eval_sets(args), extra_train=args.extra_train)
     write_json(REPORTS / f'sft-manifest{args.run}.json', manifest)
     for name, r in manifest['roundtrip'].items():
         print(f"{name}: {r['recovered_exactly']}/{r['gold_spans']} gold spans recovered exactly")
@@ -95,9 +108,10 @@ def cmd_predict(args):
     adapter = None if args.adapter == 'base' else args.adapter
     detector = QwenSpanDetector(config['model_name'], adapter, config.get('device', 'auto'), config.get('dtype', 'float32'),
                                 config.get('revision'), config.get('local_files_only', False), config.get('max_new_tokens', 512))
-    names = list(qdata.EVAL_SETS) if args.sets == 'all' else args.sets.split(',')
+    sets = eval_sets(args)
+    names = list(sets) if args.sets == 'all' else args.sets.split(',')
     for name in names:
-        rows = load(ROOT / qdata.EVAL_SETS[name])
+        rows = load(ROOT / sets[name])
         if args.limit:
             rows = rows[:args.limit]
         path = PREDICTIONS / args.tag / f'{name}.jsonl'
@@ -187,8 +201,11 @@ def cmd_select(args):
     """Freeze adapter and cutoff on validation before any other set is scored."""
     if (REPORTS / f'selection{args.run}.json').exists() and not args.force:
         raise SystemExit('selection.json already frozen; pass --force only if no test set has been looked at')
-    rows = load(ROOT / qdata.EVAL_SETS['validation'])
-    v9 = json.loads(V9_REPORT.read_text())['datasets']['validation']['candidate']['ml_only']
+    sets = eval_sets(args)
+    rows = load(ROOT / sets['validation'])
+    # The v9 reference numbers only describe the default (v9) validation set.
+    v9 = (json.loads(V9_REPORT.read_text())['datasets']['validation']['candidate']['ml_only']
+          if sets['validation'] == qdata.EVAL_SETS['validation'] else None)
     candidates = {}
     for tag in args.tags.split(','):
         predictions = scored(tag, 'validation', rows, args.postfilter)
@@ -206,12 +223,14 @@ def cmd_select(args):
                              'highest eligible F2 is selected. Frozen before scoring any other dataset.'),
                      min_precision=args.min_precision, v9_validation=v9, candidates=candidates,
                      selected=dict(tag=selected, threshold=candidates[selected]['calibration']['selected']['threshold']))
+    selection['validation'] = dict(path=sets['validation'], rows=len(rows))
     write_json(REPORTS / f'selection{args.run}.json', selection)
     for tag, c in candidates.items():
         s = c['calibration']['selected']; r = c['raw']['exact']
         print(f"{tag}: raw {r['tp']}/{r['fp']}/{r['fn']}  cutoff {s['threshold']:.4f} -> {s['tp']}/{s['fp']}/{s['fn']} "
               f"F2 {s['f2']:.4f} eligible={c['calibration']['eligible']}  invalid={c['raw']['invalid_outputs']}")
-    print(f"selected {selected} at {selection['selected']['threshold']:.6f}; v9 validation {v9['tp']}/{v9['fp']}/{v9['fn']}")
+    reference = f"; v9 validation {v9['tp']}/{v9['fp']}/{v9['fn']}" if v9 else ''
+    print(f"selected {selected} at {selection['selected']['threshold']:.6f}{reference}")
 
 
 def cmd_report(args):
@@ -283,7 +302,9 @@ def main():
     sub = p.add_subparsers(dest='command', required=True)
     s = sub.add_parser('prepare'); s.add_argument('--sft-dir', default='runs/qwen-span/sft')
     s.add_argument('--extra-train', action='append', default=[], help='additional train JSONL (repo-relative)')
-    s.add_argument('--run', default='', help='report suffix, e.g. -v2'); s.set_defaults(func=cmd_prepare)
+    s.add_argument('--run', default='', help='report suffix, e.g. -v2')
+    s.add_argument('--train-dir', default=qdata.TRAIN_DIR, help='folder holding train.jsonl (repo-relative)')
+    s.add_argument('--eval', action='append', default=[], metavar='NAME=PATH', help='evaluation set (repeatable); replaces the default v9 sets'); s.set_defaults(func=cmd_prepare)
     s = sub.add_parser('v9predict'); s.add_argument('--sets', required=True); s.set_defaults(func=cmd_v9predict)
     for name, func in [('smoke', cmd_smoke), ('train', cmd_train), ('predict', cmd_predict)]:
         s = sub.add_parser(name); s.add_argument('--config', required=True)
@@ -293,7 +314,7 @@ def main():
         if name == 'predict':
             s.add_argument('--adapter', required=True, help="adapter directory, or 'base' for zero-shot")
             s.add_argument('--tag', required=True); s.add_argument('--sets', default='validation')
-            s.add_argument('--limit', type=int)
+            s.add_argument('--limit', type=int); s.add_argument('--eval', action='append', default=[], metavar='NAME=PATH', help='evaluation set (repeatable); replaces the default v9 sets')
     s = sub.add_parser('bench'); s.add_argument('--config', required=True)
     s.add_argument('--set', action='append', default=[], metavar='KEY=VALUE')
     s.add_argument('--adapter', required=True); s.add_argument('--tag', required=True)
@@ -303,6 +324,7 @@ def main():
     s.add_argument('--min-precision', type=float); s.add_argument('--force', action='store_true')
     s.add_argument('--run', default='', help='selection file suffix, e.g. -v2')
     s.add_argument('--postfilter', action='store_true', help='drop non-value syntax spans before scoring (postfilter.py)')
+    s.add_argument('--eval', action='append', default=[], metavar='NAME=PATH', help='evaluation set (repeatable); replaces the default v9 sets')
     s.set_defaults(func=cmd_select)
     s = sub.add_parser('report'); s.add_argument('--also', help='extra tags (e.g. zero-shot) reported at cutoff 0')
     s.add_argument('--with-rules', action='store_true'); s.add_argument('--run', default='')

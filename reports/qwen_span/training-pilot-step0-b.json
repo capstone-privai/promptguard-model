@@ -1,0 +1,29 @@
+{
+  "state": {
+    "epoch": 3,
+    "example": 0,
+    "step": 3636,
+    "history": [
+      {
+        "epoch": 0,
+        "steps": 1212,
+        "elapsed_s": 9386.9
+      },
+      {
+        "epoch": 1,
+        "steps": 2424,
+        "elapsed_s": 7079.0
+      },
+      {
+        "epoch": 2,
+        "steps": 3636,
+        "elapsed_s": 1107.1
+      }
+    ]
+  },
+  "adapters": [
+    "epoch-1",
+    "epoch-2",
+    "epoch-3"
+  ]
+}

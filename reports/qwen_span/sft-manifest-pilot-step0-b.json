@@ -1,0 +1,54 @@
+{
+  "schema_version": "qwen-span-sft-v1",
+  "answer_format": "qwen-span-json-v1",
+  "system_prompt_sha256": "1099c91e2fd7c13129b93a425a8e31288412d514f6a3967996fe2c0ffd1ea5d3",
+  "source_metadata_in_prompt": false,
+  "note": "Only text is given to the model, like the v9 ML detector. The `source` field is excluded because some training rows use source=\"negative\", which would leak the label.",
+  "extra_train": {},
+  "train": {
+    "path": "runs/data/span-pilot-step0-b/train.jsonl",
+    "sha256": "c24ed1735a692203f34109875f063cc29e89be16cc7ae82ae770c61aff1a5117",
+    "rows": 19385,
+    "positives": 4617,
+    "spans_per_row": {
+      "0": 14768,
+      "1": 3440,
+      "2": 639,
+      "3": 203,
+      "4": 162,
+      "5": 170,
+      "6": 1,
+      "8": 2
+    }
+  },
+  "evaluation_sets": {
+    "validation": {
+      "path": "runs/data/span-pilot-step0-b/validation.jsonl",
+      "sha256": "7e7f9008c5a5b32e58d84a5c3881f1aef5e972098bf4b3ccc9b75946b50569ea",
+      "rows": 815
+    }
+  },
+  "roundtrip": {
+    "train": {
+      "rows": 19385,
+      "gold_spans": 6847,
+      "recovered_exactly": 6847,
+      "failed_ids": []
+    },
+    "validation": {
+      "rows": 815,
+      "gold_spans": 615,
+      "recovered_exactly": 615,
+      "failed_ids": []
+    }
+  },
+  "leakage": {
+    "validation": {
+      "rows": 815,
+      "rows_sharing_any_key": 119,
+      "shared_keys_by_kind": {
+        "value": 202
+      }
+    }
+  }
+}
