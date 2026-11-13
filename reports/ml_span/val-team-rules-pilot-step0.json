@@ -1,0 +1,182 @@
+{
+  "notice": "Unofficial. Val only; team test and test_ood were not opened. The team scorer refuses train/val sessions (metric-detection/evaluation/run.py check_use), so it was not run. Its scoring rules (evaluation/scorer/span_scoring.py score_item, report/aggregate.py f2_score) were applied to each model's val spans, one span per masking edit, overlapping spans merged. PromptGuard (other detectors, re-masking of repeated values) is not in the loop. Counts only.",
+  "team_scorer": {
+    "repository": "capstone-privai/promptguard-data",
+    "commit": "5b812c79c204779ed077247c1b5da6d31f9f6ff7"
+  },
+  "script": "scripts/score_val_team_rules.py",
+  "results": {
+    "mmbert-a": {
+      "source": {
+        "model": "models/span-pilot-step0-a-seed110",
+        "cutoff": 0.99,
+        "delimiter_policy": null,
+        "device": "mps"
+      },
+      "rows": 305,
+      "ours": {
+        "tp": 388,
+        "fp": 47,
+        "fn": 47,
+        "f2": 0.8919540229885058
+      },
+      "team_rules": {
+        "gold": 435,
+        "exact": 388,
+        "over": 42,
+        "partial": 5,
+        "missed": 0,
+        "edits": 435,
+        "edits_within_gold": 390,
+        "edits_spilling_over_gold": 45,
+        "edits_outside_gold": 0,
+        "recall": 0.8919540229885058,
+        "precision": 0.896551724137931,
+        "f2": 0.8928697868724775
+      }
+    },
+    "mmbert-b": {
+      "source": {
+        "model": "models/span-pilot-step0-b-seed110",
+        "cutoff": 0.9,
+        "delimiter_policy": null,
+        "device": "mps"
+      },
+      "rows": 815,
+      "ours": {
+        "tp": 551,
+        "fp": 55,
+        "fn": 64,
+        "f2": 0.8985649054142205
+      },
+      "team_rules": {
+        "gold": 615,
+        "exact": 551,
+        "over": 50,
+        "partial": 4,
+        "missed": 10,
+        "edits": 606,
+        "edits_within_gold": 554,
+        "edits_spilling_over_gold": 51,
+        "edits_outside_gold": 1,
+        "recall": 0.8959349593495934,
+        "precision": 0.9141914191419142,
+        "f2": 0.8995276841672235
+      }
+    },
+    "mmbert-a+quote-v2": {
+      "source": {
+        "model": "models/span-pilot-step0-a-seed110",
+        "cutoff": 0.99,
+        "delimiter_policy": "quote-delimiters-v2",
+        "device": "mps"
+      },
+      "rows": 305,
+      "ours": {
+        "tp": 435,
+        "fp": 0,
+        "fn": 0,
+        "f2": 1.0
+      },
+      "team_rules": {
+        "gold": 435,
+        "exact": 435,
+        "over": 0,
+        "partial": 0,
+        "missed": 0,
+        "edits": 435,
+        "edits_within_gold": 435,
+        "edits_spilling_over_gold": 0,
+        "edits_outside_gold": 0,
+        "recall": 1.0,
+        "precision": 1.0,
+        "f2": 1.0
+      }
+    },
+    "mmbert-b+quote-v2": {
+      "source": {
+        "model": "models/span-pilot-step0-b-seed110",
+        "cutoff": 0.9,
+        "delimiter_policy": "quote-delimiters-v2",
+        "device": "mps"
+      },
+      "rows": 815,
+      "ours": {
+        "tp": 604,
+        "fp": 2,
+        "fn": 11,
+        "f2": 0.9849967384213959
+      },
+      "team_rules": {
+        "gold": 615,
+        "exact": 604,
+        "over": 0,
+        "partial": 1,
+        "missed": 10,
+        "edits": 606,
+        "edits_within_gold": 605,
+        "edits_spilling_over_gold": 0,
+        "edits_outside_gold": 1,
+        "recall": 0.9821138211382113,
+        "precision": 0.9983498349834984,
+        "f2": 0.9853186390296409
+      }
+    },
+    "qwen-a": {
+      "source": {
+        "predictions": "Drive qwen-span-pilot-step0-a/predictions/pilot-a-e3/validation.jsonl (positions and scores only)",
+        "cutoff": 0.957716187327652,
+        "selection": "reports/qwen_span/selection-pilot-step0-a.json"
+      },
+      "rows": 305,
+      "ours": {
+        "tp": 430,
+        "fp": 1,
+        "fn": 5,
+        "f2": 0.9903270382312298
+      },
+      "team_rules": {
+        "gold": 435,
+        "exact": 430,
+        "over": 0,
+        "partial": 0,
+        "missed": 5,
+        "edits": 431,
+        "edits_within_gold": 430,
+        "edits_spilling_over_gold": 0,
+        "edits_outside_gold": 1,
+        "recall": 0.9885057471264368,
+        "precision": 0.9976798143851509,
+        "f2": 0.9903270382312298
+      }
+    },
+    "qwen-b": {
+      "source": {
+        "predictions": "Drive qwen-span-pilot-step0-b/predictions/pilot-b-e3/validation.jsonl (positions and scores only)",
+        "cutoff": 0.9830714345874607,
+        "selection": "reports/qwen_span/selection-pilot-step0-b.json"
+      },
+      "rows": 815,
+      "ours": {
+        "tp": 591,
+        "fp": 2,
+        "fn": 24,
+        "f2": 0.967900425810678
+      },
+      "team_rules": {
+        "gold": 615,
+        "exact": 591,
+        "over": 0,
+        "partial": 1,
+        "missed": 23,
+        "edits": 593,
+        "edits_within_gold": 592,
+        "edits_spilling_over_gold": 0,
+        "edits_outside_gold": 1,
+        "recall": 0.9609756097560975,
+        "precision": 0.9983136593591906,
+        "f2": 0.9682180981335334
+      }
+    }
+  }
+}
