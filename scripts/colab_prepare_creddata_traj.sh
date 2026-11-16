@@ -5,7 +5,11 @@ set -euo pipefail
 ZIP=${CREDDATA_TRAJ_ZIP:-/content/drive/MyDrive/promptguard-runs/CredData-trajectory.zip}
 OUT=runs/data/span-creddata-traj-v1
 [ -d "$OUT" ] && { echo "$OUT exists"; exit 0; }
-test -f "$ZIP" || { echo "upload CredData-trajectory.zip to $ZIP first" >&2; exit 1; }
+if [ ! -f "$ZIP" ]; then  # uploaded somewhere else in My Drive: take it from there (the sha256 check below still applies)
+  ZIP=$(find /content/drive/MyDrive -maxdepth 4 -name 'CredData-trajectory*.zip' 2>/dev/null | head -1)
+fi
+test -n "$ZIP" && test -f "$ZIP" || { echo "CredData-trajectory.zip not found in My Drive; upload it to promptguard-runs" >&2; exit 1; }
+echo "data zip: $ZIP"
 SRC=/content/creddata-traj
 rm -rf "$SRC" && mkdir -p "$SRC" && unzip -q "$ZIP" -d "$SRC" -x '__MACOSX/*'
 python - "$SRC/CredData-trajectory" <<'EOF'
