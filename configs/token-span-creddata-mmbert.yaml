@@ -1,0 +1,29 @@
+# CredData-trajectory v1, mmBERT-small as a BIO token classifier (full fine-tune), on src/privai_model/token_span.
+# Shares the trainer, windows, data, seed and selection with configs/token-span-creddata-qwen.yaml; only the model
+# and its own optimizer settings differ. Settings follow the step-0 pilot recipe (configs/span-pilot-step0-a.yaml)
+# except: at most 4 epochs with patience 2 (each epoch is about 4x a pilot epoch), float16 autocast on CUDA,
+# and every observed span score is a cutoff candidate (the same rule as the Qwen model).
+model_name: jhu-clsp/mmBERT-small
+revision: abc32620dd4f6ab06f5fbe905dc25f310618e09f
+local_files_only: false
+data_dir: runs/data/span-creddata-traj-v1
+output_dir: runs/token-span/creddata-mmbert
+device: auto
+seed: 110
+epochs: 4
+patience: 2
+batch_size: 4
+learning_rate: 0.00003
+weight_decay: 0.01
+schedule: constant
+warmup_ratio: 0.0
+max_grad_norm: 1.0
+class_weights: [1.0, 2.0, 2.0]
+max_length: 512
+stride: 128
+fp16: true
+gradient_checkpointing: false
+lora: null
+save_every: 0           # a full checkpoint is ~1.7 GB; an epoch takes well under a Colab runtime, so no mid-epoch saves
+log_every: 500
+eval_batch_size: 32
