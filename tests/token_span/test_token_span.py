@@ -1,12 +1,15 @@
-"""The token-classifier comparison: shared settings, cutoff selection, resumable batch order, group split."""
+"""The token-classifier comparison: shared settings, cutoff selection, resumable batch order, group split,
+bidirectional attention for the decoder."""
 import importlib.util
 import random
 from pathlib import Path
 
+import pytest
+import torch
 import yaml
 
 from privai_model.ml_span.evaluation import measures
-from privai_model.token_span.train import epoch_batches, select_cutoff
+from privai_model.token_span.train import bidirectional, epoch_batches, select_cutoff
 
 ROOT = Path(__file__).resolve().parents[2]
 MODEL_SPECIFIC = {'model_name', 'revision', 'output_dir', 'epochs', 'patience', 'learning_rate', 'weight_decay',
@@ -23,6 +26,45 @@ def test_mmbert_and_qwen_share_data_windows_and_selection():
     assert differ <= MODEL_SPECIFIC
     for key in ('data_dir', 'seed', 'batch_size', 'class_weights', 'max_length', 'stride', 'fp16', 'eval_batch_size'):
         assert a[key] == b[key]
+
+
+def test_bidirectional_qwen_differs_from_causal_qwen_only_in_attention():
+    a, b = config('qwen'), config('qwen-bidir')
+    assert {k for k in set(a) | set(b) if a.get(k) != b.get(k)} == {'output_dir', 'bidirectional', 'attn_implementation'}
+    assert b['bidirectional'] is True and b['attn_implementation'] == 'sdpa'
+
+
+def tiny_qwen():
+    from transformers import Qwen2Config, Qwen2ForTokenClassification
+    torch.manual_seed(0)
+    cfg = Qwen2Config(vocab_size=40, hidden_size=32, intermediate_size=64, num_hidden_layers=2, num_attention_heads=4,
+                      num_key_value_heads=2, max_position_embeddings=64, num_labels=3, attn_implementation='sdpa')
+    return Qwen2ForTokenClassification(cfg).eval()
+
+
+def logits(model, ids, mask=None):
+    ids = torch.tensor(ids)
+    with torch.no_grad():
+        return model(input_ids=ids, attention_mask=torch.ones_like(ids) if mask is None else torch.tensor(mask)).logits
+
+
+def test_bidirectional_lets_early_tokens_see_later_ones():
+    before, after = [[5, 6, 7, 8]], [[5, 6, 7, 9]]
+    causal = tiny_qwen()
+    assert torch.allclose(logits(causal, before)[0, :3], logits(causal, after)[0, :3])
+    both = bidirectional(tiny_qwen())
+    assert not torch.allclose(logits(both, before)[0, 0], logits(both, after)[0, 0])
+
+
+def test_bidirectional_ignores_padding_and_survives_lora():
+    peft = pytest.importorskip('peft')
+    model = peft.get_peft_model(bidirectional(tiny_qwen()), peft.LoraConfig(
+        task_type='TOKEN_CLS', r=4, lora_alpha=8, target_modules=['q_proj', 'v_proj'], modules_to_save=['score']))
+    model.eval()
+    alone = logits(model, [[5, 6, 7]])[0]
+    padded = logits(model, [[5, 6, 7, 0, 0], [1, 2, 3, 4, 5]], [[1, 1, 1, 0, 0], [1, 1, 1, 1, 1]])[0, :3]
+    assert torch.allclose(alone, padded, atol=1e-5)
+    assert not torch.allclose(logits(model, [[5, 6, 7, 8]])[0, 0], logits(model, [[5, 6, 7, 9]])[0, 0])
 
 
 def row(rid, spans):
