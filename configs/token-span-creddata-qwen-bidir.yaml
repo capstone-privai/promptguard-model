@@ -1,0 +1,37 @@
+# CredData-trajectory v1, Qwen2.5-Coder-0.5B-Instruct as a BIO token classifier with bidirectional attention:
+# configs/token-span-creddata-qwen.yaml with the causal mask replaced by the padding mask alone, so each token sees
+# the whole window as in mmBERT (src/privai_model/token_span/train.py: bidirectional). Everything else (data, windows,
+# seed, LoRA, learning rate, schedule, epochs, selection) is the causal Qwen run's, so the two differ only in the
+# attention direction. The model was pretrained causally; LoRA and the head learn to use the right-hand context.
+model_name: Qwen/Qwen2.5-Coder-0.5B-Instruct
+revision: ea3f2471cf1b1f0db85067f1ef93848e38e88c25
+local_files_only: false
+data_dir: runs/data/span-creddata-traj-v1
+output_dir: runs/token-span/creddata-qwen-bidir
+device: auto
+seed: 110
+epochs: 3
+patience: 3
+batch_size: 4
+learning_rate: 0.0002
+weight_decay: 0.0
+schedule: cosine
+warmup_ratio: 0.05
+max_grad_norm: 1.0
+class_weights: [1.0, 2.0, 2.0]
+max_length: 512
+stride: 128
+fp16: true
+gradient_checkpointing: true
+bidirectional: true
+attn_implementation: sdpa
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+  modules_to_save: [score]
+save_every: 0
+save_every_minutes: 30  # resumable checkpoint (LoRA + head + optimizer, ~0.1 GB); each save leaves the old one in Drive trash
+log_every: 500
+eval_batch_size: 32

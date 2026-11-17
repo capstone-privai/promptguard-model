@@ -1,8 +1,9 @@
 #!/bin/bash
 # Train a token-classification span detector on CredData-trajectory v1 on a Colab GPU, or score the frozen ones on test.
 #
-#   bash scripts/colab_token_span.sh mmbert|qwen   # train; epoch and cutoff are chosen on validation only
-#   bash scripts/colab_token_span.sh test          # only after both are selected: score each frozen model on test
+#   bash scripts/colab_token_span.sh mmbert|qwen|qwen-bidir   # train; epoch and cutoff are chosen on validation only
+#   bash scripts/colab_token_span.sh test [model ...]         # after selection: score each frozen model on test once
+#                                                             # (default: mmbert qwen)
 #
 # Run from the repository folder after Drive is mounted and the package is installed. Prints counts only.
 # Qwen writes everything (LoRA adapters ~50 MB per epoch, a ~0.1 GB resumable checkpoint) to Drive and resumes
@@ -20,11 +21,11 @@ free_gb() { python -c "import shutil; print(round(shutil.disk_usage('$DRIVE').fr
 need() { python -c "import sys; sys.exit(0 if $(free_gb) >= $1 else 'Drive has under $1 GB free: stop')"; }
 
 case $m in
-  qwen)
-    OUT=$DRIVE/token-span-creddata-qwen
+  qwen|qwen-bidir)
+    OUT=$DRIVE/token-span-creddata-$m
     need 0.6
     resume=(); [ -d "$OUT" ] && resume=(--resume)  # starts fresh if no checkpoint was saved yet
-    python scripts/token_span.py train --config configs/token-span-creddata-qwen.yaml --set output_dir=$OUT "${resume[@]}" 2>&1 \
+    python scripts/token_span.py train --config configs/token-span-creddata-$m.yaml --set output_dir=$OUT "${resume[@]}" 2>&1 \
       | grep --line-buffered -v -i warn | tee -a "$OUT.log"
     test -f "$OUT/selection.json"
     ;;
@@ -41,7 +42,8 @@ case $m in
     cp -r "$LOCAL/epoch-$e" "$OUT/"
     ;;
   test)
-    for model in mmbert qwen; do
+    models=("${@:2}"); [ ${#models[@]} -gt 0 ] || models=(mmbert qwen)
+    for model in "${models[@]}"; do
       OUT=$DRIVE/token-span-creddata-$model
       read e t < <(python -c "import json; s = json.load(open('$OUT/selection.json'))['selected']; print(s['epoch'], repr(s['threshold']))")
       python scripts/token_span.py test --config configs/token-span-creddata-$model.yaml --weights "$OUT/epoch-$e" \
@@ -49,6 +51,6 @@ case $m in
     done
     exit 0
     ;;
-  *) echo "usage: $0 mmbert|qwen|test" >&2; exit 2 ;;
+  *) echo "usage: $0 mmbert|qwen|qwen-bidir|test [model ...]" >&2; exit 2 ;;
 esac
 python -c "import json, sys; s = json.load(open(sys.argv[1])); print(json.dumps(dict(selected=s['selected'], history=[dict(epoch=h['epoch'], loss=round(h['loss'], 5), raw={k: h['raw'][k] for k in ('tp', 'fp', 'fn', 'f2')}, selected={k: h['selected'][k] for k in ('threshold', 'tp', 'fp', 'fn', 'precision', 'f2')}) for h in s['history']]), separators=(',', ':')))" "$OUT/selection.json"

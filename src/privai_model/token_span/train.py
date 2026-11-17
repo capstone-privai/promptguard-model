@@ -8,7 +8,8 @@ Epoch and cutoff are chosen on validation only (exact-span F2, precision tie-bre
 cutoff candidate). The test split is never read here.
 
 Qwen is a causal decoder: with Qwen2ForTokenClassification each token sees only the text before it. That is the
-model as Hugging Face defines it; it is not made bidirectional here.
+model as Hugging Face defines it. `bidirectional: true` in the config replaces the causal mask with the padding mask
+alone, so every token sees the whole window as in an encoder (see `bidirectional`).
 
 On CUDA the forward pass runs in float16 autocast with a gradient scaler (the trainable weights stay float32).
 `checkpoint_dir` keeps a resumable checkpoint (trainable weights, optimizer, scheduler, scaler, position in the
@@ -73,9 +74,12 @@ def load_model(config, adapter=None):
         extra['attn_implementation'] = config['attn_implementation']
     lora = config.get('lora')
     if adapter is not None and not lora:  # a fully fine-tuned model is saved whole
-        return AutoModelForTokenClassification.from_pretrained(adapter, **extra)
+        model = AutoModelForTokenClassification.from_pretrained(adapter, **extra)
+        return bidirectional(model) if config.get('bidirectional') else model
     model = AutoModelForTokenClassification.from_pretrained(config['model_name'], config=cfg, torch_dtype=torch.float32,
                                                             **kwargs, **extra)
+    if config.get('bidirectional'):
+        bidirectional(model)
     if config.get('gradient_checkpointing'):
         model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant': False})
         model.config.use_cache = False
@@ -88,6 +92,35 @@ def load_model(config, adapter=None):
                                                  modules_to_save=lora.get('modules_to_save'), bias='none'))
         if config.get('gradient_checkpointing'):
             model.enable_input_require_grads()
+    return model
+
+
+def bidirectional(model):
+    """Make a decoder's token classifier attend both ways: each token sees the whole window except padding.
+
+    For Qwen2-style models in transformers 4.57, whose inner model uses a ready-made mask when it is given a dict of
+    masks per layer type. A hook on the inner model swaps the (batch, length) padding mask for that dict, so training,
+    prediction and the LoRA wrapper all go through it. SDPA only: it reads a boolean mask as "may attend"."""
+    inner = getattr(model, model.base_model_prefix)
+    if inner.config._attn_implementation != 'sdpa':
+        raise ValueError(f'bidirectional attention needs sdpa, not {inner.config._attn_implementation}')
+    for layer in inner.layers:
+        layer.self_attn.is_causal = False
+
+    def padding_only(module, args, kwargs):
+        mask = kwargs.get('attention_mask')
+        if isinstance(mask, dict):
+            return None
+        if mask is None:
+            ids = kwargs.get('input_ids')
+            ids = args[0] if ids is None and args else ids
+            mask = torch.ones(ids.shape, dtype=torch.bool, device=ids.device)
+        keys = mask.bool()[:, None, None, :]
+        full = keys.expand(-1, 1, mask.shape[1], -1)
+        kwargs['attention_mask'] = {kind: full for kind in set(module.config.layer_types)}
+        return args, kwargs
+
+    inner.register_forward_pre_hook(padding_only, with_kwargs=True)
     return model
 
 
