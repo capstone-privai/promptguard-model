@@ -133,9 +133,19 @@ python scripts/train.py --config configs/verifier-creddata-mmbert-small.yaml
 ### 두 곳에서 나눠 학습할 때
 
 - **Colab**: Qwen 크기 비교를 맡습니다. 7B와 14B는 L4/A100이 필요하므로 Colab Pro가 필요합니다.
-- **로컬 PC**: mmBERT-base와 검증기를 맡습니다.
-  - 후보 만들기는 CPU로 됩니다.
-  - 학습에는 GPU가 있는 편이 빠릅니다. 메모리 8GB 이상을 권장합니다(추정).
+- **로컬 PC (RTX 4060, 8GB)**: mmBERT-base와 검증기를 맡습니다. 메모리 판단은 추정입니다.
+
+  | 작업 | 4060에서 | 이유 |
+  |---|---|---|
+  | 검증기 후보 만들기 | 됨 (CPU) | 탐지기만 돌림 |
+  | 검증기 학습 (mmBERT-small, base) | 됨 | 256토큰 입력, 모델이 작음 |
+  | span 모델 mmBERT-base | 될 가능성이 높음, 빠듯함 | 전체 학습이라 가중치·기울기·optimizer만 약 5GB |
+  | Qwen 1.5B | Colab으로 | float32로는 가중치만 약 6GB. bfloat16으로 줄이면 0.5B와 조건이 달라짐 |
+  | Qwen 7B, 14B | Colab으로 | 8GB에 들어가지 않음 |
+
+  - mmBERT-base에서 메모리가 모자라면 `--set gradient_checkpointing=true`를 붙입니다. 느려지지만 결과는 같습니다. batch를 줄이면 비교 조건이 바뀌므로 줄이지 않습니다.
+  - Windows는 GPU 메모리가 모자랄 때 오류 대신 시스템 메모리를 빌려 쓰면서 매우 느려질 수 있습니다. epoch이 비정상적으로 오래 걸리면 위 옵션을 켭니다.
+  - Windows에서 `pip install torch`로 받는 기본 torch는 CPU 전용입니다. pytorch.org의 설치 안내에서 CUDA 버전을 골라 설치합니다. 설치 뒤 `python -c "import torch; print(torch.cuda.get_device_name())"`가 RTX 4060을 출력해야 합니다.
 - **PR**: 코드 PR을 먼저 merge하고, 두 곳 모두 그 main에서 시작합니다.
   - 결과는 곳마다 따로 PR을 올립니다.
   - 충돌을 줄이기 위해, span 모델 결과는 [TOKEN_SPAN_CREDDATA_TRAJ.md](TOKEN_SPAN_CREDDATA_TRAJ.md)에, 검증기 결과는 새 문서 `VERIFIER_CREDDATA_TRAJ.md`에 적습니다.
