@@ -45,9 +45,9 @@ def main():
     device = ts.resolve_device(config.get('device', 'auto'))
     rows = load(Path(config['data_dir']) / f'{args.split}.jsonl')
     tokenizer = ts.load_tokenizer(config)
-    model = ts.load_model(dict(config, gradient_checkpointing=False), adapter=args.weights).to(device)
+    model = ts.place(ts.load_model(dict(config, gradient_checkpointing=False), adapter=args.weights), device)
     predictions = ts.predict(model, tokenizer, rows, config['max_length'], config['stride'], device,
-                             bool(config.get('fp16')), config.get('eval_batch_size', 16))
+                             ts.amp_dtype(config, device), config.get('eval_batch_size', 16))
     gold = ts.gold_keys(rows)
     kept = {(rid, s['start'], s['end']) for rid, spans in predictions.items() for s in spans if s['score'] >= args.threshold}
     print(json.dumps(dict(split=args.split, rows=len(rows), weights=args.weights, threshold=args.threshold,

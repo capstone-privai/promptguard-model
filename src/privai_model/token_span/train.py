@@ -12,6 +12,9 @@ model as Hugging Face defines it. `bidirectional: true` in the config replaces t
 alone, so every token sees the whole window as in an encoder (see `bidirectional`).
 
 On CUDA the forward pass runs in float16 autocast with a gradient scaler (the trainable weights stay float32).
+Larger Qwen models (7B, 14B) do not fit in float32: `torch_dtype: bfloat16` loads the frozen base in bfloat16 and
+`bf16: true` runs the forward pass in bfloat16 autocast (no scaler); `load_in_4bit: true` loads it in 4-bit NF4
+(QLoRA, needs bitsandbytes). Trainable weights (LoRA, head) are float32 in every case.
 `checkpoint_dir` keeps a resumable checkpoint (trainable weights, optimizer, scheduler, scaler, position in the
 epoch) so a Colab runtime reset loses at most `save_every` steps.
 """
@@ -24,6 +27,8 @@ from pathlib import Path
 import numpy as np
 import torch
 from transformers import AutoConfig, AutoModelForTokenClassification, AutoTokenizer
+
+DTYPES = {'float32': torch.float32, 'bfloat16': torch.bfloat16, 'float16': torch.float16}
 
 from privai_model.io import write_json
 from privai_model.ml_span.bio import LABELS, aggregate, align, windows
@@ -47,6 +52,47 @@ def seed_everything(seed):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+
+def amp_dtype(config, device):
+    """Autocast dtype: bfloat16 with `bf16: true` (CUDA or CPU), float16 with `fp16: true` (CUDA only), else none."""
+    if device.type == 'cpu':
+        return torch.bfloat16 if config.get('bf16') else None
+    if device.type != 'cuda':
+        return None
+    if config.get('bf16'):
+        if torch.cuda.get_device_capability(device)[0] < 8:  # native from Ampere; a T4 only emulates it, slowly
+            raise RuntimeError('bf16 requested but this GPU has no native bfloat16 (T4): use an A100/L4/H100')
+        return torch.bfloat16
+    return torch.float16 if config.get('fp16') else None
+
+
+def base_loading(config):
+    """from_pretrained arguments for the frozen base: dtype, and 4-bit quantization for QLoRA."""
+    dtype = DTYPES[config.get('torch_dtype', 'float32')]
+    if dtype == torch.bfloat16 and config.get('fp16') and not config.get('bf16'):
+        raise ValueError('a bfloat16 base needs bf16: true (float16 autocast would mix the two half types)')
+    if not config.get('load_in_4bit'):
+        return dict(torch_dtype=dtype)
+    if not config.get('lora'):
+        raise ValueError('load_in_4bit needs lora: a 4-bit base cannot be fine-tuned whole')
+    from transformers import BitsAndBytesConfig
+    quant = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type='nf4', bnb_4bit_use_double_quant=True,
+                               bnb_4bit_compute_dtype=torch.bfloat16 if dtype == torch.float32 else dtype)
+    return dict(torch_dtype=dtype, quantization_config=quant, device_map={'': torch.cuda.current_device()})
+
+
+def place(model, device):
+    """Move to the device, except a 4-bit model, which from_pretrained already put on the GPU."""
+    return model if getattr(model, 'is_loaded_in_4bit', False) else model.to(device)
+
+
+def float32_trainable(model):
+    """Keep every trainable weight (LoRA, head) in float32 even when the frozen base is bfloat16 or 4-bit."""
+    for p in model.parameters():
+        if p.requires_grad and p.dtype != torch.float32:
+            p.data = p.data.float()
+    return model
 
 
 def load_tokenizer(config):
@@ -76,22 +122,27 @@ def load_model(config, adapter=None):
     if adapter is not None and not lora:  # a fully fine-tuned model is saved whole
         model = AutoModelForTokenClassification.from_pretrained(adapter, **extra)
         return bidirectional(model) if config.get('bidirectional') else model
-    model = AutoModelForTokenClassification.from_pretrained(config['model_name'], config=cfg, torch_dtype=torch.float32,
+    model = AutoModelForTokenClassification.from_pretrained(config['model_name'], config=cfg, **base_loading(config),
                                                             **kwargs, **extra)
     if config.get('bidirectional'):
         bidirectional(model)
-    if config.get('gradient_checkpointing'):
+    if config.get('load_in_4bit'):
+        from peft import prepare_model_for_kbit_training
+        model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=bool(config.get('gradient_checkpointing')),
+                                                gradient_checkpointing_kwargs={'use_reentrant': False})
+    elif config.get('gradient_checkpointing'):
         model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant': False})
         model.config.use_cache = False
     if lora:
         from peft import LoraConfig, PeftModel, get_peft_model
         if adapter is not None:
-            return PeftModel.from_pretrained(model, adapter)
+            return float32_trainable(PeftModel.from_pretrained(model, adapter))
         model = get_peft_model(model, LoraConfig(task_type='TOKEN_CLS', r=lora['r'], lora_alpha=lora['alpha'],
                                                  lora_dropout=lora['dropout'], target_modules=lora['target_modules'],
                                                  modules_to_save=lora.get('modules_to_save'), bias='none'))
         if config.get('gradient_checkpointing'):
             model.enable_input_require_grads()
+        float32_trainable(model)
     return model
 
 
@@ -159,8 +210,12 @@ def collate(index, ids, labels, pad_id, device):
 
 
 @torch.inference_mode()
-def predict(model, tokenizer, rows, max_length, stride, device, fp16=False, batch_size=16):
-    """{row id: spans with scores, cutoff 0}. Windows of all rows are batched by length, then aggregated per row."""
+def predict(model, tokenizer, rows, max_length, stride, device, amp=None, batch_size=16):
+    """{row id: spans with scores, cutoff 0}. Windows of all rows are batched by length, then aggregated per row.
+    `amp` is the autocast dtype on CUDA (amp_dtype), or None; True means float16, as the old `fp16` flag did."""
+    amp = torch.float16 if amp is True else (amp or None)
+    if amp == torch.float16 and device.type != 'cuda':
+        amp = None  # float16 autocast is CUDA only, as before
     model.eval()
     jobs = []
     for r, row in enumerate(rows):
@@ -179,7 +234,7 @@ def predict(model, tokenizer, rows, max_length, stride, device, fp16=False, batc
             n = len(w['inputs']['input_ids'])
             input_ids[k, :n] = torch.tensor(w['inputs']['input_ids'])
             mask[k, :n] = 1
-        with torch.autocast('cuda', dtype=torch.float16, enabled=fp16 and device.type == 'cuda'):
+        with torch.autocast(device.type, dtype=amp or torch.float16, enabled=amp is not None):
             logits = model(input_ids=input_ids.to(device), attention_mask=mask.to(device)).logits
         p = logits.float().softmax(-1).cpu()
         for k, (_, w) in enumerate(chunk):
@@ -210,6 +265,12 @@ def select_cutoff(rows, predictions):
             best = m
     raw = dict(threshold=0.0, **measures(gold, {k for _, k in scored}))
     return raw, best or raw, len({s for s, _ in scored})
+
+
+def resolved_revision(model):
+    """The Hub commit the base weights came from, so a config with `revision: null` can be pinned afterwards."""
+    base = model.get_base_model() if hasattr(model, 'get_base_model') else model
+    return getattr(base.config, '_commit_hash', None)
 
 
 def trainable_state(model):
@@ -256,18 +317,20 @@ def train(config, resume=False, log=print):
     write_json(out / 'config.json', config)
     seed_everything(config['seed'])
     device = resolve_device(config.get('device', 'auto'))
-    fp16 = bool(config.get('fp16')) and device.type == 'cuda'
+    amp = amp_dtype(config, device)
+    fp16 = amp == torch.float16  # only float16 needs the gradient scaler
     data = Path(config['data_dir'])
     train_rows, val_rows = load(data / 'train.jsonl'), load(data / 'validation.jsonl')
     tokenizer = load_tokenizer(config)
-    model = load_model(config).to(device)
+    model = place(load_model(config), device)
     trainable = [p for p in model.parameters() if p.requires_grad]
     total_params, trainable_params = sum(p.numel() for p in model.parameters()), sum(p.numel() for p in trainable)
     began = time.perf_counter()
     ids, labels = encode(train_rows, tokenizer, config['max_length'], config['stride'])
     lengths = [len(x) for x in ids]
     log(json.dumps(dict(event='encoded', windows=len(ids), tokens=int(sum(lengths)), seconds=round(time.perf_counter() - began, 1),
-                        total_parameters=total_params, trainable_parameters=trainable_params, device=str(device), fp16=fp16)))
+                        total_parameters=total_params, trainable_parameters=trainable_params, device=str(device),
+                        amp=str(amp).replace('torch.', '') if amp else None)))
     steps_per_epoch = math.ceil(len(ids) / config['batch_size'])
     optimizer = torch.optim.AdamW(trainable, lr=config['learning_rate'], weight_decay=config.get('weight_decay', 0.0))
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, schedule(config, steps_per_epoch * config['epochs']))
@@ -292,7 +355,9 @@ def train(config, resume=False, log=print):
         log(json.dumps(dict(event='resumed', epoch=state['epoch'], batch=state['batch'], step=state['step'])))
     write_json(out / 'run.json', dict(total_parameters=total_params, trainable_parameters=trainable_params, windows=len(ids),
                                       tokens=int(sum(lengths)), steps_per_epoch=steps_per_epoch, device=str(device), fp16=fp16,
-                                      torch=torch.__version__))
+                                      amp=str(amp).replace('torch.', '') if amp else None, torch=torch.__version__,
+                                      gpu=torch.cuda.get_device_name() if device.type == 'cuda' else None,
+                                      revision_resolved=resolved_revision(model)))
     best, stale = -1.0, 0  # early-stopping state, replayed from the history after a resume
     for h in state['history']:
         if (h['selected']['f2'] or 0) > best:
@@ -311,7 +376,7 @@ def train(config, resume=False, log=print):
             if not bool((target != -100).any()):
                 state['batch'] = b + 1
                 continue
-            with torch.autocast('cuda', dtype=torch.float16, enabled=fp16):
+            with torch.autocast(device.type, dtype=amp or torch.float16, enabled=amp is not None):
                 logits = model(input_ids=input_ids, attention_mask=mask).logits
             loss = loss_fn(logits.float().reshape(-1, 3), target.reshape(-1))
             if not torch.isfinite(loss):
@@ -340,7 +405,7 @@ def train(config, resume=False, log=print):
             if due:
                 save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state)
                 last_save = time.perf_counter()
-        predictions = predict(model, tokenizer, val_rows, config['max_length'], config['stride'], device, fp16,
+        predictions = predict(model, tokenizer, val_rows, config['max_length'], config['stride'], device, amp,
                               config.get('eval_batch_size', 16))
         raw, selected, cutoffs = select_cutoff(val_rows, predictions)
         entry = dict(epoch=epoch + 1, loss=state['loss_sum'] / max(1, state['loss_batches']), raw=raw, selected=selected,
