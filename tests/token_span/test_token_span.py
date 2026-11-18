@@ -108,3 +108,124 @@ def test_group_split_keeps_large_groups_in_train_and_fills_test_and_validation()
     for name in ('test', 'validation'):
         held = sum(n for g, n in gold.items() if split[g] == name)
         assert prep.SHARE * total <= held < prep.SHARE * total + 20
+
+
+# The size series (mmBERT-base; Qwen 1.5B, 7B, 14B) and the bfloat16 / 4-bit loading the larger Qwen models need.
+
+PRECISION = {'torch_dtype', 'bf16', 'fp16'}
+
+
+@pytest.mark.parametrize('name, precision', [('qwen1.5b-bidir', False), ('qwen7b-bidir', True), ('qwen14b-bidir', True)])
+def test_qwen_size_series_differs_from_the_05b_run_only_in_size_and_precision(name, precision):
+    a, b = config('qwen-bidir'), config(name)
+    differ = {k for k in set(a) | set(b) if a.get(k) != b.get(k)}
+    assert differ == {'model_name', 'revision', 'output_dir'} | (PRECISION if precision else set())
+    assert b['model_name'].startswith('Qwen/Qwen2.5-Coder-') and b['bidirectional'] is True
+    if precision:
+        assert b['torch_dtype'] == 'bfloat16' and b['bf16'] is True and not b.get('fp16')
+
+
+def test_mmbert_base_differs_from_mmbert_small_only_in_the_model():
+    a, b = config('mmbert'), config('mmbert-base')
+    assert {k for k in set(a) | set(b) if a.get(k) != b.get(k)} == {'model_name', 'revision', 'output_dir'}
+    assert b['model_name'] == 'jhu-clsp/mmBERT-base'
+
+
+def test_base_loading_rejects_unsupported_combinations():
+    from privai_model.token_span.train import base_loading
+    assert base_loading({}) == dict(torch_dtype=torch.float32)
+    assert base_loading({'torch_dtype': 'bfloat16', 'bf16': True}) == dict(torch_dtype=torch.bfloat16)
+    with pytest.raises(ValueError, match='lora'):
+        base_loading({'load_in_4bit': True})
+    with pytest.raises(ValueError, match='bf16'):
+        base_loading({'torch_dtype': 'bfloat16', 'fp16': True})
+
+
+def test_amp_dtype_keeps_float16_on_cuda_only():
+    from privai_model.token_span.train import amp_dtype
+    cpu = torch.device('cpu')
+    assert amp_dtype({'fp16': True}, cpu) is None
+    assert amp_dtype({'bf16': True}, cpu) == torch.bfloat16
+    assert amp_dtype({}, cpu) is None
+
+
+def tiny_checkpoint(tmp_path):
+    """A tiny Qwen2 token classifier and a fast tokenizer saved like a Hub model, so load_model and train run offline."""
+    from tokenizers import Tokenizer, models, pre_tokenizers
+    from transformers import PreTrainedTokenizerFast
+    words = ['<pad>', '<unk>', 'password', '=', 'token', 'user', 'name', 'value', 'run', 'ok', 'Zx81Qv', 'Kp42Lm']
+    backend = Tokenizer(models.WordLevel({w: i for i, w in enumerate(words)}, unk_token='<unk>'))
+    backend.pre_tokenizer = pre_tokenizers.Whitespace()
+    tokenizer = PreTrainedTokenizerFast(tokenizer_object=backend, pad_token='<pad>', unk_token='<unk>')
+    path = tmp_path / 'tiny-qwen'
+    model = tiny_qwen()
+    model.config.vocab_size = len(words)
+    model.resize_token_embeddings(len(words))
+    model.save_pretrained(path)
+    tokenizer.save_pretrained(path)
+    return path
+
+
+def span_rows(n, prefix):
+    rows = []
+    for i in range(n):
+        secret = 'Zx81Qv' if i % 2 else 'Kp42Lm'
+        text = f'user name = value run ok password = {secret}' if i % 3 else 'user name = value run ok'
+        spans = [dict(start=text.index(secret), end=len(text), secret_type='SECRET')] if secret in text else []
+        rows.append(dict(schema_version='secret-span-v1', synthetic=True, id=f'{prefix}{i}', text=text, spans=spans,
+                         value_spans=spans, source='tool_output', language='en', family_id=f'f{i}', template_id='t',
+                         origin='o', value_family='v', kind='positive' if spans else 'hard_negative'))
+    return rows
+
+
+def lora_config(path, **extra):
+    return dict(model_name=str(path), revision=None, local_files_only=True, bidirectional=True,
+                attn_implementation='sdpa', lora=dict(r=4, alpha=8, dropout=0.0, target_modules=['q_proj', 'v_proj'],
+                                                      modules_to_save=['score']), **extra)
+
+
+def test_bfloat16_base_keeps_trainable_weights_float32_and_stays_bidirectional(tmp_path):
+    pytest.importorskip('peft')
+    from privai_model.token_span.train import load_model
+    model = load_model(lora_config(tiny_checkpoint(tmp_path), torch_dtype='bfloat16', bf16=True))
+    trainable = {p.dtype for p in model.parameters() if p.requires_grad}
+    frozen = {p.dtype for p in model.parameters() if not p.requires_grad}
+    assert trainable == {torch.float32} and frozen == {torch.bfloat16}
+    model.eval()
+    with torch.autocast('cpu', dtype=torch.bfloat16):
+        first = logits(model, [[2, 3, 10]])[0, 0]
+        changed = logits(model, [[2, 3, 11]])[0, 0]
+    assert not torch.allclose(first.float(), changed.float())
+
+
+def test_train_runs_end_to_end_with_a_bfloat16_base(tmp_path):
+    pytest.importorskip('peft')
+    import json
+    from privai_model.io import write_jsonl
+    from privai_model.token_span.train import train
+    data = tmp_path / 'data'
+    data.mkdir()
+    write_jsonl(data / 'train.jsonl', span_rows(12, 't'))
+    write_jsonl(data / 'validation.jsonl', span_rows(6, 'v'))
+    config = lora_config(tiny_checkpoint(tmp_path), torch_dtype='bfloat16', bf16=True, data_dir=str(data),
+                         output_dir=str(tmp_path / 'out'), device='cpu', seed=1, epochs=1, patience=1, batch_size=4,
+                         learning_rate=1e-3, class_weights=[1.0, 2.0, 2.0], max_length=16, stride=4,
+                         eval_batch_size=8, log_every=1000)
+    selection = train(config, log=lambda _: None)
+    assert selection['selected']['epoch'] == 1
+    run = json.loads((tmp_path / 'out' / 'run.json').read_text())
+    assert run['amp'] == 'bfloat16' and 'revision_resolved' in run
+
+
+def test_bidirectional_also_covers_qwen3_dense_models():
+    """Qwen3 (dense, full attention in every layer) takes the same padding-only mask; Qwen3.5 / Qwen3-Next do not
+    (3 of 4 layers are linear attention, which the mask cannot make bidirectional)."""
+    from transformers import Qwen3Config, Qwen3ForTokenClassification
+    torch.manual_seed(0)
+    cfg = Qwen3Config(vocab_size=40, hidden_size=32, intermediate_size=64, num_hidden_layers=2, num_attention_heads=4,
+                      num_key_value_heads=2, head_dim=8, max_position_embeddings=64, num_labels=3,
+                      attn_implementation='sdpa')
+    causal = Qwen3ForTokenClassification(cfg).eval()
+    assert torch.allclose(logits(causal, [[5, 6, 7, 8]])[0, 0], logits(causal, [[5, 6, 7, 9]])[0, 0])
+    both = bidirectional(Qwen3ForTokenClassification(cfg).eval())
+    assert not torch.allclose(logits(both, [[5, 6, 7, 8]])[0, 0], logits(both, [[5, 6, 7, 9]])[0, 0])

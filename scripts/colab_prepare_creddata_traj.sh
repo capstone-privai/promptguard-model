@@ -1,16 +1,17 @@
 #!/bin/bash
-# Build runs/data/span-creddata-traj-v1 on Colab from CredData-trajectory.zip on Drive (the data is not in Git).
+# Build runs/data/span-creddata-traj-v1 from CredData-trajectory.zip (the data is not in Git): on Colab from Drive,
+# on a local PC from CREDDATA_TRAJ_ZIP (unzipped into UNZIP_DIR, default runs/creddata-traj-src).
 # The files must match the sha256 the local build used, and the split's fingerprint must match the local one.
 set -euo pipefail
 ZIP=${CREDDATA_TRAJ_ZIP:-/content/drive/MyDrive/promptguard-runs/CredData-trajectory.zip}
 OUT=runs/data/span-creddata-traj-v1
 [ -d "$OUT" ] && { echo "$OUT exists"; exit 0; }
-if [ ! -f "$ZIP" ]; then  # uploaded somewhere else in My Drive: take it from there (the sha256 check below still applies)
+if [ ! -f "$ZIP" ] && [ -d /content/drive/MyDrive ]; then  # elsewhere in My Drive: take it from there (sha256 still checked)
   ZIP=$(find /content/drive/MyDrive -maxdepth 4 -name 'CredData-trajectory*.zip' 2>/dev/null | head -1)
 fi
-test -n "$ZIP" && test -f "$ZIP" || { echo "CredData-trajectory.zip not found in My Drive; upload it to promptguard-runs" >&2; exit 1; }
+test -n "$ZIP" && test -f "$ZIP" || { echo "CredData-trajectory.zip not found: upload it to Drive promptguard-runs, or set CREDDATA_TRAJ_ZIP" >&2; exit 1; }
 echo "data zip: $ZIP"
-SRC=/content/creddata-traj
+if [ -d /content ]; then SRC=${UNZIP_DIR:-/content/creddata-traj}; else SRC=${UNZIP_DIR:-runs/creddata-traj-src}; fi
 rm -rf "$SRC" && mkdir -p "$SRC" && unzip -q "$ZIP" -d "$SRC" -x '__MACOSX/*'
 python - "$SRC/CredData-trajectory" <<'EOF'
 import hashlib, sys
