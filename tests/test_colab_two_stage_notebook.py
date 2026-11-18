@@ -41,3 +41,12 @@ def test_gpu_required_bf16_steps_gated_and_scripts_reused():
                     'scripts/colab_verifier.sh system mmbert-small', 'scripts/colab_token_span.sh {step}'):
         assert command in source
     assert all((ROOT / p).exists() for p in ('scripts/colab_verifier.sh', 'scripts/colab_token_span.sh'))
+
+
+def test_gitleaks_has_the_commands_the_detector_adapter_runs():
+    # The adapter runs `gitleaks stdin ... --max-decode-depth 0`: stdin arrived in 8.19.0 and decoding in 8.20.0.
+    # With 8.18.4 every scan failed (ADAPTER_FAILURE:gitleaks) and candidate preparation stopped.
+    source = '\n'.join(CODE)
+    version = next(line.split(' = ', 1)[1].strip("'") for line in source.splitlines() if line.startswith('GITLEAKS = '))
+    assert tuple(map(int, version.split('.'))) >= (8, 20, 0)
+    assert 'gitleaks stdin --help 2>/dev/null | grep -- --max-decode-depth' in source  # an older one is replaced

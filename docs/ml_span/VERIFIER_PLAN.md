@@ -25,6 +25,8 @@ span 모델의 크기 비교는 별도 문서([TOKEN_SPAN_SIZE_SERIES.md](TOKEN_
 - 탐지기는 후보마다 strength를 이미 붙여 줍니다(`promptguard-claude-demoV0`의 `ensemble.py`).
   - **strong**: 다수결을 통과했거나 강한 규칙이 잡은 후보
   - **ambiguous**: 그렇지 않은 후보. 검증기는 이것만 봅니다.
+  - 탐지기 기본 설정(`candidate_policy: "union"`)은 모든 후보를 가리므로 모든 후보를 strong으로 표시합니다. 그러면 ambiguous가 0개라 검증기가 학습할 것이 없습니다.
+  - 그래서 `prepare_verifier_candidates.py`는 `PG_DETECTOR_CANDIDATE_POLICY=majority`로 strength를 위 정의대로 읽습니다. 후보 자체는 정책과 관계없이 같고(어느 adapter든 찾은 span), 쓴 값은 후보 `manifest.json`의 `env`에 남습니다.
 - 모델의 역할은 둘입니다.
 
 | 역할 | 하는 일 | 모델 | 바로잡는 것 |
@@ -105,6 +107,8 @@ python scripts/train.py --config configs/verifier-creddata-mmbert-small.yaml
 
 - gitleaks 실행 파일이 PATH에 없으면 gitleaks는 건너뜁니다. 건너뛴 adapter는 `manifest.json`에 남습니다.
   - 배포 설정과 맞추려면 gitleaks를 설치합니다.
+  - 8.20.0 이상이어야 합니다. 탐지기가 `gitleaks stdin --max-decode-depth`를 씁니다. 8.18.4로는 후보 만들기가 `ADAPTER_FAILURE:gitleaks`로 멈춥니다.
+  - Colab 노트북은 8.30.1을 받습니다. Windows는 GitHub release의 `gitleaks_8.30.1_windows_x64.zip`에서 `gitleaks.exe`를 꺼내 PATH에 둡니다.
   - Colab과 로컬에서 만든 후보를 비교하려면 adapter 구성이 같아야 합니다.
 - **RTX 4060 (8GB)**: 검증기는 이 GPU로 충분할 것으로 봅니다(추정).
   - 후보 만들기는 탐지기만 돌리므로 CPU로 됩니다.

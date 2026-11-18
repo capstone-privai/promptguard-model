@@ -5,7 +5,13 @@
 
 The detector runs as configured in its checkout (src/detector/detector.json, with PG_DETECTOR_ENABLE / _DISABLE
 honoured), so the candidates are the ones PromptGuard would produce. CredSweeper must be installed (the detector
-requires it); gitleaks is used when its binary is on PATH and skipped otherwise. The adapters that ran are recorded.
+requires it); gitleaks (8.20.0 or later: the adapter runs `gitleaks stdin --max-decode-depth`) is used when its binary
+is on PATH and skipped otherwise. The adapters that ran are recorded.
+
+Strength is read with PG_DETECTOR_CANDIDATE_POLICY=majority unless the environment sets it: strong when the majority
+vote kept the span or a rule gave strong evidence, ambiguous otherwise. detector.json's "union" protects every
+candidate, which marks all of them strong and leaves the verifier nothing to train on. The candidates themselves do
+not depend on this policy (every span any adapter finds is one), so masking all of them is still today's union.
 
 Writes, under --out (values and context: never commit):
   all/candidates.jsonl.gz, all/split_manifest.json              every candidate, strong and ambiguous
@@ -59,6 +65,7 @@ def main():
         raise FileExistsError(out)
     sys.path.insert(0, str(detector_root / 'src' / 'detector'))
     os.environ.setdefault('PG_DETECTOR_MODE', 'normal')
+    os.environ.setdefault('PG_DETECTOR_CANDIDATE_POLICY', 'majority')  # strength as the verifier plan defines it
     from pgdetector import load_detector
     detector = load_detector()
     described = detector.describe()
@@ -95,6 +102,9 @@ def main():
                               sorted(Counter((r['source']['split'], r['detector']['strength']) for r in records).items())},
         notice='Values and context of realistic fake (and possibly real) credentials: keep under runs/, never commit.'))
     print(json.dumps(dict(counts=counts), ensure_ascii=False))
+    if not counts['ambiguous']['train']['records']:
+        print(f"warning: no ambiguous candidates in train (candidate_policy {described['candidate_policy']}): the "
+              f"verifier configs train on ambiguous/ and will have nothing to learn from", file=sys.stderr)
 
 
 if __name__ == '__main__':
