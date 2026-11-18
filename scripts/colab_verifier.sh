@@ -2,13 +2,19 @@
 # Back-end verifier on CredData-trajectory v1 (Colab, or a local PC with bash):
 #
 #   bash scripts/colab_verifier.sh prepare               # detector candidates + false-positive analysis (CPU is fine)
-#   bash scripts/colab_verifier.sh train MODEL           # MODEL: mmbert-small | mmbert-base (configs/verifier-creddata-MODEL.yaml)
+#   bash scripts/colab_verifier.sh train MODEL           # MODEL: configs/verifier-creddata-MODEL.yaml
+#                                                        #   mmbert-small, mmbert-base     local stage, full fine-tune (T4)
+#                                                        #   qwen1.5b-bidir                server stage, LoRA (T4)
+#                                                        #   qwen7b-bidir                  server stage, LoRA, bfloat16 (L4 or A100)
+#                                                        #   qwen14b-bidir                 server stage, LoRA, bfloat16 (A100 40 GB+)
 #   bash scripts/colab_verifier.sh system MODEL          # validation: union vs strong-only vs strong+verifier
 #   bash scripts/colab_verifier.sh test MODEL            # once, after the run is frozen: candidate and system level
 #
 # DRIVE_DIR (default /content/drive/MyDrive/promptguard-runs) keeps results; DETECTOR_DIR (default
 # ../promptguard-claude-demoV0) is the PromptGuard checkout whose detector makes the candidates (cloned if missing).
 # The candidate data holds values: it stays under runs/ and in DRIVE_DIR, like the source zip, and is never committed.
+# mmBERT trains in LOCAL_RUNS and is copied to DRIVE_DIR at the end. Qwen writes to DRIVE_DIR as it goes (LoRA adapter,
+# a resumable checkpoint every 30 minutes) and the same train command resumes it after a runtime reset.
 set -euo pipefail
 cmd=${1:?usage: $0 prepare | train MODEL | system MODEL | test MODEL}
 m=${2:-}
@@ -37,14 +43,30 @@ case $cmd in
   train)
     test -f "configs/verifier-creddata-$m.yaml" || { echo "no configs/verifier-creddata-$m.yaml" >&2; exit 2; }
     test -d "$DATA" || { echo "run: bash $0 prepare" >&2; exit 2; }
-    python -c "import torch; print('GPU' if torch.cuda.is_available() else 'no GPU: training on CPU (slow)')"
-    LOCAL=$LOCAL_ROOT/verifier/creddata-$m
     OUT=$DRIVE/verifier-creddata-$m
-    [ -e "$OUT" ] && { echo "$OUT exists: the trainer never overwrites a run" >&2; exit 2; }
-    rm -rf "$LOCAL"
-    python scripts/train.py --config "configs/verifier-creddata-$m.yaml" --set output_dir="$(realpath -m "$LOCAL")" 2>&1 \
-      | grep --line-buffered -v -i warn | tee "$DRIVE/verifier-creddata-$m.log"
-    cp -r "$LOCAL" "$OUT"
+    case $m in
+      qwen*)
+        python -c "import torch, sys; sys.exit(0 if torch.cuda.is_available() else 'no GPU: stop here, do not train on CPU')"
+        # The marker rows are trained with PEFT trainable tokens (peft 0.15 or later).
+        python -c "import peft, sys; sys.exit(tuple(map(int, peft.__version__.split('.')[:2])) < (0, 15))" 2>/dev/null \
+          || pip install -q "peft>=0.15,<1"
+        if [ -d /content ]; then pip uninstall -q -y torchao 2>/dev/null || true; fi  # peft rejects Colab's torchao
+        [ -f "$OUT/model/bundle.json" ] && { echo "$OUT is finished"; exit 0; }
+        resume=(); [ -d "$OUT" ] && resume=(--resume)  # starts fresh if no checkpoint was saved yet
+        PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True python scripts/train.py --config "configs/verifier-creddata-$m.yaml" \
+          --set output_dir="$OUT" "${resume[@]}" 2>&1 | grep --line-buffered -v -i warn | tee -a "$OUT.log"
+        test -f "$OUT/model/bundle.json"
+        ;;
+      *)
+        python -c "import torch; print('GPU' if torch.cuda.is_available() else 'no GPU: training on CPU (slow)')"
+        LOCAL=$LOCAL_ROOT/verifier/creddata-$m
+        [ -e "$OUT" ] && { echo "$OUT exists: the trainer never overwrites a run" >&2; exit 2; }
+        rm -rf "$LOCAL"
+        python scripts/train.py --config "configs/verifier-creddata-$m.yaml" --set output_dir="$(realpath -m "$LOCAL")" 2>&1 \
+          | grep --line-buffered -v -i warn | tee "$DRIVE/verifier-creddata-$m.log"
+        cp -r "$LOCAL" "$OUT"
+        ;;
+    esac
     ;;
   system)
     OUT=$DRIVE/verifier-creddata-$m

@@ -20,6 +20,7 @@ class ModelBundle:
     window_size: int
     model_version: str
     threshold: float
+    amp: object = None  # autocast dtype for a half-precision base (the LoRA verifier); None runs as stored
 
 
 def load_model(path, device='auto', recall_target=None):
@@ -28,6 +29,9 @@ def load_model(path, device='auto', recall_target=None):
     target = str(recall_target if recall_target is not None else metadata['deployment_recall_target'])
     threshold = metadata['thresholds'][target]
     dev = resolve_device(device)
+    if metadata.get('adapter') == 'lora':
+        from privai_model.verifier.lora import load_bundle
+        return load_bundle(path, dev, metadata['window_size'], metadata['model_version'], threshold)
     tokenizer = AutoTokenizer.from_pretrained(path, local_files_only=True)
     model = load_checkpoint(path)
     saved_spec = metadata.get('feature_spec')
@@ -63,7 +67,9 @@ def predict_examples(bundle, examples, batch_size=8, threshold=None):
             if spec is not None:
                 batch['character_features'] = torch.tensor([extract_features(e.value, spec) for e in chunk],
                                                            dtype=torch.float32, device=bundle.device)
-            scores = bundle.model(**batch).logits.softmax(-1)[:, 1].cpu().tolist()
+            with torch.autocast(bundle.device.type, dtype=bundle.amp or torch.float16, enabled=bundle.amp is not None):
+                logits = bundle.model(**batch).logits
+            scores = logits.float().softmax(-1)[:, 1].cpu().tolist()
             synchronize(bundle.device)
             latency = (time.perf_counter()-begin)*1000/len(chunk)
             for ex, score in zip(chunk, scores):

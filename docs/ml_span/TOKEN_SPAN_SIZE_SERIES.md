@@ -48,7 +48,7 @@ CredData-trajectory v1에서 학습한 실험([결과](TOKEN_SPAN_CREDDATA_TRAJ.
 
 ### Colab: Qwen 크기 비교
 
-**한 번에 실행**: [`notebooks/colab_two_stage.ipynb`](https://colab.research.google.com/github/capstone-privai/promptguard-model/blob/main/notebooks/colab_two_stage.ipynb)를 Colab으로 열고 **런타임 → 모두 실행**을 누르면 검증기, mmBERT-base, Qwen 1.5B / 7B / 14B를 차례로 학습합니다. 이 GPU로 못 하는 단계는 건너뛰고, 끝난 단계는 다시 실행해도 건너뜁니다. 아래 명령은 단계를 하나씩 돌릴 때 씁니다.
+**한 번에 실행**: [`notebooks/colab_two_stage.ipynb`](https://colab.research.google.com/github/capstone-privai/promptguard-model/blob/main/notebooks/colab_two_stage.ipynb)를 Colab으로 열고 **런타임 → 모두 실행**을 누르면 로컬 검증기, mmBERT-base, span 모델 Qwen 1.5B / 7B / 14B와 같은 크기의 서버 검증기를 차례로 학습합니다. 이 GPU로 못 하는 단계는 건너뛰고, 끝난 단계는 다시 실행해도 건너뜁니다. 아래 명령은 단계를 하나씩 돌릴 때 씁니다.
 
 Drive를 mount하고 `CredData-trajectory.zip`을 Drive의 `promptguard-runs/`에 올린 뒤 실행합니다. 7B와 14B는 L4/A100이 필요하므로 Colab Pro가 있어야 합니다.
 
