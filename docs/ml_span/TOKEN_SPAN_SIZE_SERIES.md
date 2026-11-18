@@ -1,6 +1,6 @@
 # span 모델 크기 비교: mmBERT-base, 양방향 Qwen 1.5B / 7B / 14B
 
-팀이 정한 두 단계 구조를 위해 span 모델(토큰 분류)의 크기 비교를 준비한 문서입니다. 아직 학습 결과는 없습니다. 아래 숫자 중 시간과 메모리는 추정입니다.
+팀이 정한 두 단계 구조를 위해 span 모델(토큰 분류)의 크기 비교를 준비한 문서입니다. mmBERT-base 결과는 [TOKEN_SPAN_CREDDATA_TRAJ.md](TOKEN_SPAN_CREDDATA_TRAJ.md#크기-비교-mmbert-base-validation만)에 있고, Qwen 1.5B / 7B / 14B는 아직 학습하지 않았습니다. 측정값이라고 적지 않은 시간과 메모리는 추정입니다.
 
 - **개인**: 로컬 모델만 씁니다. → mmBERT-small과 mmBERT-base를 비교합니다.
 - **기업**: 로컬 모델에, 회사 안의 GPU 서버(온프레미스)에 올린 큰 모델을 선택으로 더합니다. → Qwen을 0.5B에서 14B까지 키워 비교합니다.
@@ -14,7 +14,7 @@ CredData-trajectory v1에서 학습한 실험([결과](TOKEN_SPAN_CREDDATA_TRAJ.
 | 이름 (`colab_token_span.sh`) | 모델 | 단계 | 학습 | 필요한 GPU | 비고 |
 |---|---|---|---|---|---|
 | `mmbert` (기존) | mmBERT-small (140M) | 로컬 | 전체 | T4 | F2 0.773 |
-| `mmbert-base` | mmBERT-base (307M) | 로컬 | 전체 | T4 | mmBERT-large는 없음 |
+| `mmbert-base` | mmBERT-base (307M) | 로컬 | 전체 | T4 | validation F2 0.832 (small은 0.821). mmBERT-large는 없음 |
 | `qwen-bidir` (기존) | Qwen2.5-Coder-0.5B | 로컬/서버 | LoRA | T4 | F2 0.776 |
 | `qwen1.5b-bidir` | Qwen2.5-Coder-1.5B | 서버 | LoRA | T4 | 0.5B와 정밀도도 같음 |
 | `qwen7b-bidir` | Qwen2.5-Coder-7B | 서버 | LoRA | L4 24GB 또는 A100 | 기본 모델 bfloat16 |
@@ -29,6 +29,7 @@ CredData-trajectory v1에서 학습한 실험([결과](TOKEN_SPAN_CREDDATA_TRAJ.
   - 어느 경우든 학습하는 가중치(LoRA, 헤드)는 float32입니다.
   - 기존 설정(float32 + float16 autocast)의 동작은 그대로입니다.
 - **revision**: 새 모델들은 Hub commit을 아직 고정하지 않았습니다. 실제로 받은 commit이 `run.json`의 `revision_resolved`에 남습니다. 첫 실행 뒤 설정에 고정합니다.
+  - mmBERT-base는 첫 실행에서 받은 `c5955035`로 고정했습니다.
 - **실행 스크립트** (`scripts/colab_token_span.sh`)
   - 설정 이름이면 무엇이든 받습니다. `--set`으로 설정을 덮어쓸 수 있습니다.
   - `DRIVE_DIR`, `LOCAL_RUNS`, `CREDDATA_TRAJ_ZIP`을 정하면 bash가 있는 로컬 PC에서도 돌아갑니다.
@@ -69,11 +70,11 @@ python scripts/prepare_creddata_traj.py --src "<CredData-trajectory 폴더>"   #
 python scripts/token_span.py train --config configs/token-span-creddata-mmbert-base.yaml
 ```
 
-**RTX 4060 (8GB)에서** (메모리 판단은 추정입니다)
+**RTX 4060 (8GB)에서** (mmBERT-base는 측정값, 나머지는 추정입니다)
 
 | 작업 | 4060에서 | 이유 |
 |---|---|---|
-| mmBERT-base | 될 가능성이 높음, 빠듯함 | 전체 학습이라 가중치·기울기·optimizer만 약 5GB |
+| mmBERT-base | 됨 | gradient checkpointing 없이 batch 4로 돌았습니다. GPU 메모리 약 7.4GB, epoch당 약 50분 |
 | Qwen 1.5B | Colab으로 | float32로는 가중치만 약 6GB. bfloat16으로 줄이면 0.5B와 조건이 달라짐 |
 | Qwen 7B, 14B | Colab으로 | 8GB에 들어가지 않음 |
 

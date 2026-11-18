@@ -2,7 +2,7 @@
 # fine-tune): the larger mmBERT, for the 1st-stage (local) comparison with mmBERT-small. There is no mmBERT-large.
 # Everything else is configs/token-span-creddata-mmbert.yaml (mmBERT-small), so the two runs differ in model size.
 model_name: jhu-clsp/mmBERT-base
-revision: null  # resolved commit is written to run.json; pin it here after the first run
+revision: c5955035435e2bf121cde7f3c8863ef52ff35d82  # resolved by the first run (RTX 4060, 2026-11-18)
 local_files_only: false
 data_dir: runs/data/span-creddata-traj-v1
 output_dir: runs/token-span/creddata-mmbert-base

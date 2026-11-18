@@ -1,6 +1,6 @@
 # 뒷단 검증기: 탐지기의 저신뢰 후보를 다시 판정
 
-팀이 정한 두 단계 구조에서, 규칙 탐지기가 확신하지 못한 후보를 ML로 다시 판정하는 부분을 준비한 문서입니다. 아직 학습 결과는 없습니다.
+팀이 정한 두 단계 구조에서, 규칙 탐지기가 확신하지 못한 후보를 ML로 다시 판정하는 부분을 준비한 문서입니다. 로컬 PC(RTX 4060)에서 mmBERT-small로 돌린 결과는 [VERIFIER_CREDDATA_TRAJ.md](VERIFIER_CREDDATA_TRAJ.md)에 있습니다.
 
 - **개인**: 로컬 모델만 씁니다.
 - **기업**: 로컬 모델에, 회사 안의 GPU 서버(온프레미스)에 올린 큰 모델을 선택으로 더합니다.
@@ -106,10 +106,10 @@ python scripts/train.py --config configs/verifier-creddata-mmbert-small.yaml
 - gitleaks 실행 파일이 PATH에 없으면 gitleaks는 건너뜁니다. 건너뛴 adapter는 `manifest.json`에 남습니다.
   - 배포 설정과 맞추려면 gitleaks를 설치합니다.
   - Colab과 로컬에서 만든 후보를 비교하려면 adapter 구성이 같아야 합니다.
-- **RTX 4060 (8GB)**: 검증기는 이 GPU로 충분할 것으로 봅니다(추정).
-  - 후보 만들기는 탐지기만 돌리므로 CPU로 됩니다.
-  - 학습은 입력이 256토큰이고 모델이 작습니다(mmBERT-small, base).
-- **결과**는 새 문서 `VERIFIER_CREDDATA_TRAJ.md`에 따로 PR로 올립니다.
+- **RTX 4060 (8GB)**: 검증기는 이 GPU로 충분했습니다.
+  - 후보 만들기는 탐지기만 돌리므로 CPU로 됩니다. train과 validation에 약 3분 걸렸습니다.
+  - mmBERT-small 학습은 3 epoch에 약 6분 걸렸습니다.
+- **결과**: [VERIFIER_CREDDATA_TRAJ.md](VERIFIER_CREDDATA_TRAJ.md)
 
 ## 주의
 
