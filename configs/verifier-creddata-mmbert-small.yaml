@@ -21,7 +21,7 @@ weight_decay: 0.01
 device: auto
 attention_implementation: eager
 local_files_only: false
-deterministic: true
+deterministic: false  # CUDA NLLLoss (cross entropy) has no deterministic kernel: deterministic mode stops GPU training. Seeds stay fixed.
 class_weights: null
 sampling: none
 character_features: false
