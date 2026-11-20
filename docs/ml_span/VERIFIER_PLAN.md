@@ -64,6 +64,11 @@ span 모델의 크기 비교는 별도 문서([TOKEN_SPAN_SIZE_SERIES.md](TOKEN_
    - 전부 가림: 지금의 union 정책
    - strong만 가림
    - strong + 검증기가 통과시킨 ambiguous
+7. **실행 모듈**(`src/privai_model/verifier/runtime.py`): 탐지기에 붙이는 쪽입니다.
+   - `CandidateVerifier(bundle).score(text, source, candidates)`가 탐지기 후보마다 P(MASK)를 돌려줍니다. 원문은 돌려주지 않습니다.
+   - 입력은 학습 레코드와 같은 함수(`candidate_records`)로 만듭니다. 그래서 학습 때와 실행 때 모델 입력이 같습니다(`tests/verifier/test_runtime.py`).
+   - mmBERT 번들과 Qwen LoRA 번들을 모두 읽습니다. 기준값은 번들의 배포 기준(recall 0.99)입니다.
+   - 탐지기 쪽은 `promptguard-claude-demoV0`의 `candidate_policy: "verifier"`(`--policy verifier`)입니다. strong 후보와 검증기가 통과시킨 ambiguous 후보를 가리고, 검증기가 실패하면 모두 가린 뒤 요청을 막습니다.
 
 **확인한 것**
 - 합성 샘플 데이터와 작은 임시 모델로 위 흐름을 처음부터 끝까지 돌려 봤습니다: 후보 만들기, 학습, 시스템 평가, test 1회 채점. 숫자에는 의미가 없습니다.
