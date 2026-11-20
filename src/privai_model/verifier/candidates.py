@@ -66,30 +66,40 @@ def evidence_summary(candidate):
     return families, (max(scores) if scores else None)
 
 
-def records_for_row(row, split, candidates, context_lines=3, dataset='creddata-traj-v1'):
-    """candidate-v1 records for one span row from its detector candidates (UTF-16 offsets)."""
-    text = row['text']
+def candidate_records(text, candidates, *, row_id, group_id, channel, split=None, dataset=None, context_lines=3):
+    """Unlabelled candidate-v1 records for the detector candidates (UTF-16 offsets) of one text.
+
+    Training (records_for_row) and the run-time verifier (verifier.runtime) both build their records here, so the
+    model sees at run time the input it was trained on."""
     to_cp = code_points(text)
-    gold = [(s['start'], s['end']) for s in row['spans']]
     output = []
     for c in candidates:
         start, end = to_cp(c['start']), to_cp(c['end'])
         line_start, line_end, before, after = lines_around(text, start, end, context_lines)
-        relation = match(start, end, gold)
         families, score = evidence_summary(c)
         output.append({
-            'schema_version': 'candidate-v1', 'candidate_id': f"{row['id']}:{start}:{end}", 'group_id': row['family_id'],
+            'schema_version': 'candidate-v1', 'candidate_id': f'{row_id}:{start}:{end}', 'group_id': group_id,
             'granularity': 'value', 'value': text[start:end],
             'line': {'text': text[line_start:line_end], 'value_start': start - line_start, 'value_end': end - line_start},
             'context': {'before': before, 'after': after}, 'type': c['type'],
-            'source': {'dataset': dataset, 'channel': row['source'], 'file_path': None, 'row_id': row['id'], 'split': split,
+            'source': {'dataset': dataset, 'channel': channel, 'file_path': None, 'row_id': row_id, 'split': split,
                        'start': start, 'end': end},
             'detector': {'name': '+'.join(c['detectors']), 'rule_id': c['rule_id'], 'raw_type': c['type'],
                          'score': score, 'strength': c['strength'], 'legacy_protected': c['legacy_protected'],
                          'evidence': families},
-            'label': {'action': 'KEEP' if relation == 'none' else 'MASK', 'provisional': False,
-                      'reason': f'gold overlap: {relation}'},
         })
+    return output
+
+
+def records_for_row(row, split, candidates, context_lines=3, dataset='creddata-traj-v1'):
+    """candidate-v1 records for one span row from its detector candidates (UTF-16 offsets), labelled by gold overlap."""
+    gold = [(s['start'], s['end']) for s in row['spans']]
+    output = candidate_records(row['text'], candidates, row_id=row['id'], group_id=row['family_id'],
+                               channel=row['source'], split=split, dataset=dataset, context_lines=context_lines)
+    for record in output:
+        relation = match(record['source']['start'], record['source']['end'], gold)
+        record['label'] = {'action': 'KEEP' if relation == 'none' else 'MASK', 'provisional': False,
+                           'reason': f'gold overlap: {relation}'}
     return output
 
 
