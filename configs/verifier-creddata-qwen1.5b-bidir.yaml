@@ -1,0 +1,45 @@
+# Back-end verifier, 2nd stage (on-premises server): Qwen2.5-Coder-1.5B-Instruct as the candidate-v1 classifier,
+# trained with LoRA (src/privai_model/verifier/lora.py) on the detector's ambiguous candidates in
+# CredData-trajectory v1. Data, split, input window, batch, seed, epoch rule (validation loss) and recall
+# targets are the mmBERT verifiers' (configs/verifier-creddata-mmbert-small.yaml); the model is trained as the
+# bidirectional Qwen span models are (configs/token-span-creddata-qwen1.5b-bidir.yaml: LoRA r16, learning rate,
+# schedule, attention).
+# float32 base with float16 autocast, as the 0.5B and 1.5B span models: a T4 is enough.
+# Test stays closed here (evaluate_test: false); scripts/final_evaluate.py scores it once after the run is frozen.
+model_name: Qwen/Qwen2.5-Coder-1.5B-Instruct
+revision: null  # bundle.json records resolved_revision; pin it here after the first run
+model_version: verifier-creddata-qwen1.5b-bidir-v0
+data_path: runs/data/verifier-creddata-traj-v1/ambiguous/candidates.jsonl.gz
+split_manifest: runs/data/verifier-creddata-traj-v1/ambiguous/split_manifest.json
+output_dir: runs/verifier/creddata-qwen1.5b-bidir
+seed: 42
+split_ratios: [0.8, 0.1, 0.1]  # unused: split_manifest fixes the split
+window_size: 256
+batch_size: 8
+epochs: 3
+learning_rate: 0.0002
+weight_decay: 0.0
+schedule: cosine
+warmup_ratio: 0.05
+max_grad_norm: 1.0
+device: auto
+local_files_only: false
+class_weights: null
+sampling: none
+character_features: false
+recall_targets: [0.95, 0.99]
+deployment_recall_target: 0.99
+evaluate_test: false
+fp16: true
+gradient_checkpointing: true
+bidirectional: true
+attn_implementation: sdpa
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+  modules_to_save: [score]
+save_every_minutes: 30  # resumable checkpoint (LoRA, head, marker rows, optimizer); scripts/train.py --resume
+log_every: 200
+eval_batch_size: 32

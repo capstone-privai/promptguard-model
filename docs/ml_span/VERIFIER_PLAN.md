@@ -25,12 +25,14 @@ span 모델의 크기 비교는 별도 문서([TOKEN_SPAN_SIZE_SERIES.md](TOKEN_
 - 탐지기는 후보마다 strength를 이미 붙여 줍니다(`promptguard-claude-demoV0`의 `ensemble.py`).
   - **strong**: 다수결을 통과했거나 강한 규칙이 잡은 후보
   - **ambiguous**: 그렇지 않은 후보. 검증기는 이것만 봅니다.
+  - 탐지기 기본 설정(`candidate_policy: "union"`)은 모든 후보를 가리므로 모든 후보를 strong으로 표시합니다. 그러면 ambiguous가 0개라 검증기가 학습할 것이 없습니다.
+  - 그래서 `prepare_verifier_candidates.py`는 `PG_DETECTOR_CANDIDATE_POLICY=majority`로 strength를 위 정의대로 읽습니다. 후보 자체는 정책과 관계없이 같고(어느 adapter든 찾은 span), 쓴 값은 후보 `manifest.json`의 `env`에 남습니다.
 - 모델의 역할은 둘입니다.
 
 | 역할 | 하는 일 | 모델 | 바로잡는 것 |
 |---|---|---|---|
 | span 모델(토큰 분류) | 글 전체에서 비밀값 위치를 찾음 | mmBERT, 양방향 Qwen ([결과](TOKEN_SPAN_CREDDATA_TRAJ.md)) | 규칙이 **놓친 것** (recall) |
-| 뒷단 검증기(후보 분류) | 탐지기가 준 저신뢰 후보가 진짜인지 판정 | candidate-v1 분류기(mmBERT) | 규칙의 **오탐** (precision) |
+| 뒷단 검증기(후보 분류) | 탐지기가 준 저신뢰 후보가 진짜인지 판정 | 로컬: candidate-v1 분류기(mmBERT) / 서버: 양방향 Qwen + LoRA | 규칙의 **오탐** (precision) |
 
 - 검증기는 후보를 거르기만 합니다. 어떤 후보도 닿지 않은 정답은 검증기로 되찾을 수 없습니다. 후보 분석(`analysis.json`)의 `gold_missed_by_every_candidate`가 그 수입니다.
 - span 모델을 탐지기에 `ml-span`으로 켜면 그 결과도 후보가 됩니다. 점수가 낮은 것은 ambiguous라서 검증기가 다시 봅니다.
@@ -38,7 +40,7 @@ span 모델의 크기 비교는 별도 문서([TOKEN_SPAN_SIZE_SERIES.md](TOKEN_
 
 ## 만든 것
 
-새로 만든 모델 코드는 없습니다. 이 저장소에 이미 있던 **candidate-v1 분류기**(`src/privai_model/training`)를 그대로 씁니다.
+로컬 검증기는 새 모델 코드 없이, 이 저장소에 이미 있던 **candidate-v1 분류기**(`src/privai_model/training`)를 그대로 씁니다. 서버 검증기는 아래 [서버 검증기](#서버-검증기-qwen--lora)에 있습니다.
 - 입력: 후보값을 `[V] … [/V]`로 표시한 줄과 앞뒤 문맥, 탐지기 정보(어떤 규칙이 잡았는지)
 - 출력: `P(MASK)`
 
@@ -62,6 +64,11 @@ span 모델의 크기 비교는 별도 문서([TOKEN_SPAN_SIZE_SERIES.md](TOKEN_
    - 전부 가림: 지금의 union 정책
    - strong만 가림
    - strong + 검증기가 통과시킨 ambiguous
+7. **실행 모듈**(`src/privai_model/verifier/runtime.py`): 탐지기에 붙이는 쪽입니다.
+   - `CandidateVerifier(bundle).score(text, source, candidates)`가 탐지기 후보마다 P(MASK)를 돌려줍니다. 원문은 돌려주지 않습니다.
+   - 입력은 학습 레코드와 같은 함수(`candidate_records`)로 만듭니다. 그래서 학습 때와 실행 때 모델 입력이 같습니다(`tests/verifier/test_runtime.py`).
+   - mmBERT 번들과 Qwen LoRA 번들을 모두 읽습니다. 기준값은 번들의 배포 기준(recall 0.99)입니다.
+   - 탐지기 쪽은 `promptguard-claude-demoV0`의 `candidate_policy: "verifier"`(`--policy verifier`)입니다. strong 후보와 검증기가 통과시킨 ambiguous 후보를 가리고, 검증기가 실패하면 모두 가린 뒤 요청을 막습니다.
 
 **확인한 것**
 - 합성 샘플 데이터와 작은 임시 모델로 위 흐름을 처음부터 끝까지 돌려 봤습니다: 후보 만들기, 학습, 시스템 평가, test 1회 채점. 숫자에는 의미가 없습니다.
@@ -70,9 +77,48 @@ span 모델의 크기 비교는 별도 문서([TOKEN_SPAN_SIZE_SERIES.md](TOKEN_
   - 실제 설정(CredSweeper, gitleaks, 자체 규칙의 다수결)에서 ambiguous가 얼마나 나오는지는 실제 데이터로 `prepare`를 돌려야 압니다.
 - ambiguous가 너무 적으면 대안이 있습니다. 같은 폴더의 `all/` 데이터(strong 포함)로 학습하고, 평가는 ambiguous에서 합니다.
 
+## 서버 검증기 (Qwen + LoRA)
+
+기업용 사내 GPU 서버에 올릴 큰 검증기입니다. mmBERT 분류기는 모델 전체를 학습하므로 7B와 14B에는 맞지 않아서, span 모델의 LoRA와 양방향 코드를 가져와 새로 만들었습니다(`src/privai_model/verifier/lora.py`).
+
+**로컬 검증기와 같은 것**: 과제와 데이터, 선택 규칙이 모두 같아서 두 검증기를 같은 후보로 비교할 수 있습니다.
+- 입력: 같은 candidate-v1 입력(`[V] … [/V]`와 문맥, 탐지기 정보)과 256토큰 윈도우
+- 데이터: 같은 ambiguous 후보와 같은 분할, 같은 batch와 seed
+- 선택: epoch은 validation loss, 기준값은 validation에서 recall 0.95와 0.99에 맞춤. test는 열지 않음
+- 결과 폴더도 같은 모양입니다(`model/bundle.json`, `validation_predictions.jsonl`). 그래서 `evaluate_verifier_system.py`(세 정책 비교)와 `final_evaluate.py`(test 1회 채점)를 그대로 씁니다.
+
+**span 모델(양방향 Qwen)과 같은 것**: 모델 학습 방식
+- 기본 모델은 고정하고 LoRA(r16, α32, attention과 MLP의 7개 모듈)와 새 2-label 헤드만 학습합니다.
+- 양방향 attention, 학습률 2e-4와 cosine 스케줄, 정밀도(1.5B는 float32 + float16 autocast, 7B와 14B는 bfloat16)가 크기별 span 설정과 같습니다.
+- 헤드는 패딩이 아닌 마지막 토큰의 상태를 읽습니다(`Qwen2ForSequenceClassification`). 양방향이라 이 토큰도 입력 전체를 봅니다.
+
+**새로 푼 문제: 표시 토큰**
+- `[V]`, `[/V]`, `[V_TRUNCATED]`는 Qwen 어휘에 없는 새 토큰입니다. 그런데 LoRA는 임베딩을 고정하므로, 그대로 두면 세 토큰이 학습되지 않은 같은 값이 됩니다. 그러면 모델이 값의 시작과 끝을 구분하지 못합니다.
+- 그래서 이 세 행만 학습합니다(PEFT trainable tokens, peft 0.15 이상). 시작값은 각 표시 글자(`[`, `V`, `]` …) 임베딩의 평균이라 처음부터 서로 다릅니다.
+- 임베딩 행렬 전체는 학습하지 않습니다. 14B에서 전체를 학습하면 그것만 수 GB가 듭니다.
+
+**중단 후 이어서 학습**: 7B와 14B는 epoch당 몇 시간이 걸릴 것으로 봅니다(추정). 그래서 30분마다 이어서 학습할 수 있는 체크포인트(LoRA, 헤드, 표시 토큰 행, optimizer, epoch 안의 위치)를 남깁니다. `scripts/train.py --resume`으로 이어서 학습하면 끊기지 않은 학습과 같은 결과가 나오는 것을 테스트로 확인했습니다.
+
+| 설정 (`configs/verifier-creddata-…`) | 모델 | 필요한 GPU |
+|---|---|---|
+| `qwen1.5b-bidir` | Qwen2.5-Coder-1.5B | T4 |
+| `qwen7b-bidir` | Qwen2.5-Coder-7B | L4 24GB 또는 A100 |
+| `qwen14b-bidir` | Qwen2.5-Coder-14B | A100 40GB 이상 |
+
+**확인한 것**: 작은 임시 Qwen2 모델과 합성 후보로 CPU에서 확인했습니다. 숫자에는 의미가 없습니다.
+- 학습, 저장, 추론 로딩, test 1회 채점이 처음부터 끝까지 돌아갑니다(float32와 bfloat16 기본 모델 모두).
+- 추론으로 다시 읽은 모델의 점수가 학습 중 validation 점수와 같습니다.
+- 표시 토큰 세 행만 학습되고 서로 다른 값에서 시작합니다. 임베딩을 묶은 모델(Qwen 0.5B, 1.5B처럼)과 gradient checkpointing에서도 돌아갑니다.
+- 쉬운 합성 과제를 실제로 학습합니다(validation loss 0.76 → 0.003).
+
 **아직 안 한 것**
-- 서버용 큰 검증기(Qwen + LoRA)는 아직 없습니다. 지금 분류기는 모델 전체를 학습하는 방식이라 7B와 14B에는 맞지 않습니다.
-  - 로컬 검증기 결과를 본 뒤, span 모델의 LoRA와 양방향 코드를 가져와 만들 예정입니다.
+- 1.5B와 7B는 Colab에서 실제 가중치로 학습했습니다(2026-11-20). 결과 문서는 따로 올립니다.
+- 14B의 메모리는 추정입니다. bfloat16 가중치만 약 30GB이고, 표시 토큰 행을 학습하는 데 한 step에 약 1.5GB가 잠깐 더 듭니다. A100 40GB에 들어갈 것으로 보지만 빠듯합니다.
+  - 모자라면 `scripts/train.py`에 `--set load_in_4bit=true`(4-bit QLoRA, bitsandbytes 필요)를 붙일 수 있게 해 두었습니다. 다만 GPU가 없어서 이 경로는 확인하지 못했습니다.
+  - 4-bit로 학습하면 비교 조건이 달라지므로 결과에 함께 적습니다.
+- 탐지기 연결은 끝났습니다: `promptguard-claude-demoV0`의 `--policy verifier`(capstone-privai/promptguard-claude-demoV0#28)가 이 저장소의 `verifier/runtime.py`(#29)를 부릅니다.
+  - Colab에서 다시 학습한 mmBERT-small로 validation 결과를 비교했습니다. 탐지기에 붙인 결과(F2 0.785)가 정책 비교(0.786)와 같았고, 기준값과 점수가 정확히 같던 경계 후보 1개만 달랐습니다.
+  - 서버 검증기(Qwen)를 탐지기에 붙여 돌려 보지는 않았습니다.
 
 ## 실행
 
@@ -80,7 +126,7 @@ span 모델의 크기 비교는 별도 문서([TOKEN_SPAN_SIZE_SERIES.md](TOKEN_
 
 ### Colab
 
-**한 번에 실행**: [`notebooks/colab_two_stage.ipynb`](https://colab.research.google.com/github/capstone-privai/promptguard-model/blob/main/notebooks/colab_two_stage.ipynb)를 Colab으로 열고 **런타임 → 모두 실행**을 누르면 검증기, mmBERT-base, Qwen 1.5B / 7B / 14B를 차례로 학습합니다. 이 GPU로 못 하는 단계는 건너뛰고, 끝난 단계는 다시 실행해도 건너뜁니다. 아래 명령은 단계를 하나씩 돌릴 때 씁니다.
+**한 번에 실행**: [`notebooks/colab_two_stage.ipynb`](https://colab.research.google.com/github/capstone-privai/promptguard-model/blob/main/notebooks/colab_two_stage.ipynb)를 Colab으로 열고 **런타임 → 모두 실행**을 누르면 로컬 검증기, mmBERT-base, span 모델 Qwen 1.5B / 7B / 14B와 같은 크기의 서버 검증기를 차례로 학습합니다. 이 GPU로 못 하는 단계는 건너뛰고, 끝난 단계는 다시 실행해도 건너뜁니다. 아래 명령은 단계를 하나씩 돌릴 때 씁니다.
 
 Drive를 mount하고 `CredData-trajectory.zip`을 Drive의 `promptguard-runs/`에 올린 뒤 실행합니다.
 
@@ -89,6 +135,14 @@ bash scripts/colab_verifier.sh prepare             # 후보 만들기 + 오탐 �
 bash scripts/colab_verifier.sh train mmbert-small
 bash scripts/colab_verifier.sh system mmbert-small # validation: 세 정책 비교
 bash scripts/colab_verifier.sh test mmbert-small   # 모델을 고정한 뒤 한 번만
+```
+
+서버 검증기는 이름만 바꿉니다(`qwen1.5b-bidir`, `qwen7b-bidir`, `qwen14b-bidir`). 결과는 학습 중에도 Drive에 바로 쓰고, 런타임이 끊기면 같은 `train` 명령으로 이어서 학습합니다.
+
+```bash
+bash scripts/colab_verifier.sh train qwen1.5b-bidir    # T4
+bash scripts/colab_verifier.sh system qwen1.5b-bidir
+bash scripts/colab_verifier.sh train qwen14b-bidir     # A100 40GB 이상
 ```
 
 ### 로컬 PC (Windows, PowerShell)
@@ -105,10 +159,13 @@ python scripts/train.py --config configs/verifier-creddata-mmbert-small.yaml
 
 - gitleaks 실행 파일이 PATH에 없으면 gitleaks는 건너뜁니다. 건너뛴 adapter는 `manifest.json`에 남습니다.
   - 배포 설정과 맞추려면 gitleaks를 설치합니다.
+  - 8.20.0 이상이어야 합니다. 탐지기가 `gitleaks stdin --max-decode-depth`를 씁니다. 8.18.4로는 후보 만들기가 `ADAPTER_FAILURE:gitleaks`로 멈춥니다.
+  - Colab 노트북은 8.30.1을 받습니다. Windows는 GitHub release의 `gitleaks_8.30.1_windows_x64.zip`에서 `gitleaks.exe`를 꺼내 PATH에 둡니다.
   - Colab과 로컬에서 만든 후보를 비교하려면 adapter 구성이 같아야 합니다.
-- **RTX 4060 (8GB)**: 검증기는 이 GPU로 충분했습니다.
+- **RTX 4060 (8GB)**: 로컬 검증기는 이 GPU로 충분했습니다.
   - 후보 만들기는 탐지기만 돌리므로 CPU로 됩니다. train과 validation에 약 3분 걸렸습니다.
   - mmBERT-small 학습은 3 epoch에 약 6분 걸렸습니다.
+  - 서버 검증기는 Colab으로 돌립니다. 1.5B는 float32 가중치만 약 6GB라 8GB에서는 빠듯하고, 7B와 14B는 들어가지 않습니다.
 - **결과**: [VERIFIER_CREDDATA_TRAJ.md](VERIFIER_CREDDATA_TRAJ.md)
 
 ## 주의

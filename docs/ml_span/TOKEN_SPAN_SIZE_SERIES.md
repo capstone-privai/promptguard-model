@@ -1,6 +1,6 @@
 # span 모델 크기 비교: mmBERT-base, 양방향 Qwen 1.5B / 7B / 14B
 
-팀이 정한 두 단계 구조를 위해 span 모델(토큰 분류)의 크기 비교를 준비한 문서입니다. mmBERT-base 결과는 [TOKEN_SPAN_CREDDATA_TRAJ.md](TOKEN_SPAN_CREDDATA_TRAJ.md#크기-비교-mmbert-base-validation만)에 있고, Qwen 1.5B / 7B / 14B는 아직 학습하지 않았습니다. 측정값이라고 적지 않은 시간과 메모리는 추정입니다.
+팀이 정한 두 단계 구조를 위해 span 모델(토큰 분류)의 크기 비교를 준비한 문서입니다. mmBERT-base 결과는 [TOKEN_SPAN_CREDDATA_TRAJ.md](TOKEN_SPAN_CREDDATA_TRAJ.md#크기-비교-mmbert-base-validation만)에 있고, Qwen 1.5B / 7B / 14B 결과는 아직 정리하지 않았습니다(Colab에서 학습 중). 측정값이라고 적지 않은 시간과 메모리는 추정입니다.
 
 - **개인**: 로컬 모델만 씁니다. → mmBERT-small과 mmBERT-base를 비교합니다.
 - **기업**: 로컬 모델에, 회사 안의 GPU 서버(온프레미스)에 올린 큰 모델을 선택으로 더합니다. → Qwen을 0.5B에서 14B까지 키워 비교합니다.
@@ -49,7 +49,7 @@ CredData-trajectory v1에서 학습한 실험([결과](TOKEN_SPAN_CREDDATA_TRAJ.
 
 ### Colab: Qwen 크기 비교
 
-**한 번에 실행**: [`notebooks/colab_two_stage.ipynb`](https://colab.research.google.com/github/capstone-privai/promptguard-model/blob/main/notebooks/colab_two_stage.ipynb)를 Colab으로 열고 **런타임 → 모두 실행**을 누르면 검증기, mmBERT-base, Qwen 1.5B / 7B / 14B를 차례로 학습합니다. 이 GPU로 못 하는 단계는 건너뛰고, 끝난 단계는 다시 실행해도 건너뜁니다. 아래 명령은 단계를 하나씩 돌릴 때 씁니다.
+**한 번에 실행**: [`notebooks/colab_two_stage.ipynb`](https://colab.research.google.com/github/capstone-privai/promptguard-model/blob/main/notebooks/colab_two_stage.ipynb)를 Colab으로 열고 **런타임 → 모두 실행**을 누르면 로컬 검증기, mmBERT-base, span 모델 Qwen 1.5B / 7B / 14B와 같은 크기의 서버 검증기를 차례로 학습합니다. 이 GPU로 못 하는 단계는 건너뛰고, 끝난 단계는 다시 실행해도 건너뜁니다. 아래 명령은 단계를 하나씩 돌릴 때 씁니다.
 
 Drive를 mount하고 `CredData-trajectory.zip`을 Drive의 `promptguard-runs/`에 올린 뒤 실행합니다. 7B와 14B는 L4/A100이 필요하므로 Colab Pro가 있어야 합니다.
 

@@ -4,8 +4,8 @@ import pytest
 
 from privai_model.data.adapter import adapt_records
 from privai_model.data.split import restore_split
-from privai_model.verifier.candidates import (analysis, code_points, lines_around, match, records_for_row,
-                                              split_manifest, system_metrics)
+from privai_model.verifier.candidates import (analysis, code_points, lines_around, masked_span_metrics, match,
+                                              records_for_row, split_manifest, system_metrics)
 
 
 def utf16(text, cp):
@@ -101,3 +101,16 @@ def test_system_metrics_compare_union_strong_only_and_verifier():
     ambiguous_id = recs[1]['candidate_id']
     assert system_metrics(recs, gold, scores={ambiguous_id: 0.2}, threshold=0.5)['masked'] == 1
     assert system_metrics(recs, gold, scores={ambiguous_id: 0.7}, threshold=0.5)['masked'] == 2
+
+
+def test_masked_span_metrics_score_masked_spans_like_system_metrics():
+    recs = records() + records('validation', 'g2', 'r2')
+    start = TEXT.index('SynthPass_91')
+    gold = {'r1': [(start, start + 12)], 'r2': [(start, start + 12)], 'r3': [(0, 1)]}
+    for scores, threshold in ((None, None), ({}, 2.0), ({recs[1]['candidate_id']: 0.7}, 0.5)):
+        kept = [r for r in recs if scores is None or r['detector']['strength'] == 'strong'
+                or scores.get(r['candidate_id'], 1.0) >= threshold]
+        spans = {}
+        for r in kept:
+            spans.setdefault(r['source']['row_id'], []).append((r['source']['start'], r['source']['end']))
+        assert masked_span_metrics(spans, gold) == system_metrics(recs, gold, scores, threshold)
