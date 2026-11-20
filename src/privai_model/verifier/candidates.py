@@ -205,3 +205,22 @@ def system_metrics(records, gold_by_row, scores=None, threshold=None):
     f2 = round(5 * precision * recall / (4 * precision + recall), 4) if precision and recall else None
     return dict(masked=len(masked), false_masks=len(masked) - true_masks, gold_spans=gold, gold_reached=len(hit),
                 precision=precision, recall=recall, f2=f2)
+
+
+def masked_span_metrics(masked_by_row, gold_by_row):
+    """system_metrics for the spans a detector actually masked: {row_id: [(start, end), ...]} in code points.
+
+    A masked span is a true mask when it overlaps a gold span, as a candidate is labelled MASK."""
+    hit, true_masks, masked = set(), 0, 0
+    for row_id, spans in masked_by_row.items():
+        gold_spans = gold_by_row.get(row_id, ())
+        for start, end in spans:
+            overlaps = [(a, b) for a, b in gold_spans if max(a, start) < min(b, end)]
+            masked += 1
+            true_masks += bool(overlaps)
+            hit.update((row_id, a, b) for a, b in overlaps)
+    gold = sum(len(v) for v in gold_by_row.values())
+    precision, recall = rate(true_masks, masked), rate(len(hit), gold)
+    f2 = round(5 * precision * recall / (4 * precision + recall), 4) if precision and recall else None
+    return dict(masked=masked, false_masks=masked - true_masks, gold_spans=gold, gold_reached=len(hit),
+                precision=precision, recall=recall, f2=f2)
