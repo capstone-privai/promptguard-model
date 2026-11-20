@@ -1,6 +1,6 @@
 # 뒷단 검증기: 탐지기의 저신뢰 후보를 다시 판정
 
-팀이 정한 두 단계 구조에서, 규칙 탐지기가 확신하지 못한 후보를 ML로 다시 판정하는 부분을 준비한 문서입니다. 아직 학습 결과는 없습니다.
+팀이 정한 두 단계 구조에서, 규칙 탐지기가 확신하지 못한 후보를 ML로 다시 판정하는 부분을 준비한 문서입니다. 로컬 PC(RTX 4060)에서 mmBERT-small로 돌린 결과는 [VERIFIER_CREDDATA_TRAJ.md](VERIFIER_CREDDATA_TRAJ.md)에 있습니다.
 
 - **개인**: 로컬 모델만 씁니다.
 - **기업**: 로컬 모델에, 회사 안의 GPU 서버(온프레미스)에 올린 큰 모델을 선택으로 더합니다.
@@ -112,11 +112,13 @@ span 모델의 크기 비교는 별도 문서([TOKEN_SPAN_SIZE_SERIES.md](TOKEN_
 - 쉬운 합성 과제를 실제로 학습합니다(validation loss 0.76 → 0.003).
 
 **아직 안 한 것**
-- 실제 Qwen 가중치로는 돌려 보지 않았습니다. 이 작업 환경에서는 Hugging Face에 접속할 수 없었습니다. Colab의 첫 1.5B 학습이 실제 모델로 하는 첫 확인입니다.
+- 1.5B와 7B는 Colab에서 실제 가중치로 학습했습니다(2026-11-20). 결과 문서는 따로 올립니다.
 - 14B의 메모리는 추정입니다. bfloat16 가중치만 약 30GB이고, 표시 토큰 행을 학습하는 데 한 step에 약 1.5GB가 잠깐 더 듭니다. A100 40GB에 들어갈 것으로 보지만 빠듯합니다.
   - 모자라면 `scripts/train.py`에 `--set load_in_4bit=true`(4-bit QLoRA, bitsandbytes 필요)를 붙일 수 있게 해 두었습니다. 다만 GPU가 없어서 이 경로는 확인하지 못했습니다.
   - 4-bit로 학습하면 비교 조건이 달라지므로 결과에 함께 적습니다.
-- PromptGuard 탐지기(`promptguard-claude-demoV0`)가 실행 중에 검증기를 부르는 연결은 아직 없습니다. 지금 세 정책 비교는 오프라인 평가입니다.
+- 탐지기 연결은 끝났습니다: `promptguard-claude-demoV0`의 `--policy verifier`(capstone-privai/promptguard-claude-demoV0#28)가 이 저장소의 `verifier/runtime.py`(#29)를 부릅니다.
+  - Colab에서 다시 학습한 mmBERT-small로 validation 결과를 비교했습니다. 탐지기에 붙인 결과(F2 0.785)가 정책 비교(0.786)와 같았고, 기준값과 점수가 정확히 같던 경계 후보 1개만 달랐습니다.
+  - 서버 검증기(Qwen)를 탐지기에 붙여 돌려 보지는 않았습니다.
 
 ## 실행
 
@@ -160,11 +162,11 @@ python scripts/train.py --config configs/verifier-creddata-mmbert-small.yaml
   - 8.20.0 이상이어야 합니다. 탐지기가 `gitleaks stdin --max-decode-depth`를 씁니다. 8.18.4로는 후보 만들기가 `ADAPTER_FAILURE:gitleaks`로 멈춥니다.
   - Colab 노트북은 8.30.1을 받습니다. Windows는 GitHub release의 `gitleaks_8.30.1_windows_x64.zip`에서 `gitleaks.exe`를 꺼내 PATH에 둡니다.
   - Colab과 로컬에서 만든 후보를 비교하려면 adapter 구성이 같아야 합니다.
-- **RTX 4060 (8GB)**: 로컬 검증기(mmBERT-small, base)는 이 GPU로 충분할 것으로 봅니다(추정).
-  - 후보 만들기는 탐지기만 돌리므로 CPU로 됩니다.
-  - 학습은 입력이 256토큰이고 모델이 작습니다.
+- **RTX 4060 (8GB)**: 로컬 검증기는 이 GPU로 충분했습니다.
+  - 후보 만들기는 탐지기만 돌리므로 CPU로 됩니다. train과 validation에 약 3분 걸렸습니다.
+  - mmBERT-small 학습은 3 epoch에 약 6분 걸렸습니다.
   - 서버 검증기는 Colab으로 돌립니다. 1.5B는 float32 가중치만 약 6GB라 8GB에서는 빠듯하고, 7B와 14B는 들어가지 않습니다.
-- **결과**는 새 문서 `VERIFIER_CREDDATA_TRAJ.md`에 따로 PR로 올립니다.
+- **결과**: [VERIFIER_CREDDATA_TRAJ.md](VERIFIER_CREDDATA_TRAJ.md)
 
 ## 주의
 

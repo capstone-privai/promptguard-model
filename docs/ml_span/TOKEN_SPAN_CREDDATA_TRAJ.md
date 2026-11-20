@@ -10,6 +10,8 @@
 
 **epoch과 cutoff는 validation에서만 골랐습니다. test는 각 모델을 고정한 뒤 한 번만 채점했습니다.** test 결과를 보고 바꾼 설정은 없습니다.
 
+이후 같은 조건으로 mmBERT-base(307M)를 학습해 validation으로만 비교했습니다([아래](#크기-비교-mmbert-base-validation만)).
+
 | 모델 | 선택 epoch | cutoff | validation F2 (precision) | test 맞힘 / 오탐 / 놓침 | test precision | test recall | test F2 |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | mmBERT-small | 1 | 0.720 | **0.821** (0.788) | 908 / 274 / 265 | 0.768 | 0.774 | 0.773 |
@@ -147,6 +149,43 @@
   - mmBERT와 causal Qwen은 `bash scripts/colab_token_span.sh test`로 했습니다.
   - 양방향 Qwen은 나중에 `bash scripts/colab_token_span.sh test qwen-bidir`로 따로 했습니다. 처음 두 모델은 다시 채점하지 않았습니다.
 
+## 크기 비교: mmBERT-base (validation만)
+
+[TOKEN_SPAN_SIZE_SERIES.md](TOKEN_SPAN_SIZE_SERIES.md)의 첫 비교입니다.
+- mmBERT-small과 다른 것은 모델 크기뿐입니다(140M에서 307M으로).
+- 데이터, 윈도우, batch, seed, 선택 규칙은 같습니다([설정](../../configs/token-span-creddata-mmbert-base.yaml)).
+
+**test는 채점하지 않았습니다.** 이 test는 위 세 모델을 채점할 때 이미 열렸으므로, 크기 비교는 validation으로만 합니다.
+
+| epoch | loss | cutoff 없이: 맞힘 / 오탐 / 놓침 | cutoff | 맞힘 / 오탐 / 놓침 | precision | recall | F2 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **1 (선택)** | 0.0200 | 1,033 / 417 / 167 | **0.752** | **1,029 / 353 / 171** | **0.745** | **0.858** | **0.832** |
+| 2 | 0.0077 | 1,034 / 457 / 166 | 0.639 | 1,028 / 374 / 172 | 0.733 | 0.857 | 0.829 |
+| 3 | 0.0040 | 1,041 / 597 / 159 | 0.969 | 1,033 / 405 / 167 | 0.718 | 0.861 | 0.828 |
+
+- epoch 2와 3의 F2가 epoch 1보다 낮아서, patience 2에 걸려 epoch 3 뒤에 멈췄습니다. mmBERT-small과 같은 모습입니다.
+
+**선택한 epoch끼리 비교** (validation, 정답 1,200):
+
+| 모델 | 선택 epoch | cutoff | 맞힘 / 오탐 / 놓침 | precision | recall | F2 |
+|---|---:|---:|---:|---:|---:|---:|
+| mmBERT-small | 1 | 0.720 | 996 / 268 / 204 | 0.788 | 0.830 | 0.821 |
+| mmBERT-base | 1 | 0.752 | 1,029 / 353 / 171 | 0.745 | 0.858 | **0.832** |
+
+- **base가 정답을 33개 더 찾고, 오탐도 85개 더 냅니다.** recall에 무게를 두는 F2로는 0.011 높습니다.
+- **차이는 작습니다.**
+  - 위에서 small과 양방향 Qwen의 validation 차이 0.015도 비슷하다고 봤습니다.
+  - seed 하나로 한 번 비교한 결과입니다.
+  - 학습한 GPU도 다릅니다. small은 Colab T4, base는 로컬 RTX 4060입니다.
+- **비용은 더 듭니다.**
+  - 파라미터가 307M으로 small(140M)의 두 배가 넘습니다.
+  - epoch당 약 50분이 걸렸습니다(RTX 4060, validation 예측 포함). GPU가 달라서 small의 약 36분(T4)과 직접 비교할 수는 없습니다.
+  - 1단계(로컬) 모델로 어느 쪽을 쓸지는 이 차이와 추론 속도를 함께 보고 정해야 합니다. 추론 속도는 재지 않았습니다.
+- **환경**
+  - 로컬 PC(Windows 11, RTX 4060 8GB), torch 2.14.1+cu130, fp16
+  - gradient checkpointing 없이 batch 4 그대로 돌았습니다. 학습 중 nvidia-smi로 본 GPU 메모리는 약 7.4GB였습니다.
+  - revision은 `c5955035`입니다(설정에 고정).
+
 ## 양방향 Qwen을 추가한 경위
 
 - **언제**: mmBERT와 causal Qwen을 고정하고 test까지 채점한 뒤에, Qwen도 BERT처럼 앞뒤 문맥을 모두 보고 토큰을 분류하는 버전을 따로 학습하기로 했습니다.
@@ -201,6 +240,7 @@
     - `epoch-1/`부터 `epoch-3/`까지: LoRA adapter와 헤드.
     - `last/`: 이어서 학습하기 위한 체크포인트.
     - 같은 json 파일들.
+  - mmBERT-base는 Drive가 아니라 학습한 로컬 PC의 `runs/token-span/creddata-mmbert-base/`에 있습니다(`epoch-1/`부터 `epoch-3/`까지, `last/`, 같은 json 파일들).
   - 집계 파일에는 개수와 비율만 있습니다. 값이나 원문은 없습니다.
 - **재현**: Colab GPU에서 다음 순서로 실행합니다.
   1. Drive를 mount합니다.
