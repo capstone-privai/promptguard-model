@@ -5,7 +5,7 @@
 - **개인**: 로컬 모델만 씁니다. → mmBERT-small과 mmBERT-base를 비교합니다.
 - **기업**: 로컬 모델에, 회사 안의 GPU 서버(온프레미스)에 올린 큰 모델을 선택으로 더합니다. → Qwen을 0.5B에서 14B까지 키워 비교합니다.
 
-뒷단 검증기는 별도 문서([VERIFIER_PLAN.md](VERIFIER_PLAN.md))에 있습니다.
+뒷단 검증기는 별도 문서([VERIFIER_PLAN.md](VERIFIER_PLAN.md))에 있고, 검증기의 크기 비교 결과는 [VERIFIER_SIZE_SERIES.md](VERIFIER_SIZE_SERIES.md)에 있습니다.
 
 ## 비교 조건
 
