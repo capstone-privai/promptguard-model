@@ -7,7 +7,7 @@
 # bfloat16 base with bfloat16 autocast (a float32 base does not fit): an A100 40 GB or larger.
 # Test stays closed here (evaluate_test: false); scripts/final_evaluate.py scores it once after the run is frozen.
 model_name: Qwen/Qwen2.5-Coder-14B-Instruct
-revision: null  # bundle.json records resolved_revision; pin it here after the first run
+revision: aedcc2d42b622764e023cf882b6652e646b95671  # resolved by the first run (Colab, 2026-11-20)
 model_version: verifier-creddata-qwen14b-bidir-v0
 data_path: runs/data/verifier-creddata-traj-v1/ambiguous/candidates.jsonl.gz
 split_manifest: runs/data/verifier-creddata-traj-v1/ambiguous/split_manifest.json

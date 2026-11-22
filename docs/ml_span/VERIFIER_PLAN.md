@@ -1,6 +1,6 @@
 # 뒷단 검증기: 탐지기의 저신뢰 후보를 다시 판정
 
-팀이 정한 두 단계 구조에서, 규칙 탐지기가 확신하지 못한 후보를 ML로 다시 판정하는 부분을 준비한 문서입니다. 로컬 PC(RTX 4060)에서 mmBERT-small로 돌린 결과는 [VERIFIER_CREDDATA_TRAJ.md](VERIFIER_CREDDATA_TRAJ.md)에 있습니다.
+팀이 정한 두 단계 구조에서, 규칙 탐지기가 확신하지 못한 후보를 ML로 다시 판정하는 부분을 준비한 문서입니다. 로컬 PC(RTX 4060)에서 mmBERT-small로 돌린 결과는 [VERIFIER_CREDDATA_TRAJ.md](VERIFIER_CREDDATA_TRAJ.md)에, Colab에서 Qwen 1.5B / 7B / 14B 검증기와 비교한 결과는 [VERIFIER_SIZE_SERIES.md](VERIFIER_SIZE_SERIES.md)에 있습니다.
 
 - **개인**: 로컬 모델만 씁니다.
 - **기업**: 로컬 모델에, 회사 안의 GPU 서버(온프레미스)에 올린 큰 모델을 선택으로 더합니다.

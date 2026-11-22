@@ -49,7 +49,7 @@ def test_qwen_verifier_sizes_differ_only_in_the_model_and_precision():
     for size in SIZES[1:]:
         b = config_file(f'verifier-creddata-qwen{size}-bidir')
         differ = {k for k in set(a) | set(b) if a.get(k) != b.get(k)}
-        assert differ == {'model_name', 'model_version', 'output_dir'} | PRECISION
+        assert differ == {'model_name', 'revision', 'model_version', 'output_dir'} | PRECISION  # revision: the model's pinned Hub commit
 
 
 WORDS = ['<pad>', '<unk>', '[', ']', '[/', 'V', 'V_TRUNCATED', 'password', 'build', '=', 'id', 'Zx81Qv', 'Kp42Lm',

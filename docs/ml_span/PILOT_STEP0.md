@@ -220,6 +220,38 @@ loss 곡선 원자료는 `reports/ml_span/pilot-step0-loss.csv`에 있습니다.
 - **PRIVATE_KEY 라벨 기준은 충돌하지 않습니다.** v10 train에는 PEM 머리줄이 붙은 정답이 없습니다. 그래서 팀 기준(머리줄과 꼬리줄 포함)은 B train의 PEM 정답 473개만 가르칩니다.
 - **팀에 제안**: 출처를 섞는다면 B+v10처럼 positive와 hard negative를 함께 넣고, validation에도 각 출처를 넣는 것이 좋습니다. 원하면 B+v10 체크포인트(Drive `span-mmbert-pilot-step0-bv10-seed110/`, `span-mmbert-pilot-step0-bv10-seed112/`)도 팀 test로 평가할 수 있습니다. 하나만 고른다면 끊기지 않고 끝난 seed 112가 낫습니다. 두 run의 validation F2는 같습니다.
 
+## 후속 실험: B+v10을 mmBERT-base로 (seed 112)
+
+같은 데이터에서 백본만 키우면 나아지는지 확인했습니다. **결론: 나아지지 않습니다.** validation F2는 0.001 높고 precision은 0.006 낮아, mmBERT-small(B+v10 seed 112)과 같은 수준입니다.
+
+- **설정**: B+v10 seed 112와 모두 같고 백본만 다릅니다.
+  - 같은 것: 데이터(`runs/data/span-pilot-step0-bv10`, fingerprint `da7cbb41…`), 학습률, epoch 8과 patience 3, cutoff 후보, seed 112.
+  - 다른 것: `jhu-clsp/mmBERT-base`(revision `c5955035`, 파라미터 307M)에서 시작합니다. revision은 [`configs/token-span-creddata-mmbert-base.yaml`](../../configs/token-span-creddata-mmbert-base.yaml)에 고정한 것과 같습니다.
+  - 토크나이저가 mmBERT-small과 같아서 정답 정렬도 같습니다(validation 정답 807개 중 716개가 window 안에서 정확히 표현됨).
+- **실행**: Colab L4, commit `9bc3dcb`. [`notebooks/colab_train_span.ipynb`](../../notebooks/colab_train_span.ipynb)의 설정 셀을 아래처럼 바꿨습니다. `START_FROM='backbone'`은 mmBERT-small을 받으므로, mmBERT-base는 `PREPARE`에서 받고 `OVERRIDES`로 `model_name`을 바꿉니다.
+  - `BASE_CONFIG = 'configs/span-pilot-step0-bv10.yaml'`, `START_FROM = 'backbone'`, `SEEDS = [112]`
+  - `OVERRIDES = {'model_name': 'runs/backbones/mmbert-base', 'backbone_revision': 'c5955035435e2bf121cde7f3c8863ef52ff35d82', 'backbone_id': 'jhu-clsp/mmBERT-base (…)'}`
+  - `PREPARE = ['bash scripts/colab_prepare_pilot_step0.sh', <snapshot_download('jhu-clsp/mmBERT-base', revision=…, local_dir='runs/backbones/mmbert-base')>]`
+  - epoch당 약 32분, 8 epoch에 약 4시간 걸렸습니다.
+- **학습 기록**: 합친 validation의 epoch별 F2는 0.899, 0.902, 0.896, 0.899, **0.907**, 0.867, 0.899, 0.900입니다. epoch 5가 가장 좋았고, 그 뒤 3 epoch 동안 나아지지 않아 epoch 8에서 끝났습니다.
+- **validation**: epoch 5, cutoff 0.70. 출처별 숫자는 `scripts/verify_span_delimiters.py`로 같은 가중치와 cutoff에서 쟀습니다.
+
+| 셋 (정답 수) | mmBERT-base · 112 | mmBERT-small · 112 (B+v10) |
+|---|---:|---:|
+| 합친 validation (807) | 732 / 77 / 75 · P 0.905 · F2 **0.907** | 730 / 71 / 77 · P **0.911** · F2 0.906 |
+| 팀 B val (615) | 553 / 64 / 62 · P 0.896 · F2 **0.899** | 550 / 59 / 65 · P **0.903** · F2 0.896 |
+| v10 validation (192) | 179 / 13 / 13 · P 0.932 · F2 0.932 | 180 / 12 / 12 · P **0.938** · F2 **0.938** |
+| (참고) 팀 B val, 따옴표 정리 v2 후 | 606 / 11 / 9 · P 0.982 · F2 0.985 | 603 / 6 / 12 · P 0.990 · F2 0.982 |
+
+칸은 맞힘 / 오탐 / 놓침 · precision · F2입니다. 따옴표 정리 v2는 validation 오류를 보고 만든 규칙이라 그 숫자는 낙관적입니다.
+
+- 팀 B val에서는 맞힘이 3개 늘고 오탐도 5개 늘었습니다. v10 validation에서는 하나씩 더 틀렸습니다. 모두 seed 하나의 차이로 볼 수 있는 크기입니다.
+- **mmBERT-small을 계속 씁니다.** mmBERT-base는 파라미터가 약 2배이고 학습도 오래 걸리지만, 이 데이터에서는 이득이 없었습니다.
+- **주의**:
+  - 개발셋(fresh_test, v4, v6, v7, qwen_v2, hold-out v11, negative_challenge)은 재지 않았습니다.
+  - 학습 스크립트가 끝에 팀 B test를 자동으로 채점해 Drive에 파일을 남깁니다. 그 파일은 열지 않았습니다.
+  - 가중치는 `models/`에 넣지 않았습니다. Drive `span-mmbert-base-pilot-step0-bv10-seed112/`(zip 1.09GB)에 있습니다.
+
 ## 전달물
 
 **GitHub**: 아래 모델은 이 저장소의 `models/`에 들어 있습니다. 가중치는 Git LFS로 저장했습니다.
