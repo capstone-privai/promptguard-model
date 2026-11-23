@@ -1,0 +1,29 @@
+{
+  "schema_version": "model-bundle-v1",
+  "model_version": "verifier-creddata-mmbert-small-v0",
+  "backbone": "jhu-clsp/mmBERT-small",
+  "revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "resolved_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "window_size": 256,
+  "seed": 42,
+  "best_epoch": 1,
+  "thresholds": {
+    "0.95": 0.143121138215065,
+    "0.99": 0.003076345194131136
+  },
+  "deployment_recall_target": 0.99,
+  "dataset_fingerprint": "78b3bc38ec3e1383d9e57154397819e63ec29f7af98994fa2dc29d23da299c5a",
+  "provisional_records": 0,
+  "torch_version": "2.14.1+cu130",
+  "transformers_version": "4.57.6",
+  "python": "3.13.16",
+  "device": "cuda",
+  "candidate_truncation_counts": {
+    "train": 2,
+    "validation": 0
+  },
+  "character_features": false,
+  "feature_dimension": 0,
+  "feature_spec": null,
+  "threshold_status": "validation_selected"
+}
