@@ -6,7 +6,7 @@
 # once after the run is frozen.
 model_name: jhu-clsp/mmBERT-base
 revision_model_name: jhu-clsp/mmBERT-base
-revision: null  # bundle.json records resolved_revision; pin it here after the first run
+revision: c5955035435e2bf121cde7f3c8863ef52ff35d82  # resolved by the first run (Colab T4, 2026-11-23); the token-span mmBERT-base uses the same
 model_version: verifier-creddata-mmbert-base-v0
 data_path: runs/data/verifier-creddata-traj-v1/ambiguous/candidates.jsonl.gz
 split_manifest: runs/data/verifier-creddata-traj-v1/ambiguous/split_manifest.json
