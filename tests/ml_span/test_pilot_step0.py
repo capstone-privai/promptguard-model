@@ -28,6 +28,31 @@ def test_follow_ups_differ_from_b_only_in_data(variant):
     assert other['data_dir'].endswith(f'-{variant}')
 
 
+def test_b_plus_creddata_differs_from_b_only_in_data_and_shared_keys():
+    b, other = recipe('b'), recipe('bcred')
+    assert b.keys() == other.keys()
+    assert {k for k in b if b[k] != other[k]} == DATA_KEYS | {'shared_key_kinds'}
+    assert other['data_dir'].endswith('-bcred')
+    assert other['shared_key_kinds'] == ['value', 'text', 'canonical_template']
+
+
+def test_b_plus_creddata_lets_only_secret_free_rows_recur_across_splits():
+    import sys
+    sys.path.insert(0, str(ROOT / 'scripts'))
+    from prepare_pilot_plus_ours import check_span_rows
+    free = dict(row('n1', 'x', 'g1'), spans=[], value_spans=[], kind='hard_negative', text='tool output ok')
+    other = row('b', 'pass-bbbb-2', 'f2')
+    other['text'] = 'key: pass-bbbb-2 done'
+    other['spans'] = other['value_spans'] = [dict(start=5, end=16, secret_type='SECRET')]
+    splits = dict(train=[row('a', 'pass-aaaa-1', 'f1'), free],
+                  validation=[other, dict(free, id='n2', family_id='g2', template_id='g2', origin='g2', value_family='g2')])
+    assert check_span_rows(splits) == 2  # the shared text and its template
+    other['text'] = 'token pass-bbbb-2 end'  # now a row with a span shares its template with train
+    other['spans'] = other['value_spans'] = [dict(start=6, end=17, secret_type='SECRET')]
+    with pytest.raises(ValueError, match='row with spans'):
+        check_span_rows(splits)
+
+
 def test_pilot_uses_the_v10_base_recipe():
     base = yaml.safe_load((ROOT / 'configs/span-mmbert-context-v10-base.yaml').read_text())
     a = recipe('a')
