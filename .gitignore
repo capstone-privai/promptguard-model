@@ -45,3 +45,10 @@ data/span-code-refinement-*/
 !models/span-pilot-step0-b-seed112/**
 !models/span-pilot-step0-bv10-seed112/
 !models/span-pilot-step0-bv10-seed112/**
+# CredData-trajectory v1: the mmBERT-base span bundle and the local back-end verifiers (mmBERT-small default, -base).
+!models/span-creddata-mmbert-base/
+!models/span-creddata-mmbert-base/**
+!models/verifier-creddata-mmbert-small/
+!models/verifier-creddata-mmbert-small/**
+!models/verifier-creddata-mmbert-base/
+!models/verifier-creddata-mmbert-base/**
