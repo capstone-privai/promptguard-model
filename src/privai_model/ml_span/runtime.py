@@ -15,6 +15,9 @@ from .delimiters import POLICIES as DELIMITER_POLICIES, trim_quote_delimiters
 # new model the default; a README change alone is not followed, and new folders under models/ are not picked up.
 DEFAULT_BUNDLE = Path(__file__).resolve().parents[3] / 'models' / 'span-detector-v10'
 
+# Weight dtypes a bundle (`torch_dtype`) or the caller (`dtype`) may ask for. Bundles without the key stay float32.
+DTYPES = {'float32': torch.float32, 'bfloat16': torch.bfloat16, 'float16': torch.float16}
+
 
 def threshold_check(value):
     if not isinstance(value,(int,float)) or not math.isfinite(value) or not 0<=value<=1:
@@ -48,7 +51,8 @@ def mask_intervals(text,findings):
 
 
 class MLSpanDetector:
-    def __init__(self,checkpoint=None,device='cpu',*,tokenizer=None,model=None,max_length=512,stride=128,threshold=0.5,candidate_filter=None,min_value_length=None,delimiter_policy=None):
+    """`dtype` overrides the bundle's `torch_dtype` (e.g. 'float32' on a CPU without fast bfloat16)."""
+    def __init__(self,checkpoint=None,device='cpu',*,tokenizer=None,model=None,max_length=512,stride=128,threshold=0.5,candidate_filter=None,min_value_length=None,delimiter_policy=None,dtype=None):
         try:
             boundary_config=None
             if checkpoint is not None:
@@ -60,8 +64,18 @@ class MLSpanDetector:
                 # A caller may opt a bundle into the length guard without editing it (e.g. the frozen v9 bundle).
                 if min_value_length is None: min_value_length=meta.get('min_value_length')
                 if delimiter_policy is None: delimiter_policy=meta.get('delimiter_policy')
+                # A bidirectional decoder (token-span Qwen with `bidirectional: true`) was trained with every token
+                # seeing the whole window; loaded with eager attention it would silently run causally.
+                both=meta.get('bidirectional',False)
+                if not isinstance(both,bool): raise ValueError()
+                if dtype is None: dtype=meta.get('torch_dtype','float32')
                 tokenizer=AutoTokenizer.from_pretrained(checkpoint,local_files_only=True)
-                model=AutoModelForTokenClassification.from_pretrained(checkpoint,local_files_only=True,attn_implementation='eager')
+                model=AutoModelForTokenClassification.from_pretrained(checkpoint,local_files_only=True,
+                    attn_implementation='sdpa' if both else 'eager',torch_dtype=DTYPES[dtype])
+                if both:
+                    from privai_model.token_span.train import bidirectional
+                    bidirectional(model)
+            elif dtype is not None: raise ValueError('dtype applies to a bundle')
             threshold_check(threshold)
             if candidate_filter not in (None, FUNCTION_WORD_POLICY): raise ValueError('unknown candidate filter')
             check_min_value_length(min_value_length)
@@ -94,7 +108,7 @@ class MLSpanDetector:
             with torch.inference_mode():
                 for window in windows(self.tokenizer,text,self.max_length,self.stride):
                     batch={k:torch.tensor([v],device=self.device) for k,v in window['inputs'].items()}
-                    probs=self.model(**batch).logits.softmax(-1)[0].cpu().tolist()
+                    probs=self.model(**batch).logits.float().softmax(-1)[0].cpu().tolist()
                     predictions.append((window['offsets'],probs))
             spans=aggregate(text,predictions)
             if self.boundary_refiner is not None:
