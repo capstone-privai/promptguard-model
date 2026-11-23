@@ -49,11 +49,11 @@ def main():
             quote_trim=trim(read(f'runs/pilot-reports/delimiters-pilot-{name.lower()}.json')),
             quote_trim_v2=trim(read(f'runs/pilot-reports/delimiters-v2-pilot-{name.lower()}.json')))
     data = {}
-    for m in ('a', 'b', 'bhn', 'bv10'):
+    for m in ('a', 'b', 'bhn', 'bv10', 'bcred'):
         manifest = read(f'runs/data/span-pilot-step0-{m}/manifest.json')
         if manifest:
             data[m.upper()] = {k: manifest[k] for k in ('team_sessions', 'composition', 'shared_keys', 'fingerprint',
-                                                        'team_sha256', 'base', 'added') if k in manifest}
+                                                        'team_sha256', 'base', 'added', 'leakage_check') if k in manifest}
     baselines = {}
     for name in ('v9', 'v10'):
         for prefix in ('delimiters', 'delimiters-v2'):
@@ -64,9 +64,12 @@ def main():
         notice=('Team step-0 pilot (promptguard-data ml-train-pilot 5b812c7). Model A: hand + privesc; model B: hand + '
                 'LLM + privesc. Same recipe; only the train and val files differ, and each seed is a separate run. '
                 'B+HN (follow-up) is B plus our secret-free hard negatives, selected on B val. B+v10 (follow-up) is B plus '
-                'all of our v10 train, selected on B val plus v10 validation. Validation only: the team '
+                'all of our v10 train, selected on B val plus v10 validation. B+CredData (follow-up) is B plus all of '
+                'CredData-trajectory v1 train, selected on B val plus CredData-trajectory validation; its Colab runtime '
+                'ended after epoch 5 of 8, so its bundle is the best completed epoch. Validation only: the team '
                 'scores its test sets first. Counts and settings only; no text or values.'),
         data=data, runs=runs, quote_trim_on_published_bundles=baselines,
+        per_source_validation=read('runs/pilot-reports/bcred-vs-bv10-validation.json'),
         diagnostics={p.stem: read(f'runs/pilot-reports/{p.name}') for p in sorted((ROOT / 'runs/pilot-reports').glob('diag-*.json'))})
     out = ROOT / 'reports/ml_span/pilot-step0.json'
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + '\n')
