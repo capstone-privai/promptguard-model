@@ -240,7 +240,10 @@
     - `epoch-1/`부터 `epoch-3/`까지: LoRA adapter와 헤드.
     - `last/`: 이어서 학습하기 위한 체크포인트.
     - 같은 json 파일들.
-  - mmBERT-base는 Drive가 아니라 학습한 로컬 PC의 `runs/token-span/creddata-mmbert-base/`에 있습니다(`epoch-1/`부터 `epoch-3/`까지, `last/`, 같은 json 파일들).
+  - `token-span-creddata-mmbert-base/`
+    - `epoch-1/`: 선택된 가중치(float32, 약 1.15GB).
+    - `selection.json`, `history.json`, `run.json`, `config.json`, `progress.jsonl`.
+    - 학습한 로컬 PC(RTX 4060)에서 올렸습니다. 나머지 epoch(`epoch-2/`, `epoch-3/`)와 `last/`는 Drive 용량 때문에 그 PC의 `runs/token-span/creddata-mmbert-base/`에만 있습니다.
   - 집계 파일에는 개수와 비율만 있습니다. 값이나 원문은 없습니다.
 - **재현**: Colab GPU에서 다음 순서로 실행합니다.
   1. Drive를 mount합니다.
