@@ -1,0 +1,28 @@
+# Pilot follow-up, model B+CredData: model B's train plus all of CredData-trajectory v1 train
+# (scripts/prepare_pilot_plus_ours.py bcred). Validation is B val plus CredData-trajectory validation; every other
+# line matches model B+v10, so the two differ only in what is added to B.
+# Data fingerprint 95fa9c2d… (B 5b812c7, CredData-trajectory split 19c26b1e…).
+model_name: runs/backbones/mmbert-small
+backbone_id: jhu-clsp/mmBERT-small (team step-0 pilot, model B plus CredData-trajectory v1 train, from base)
+backbone_revision: abc32620dd4f6ab06f5fbe905dc25f310618e09f
+local_files_only: true
+data_dir: runs/data/span-pilot-step0-bcred
+output_dir: runs/span-mmbert-pilot-step0-bcred
+# text and canonical_template too: CredData-trajectory was split by session, and 234 such keys of secret-free rows
+# recur in its train and validation. prepare_pilot_plus_ours.py bcred checked that no row with a span shares any key
+# with another split; the trainer still checks family_id, template_id, origin and value_family for every row.
+shared_key_kinds: [value, text, canonical_template]
+seed: 110
+epochs: 8
+patience: 3
+batch_size: 4
+length_grouped_batches: true
+progress_every_batches: 200
+learning_rate: 0.00003
+weight_decay: 0.01
+class_weights: [1.0, 2.0, 2.0]
+max_length: 512
+stride: 128
+thresholds: [0.5, 0.7, 0.8, 0.9, 0.95, 0.98, 0.99]
+device: mps
+threads: 4

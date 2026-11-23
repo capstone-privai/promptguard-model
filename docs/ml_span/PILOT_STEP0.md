@@ -252,6 +252,92 @@ loss 곡선 원자료는 `reports/ml_span/pilot-step0-loss.csv`에 있습니다.
   - 학습 스크립트가 끝에 팀 B test를 자동으로 채점해 Drive에 파일을 남깁니다. 그 파일은 열지 않았습니다.
   - 가중치는 `models/`에 넣지 않았습니다. Drive `span-mmbert-base-pilot-step0-bv10-seed112/`(zip 1.09GB)에 있습니다.
 
+## 후속 실험: B에 CredData-trajectory v1 train 전부 더하기 (B+CredData)
+
+B+v10과 같은 방법으로, 우리 합성 데이터(v10) 대신 CredData-trajectory v1을 B에 더했습니다. CredData-trajectory v1은 실제 저장소의 자격증명이 들어간 에이전트 기록입니다([TOKEN_SPAN_CREDDATA_TRAJ.md](TOKEN_SPAN_CREDDATA_TRAJ.md)).
+
+**결론: 한 모델이 두 출처를 함께 배웠습니다.**
+- 팀 B val은 B·B+v10과 같은 수준입니다(F2 0.893 대 0.899·0.896).
+- CredData-trajectory validation은 CredData만으로 학습한 span 모델과 같은 수준입니다(F2 0.839 대 0.821·0.832).
+- 다만 더하지 않은 출처인 우리 형식은 배우지 못했습니다. v10 validation은 F2 0.576이고, 우리 개발셋 중 셋(fresh_test, v4, hold-out v11)에서는 B보다 많이 놓칩니다.
+
+- **데이터** (`scripts/prepare_pilot_plus_ours.py bcred`, fingerprint `95fa9c2d…`):
+  - train: B train(19,385행, 정답 6,847)에 CredData-trajectory v1 train 31,719행(정답 9,100)을 더해 51,104행입니다.
+  - validation: B val(815행, 정답 615)과 CredData-trajectory validation(4,644행, 정답 1,200)을 합친 5,459행(정답 1,815)입니다.
+  - CredData-trajectory test는 넣지 않았습니다.
+  - **split 사이 겹침**: CredData-trajectory는 세션 단위로 나뉘어 있습니다.
+    - 그래서 비밀값이 없는 도구 출력 중 텍스트·템플릿 키 234개가 train과 validation에 함께 나옵니다.
+    - 그 split을 그대로 쓰고 행은 하나도 빼지 않았습니다.
+    - 정답이 있는 행은 다른 split과 키를 공유하지 않는다는 것을 확인했습니다.
+- **설정** ([`configs/span-pilot-step0-bcred.yaml`](../../configs/span-pilot-step0-bcred.yaml)):
+  - B+v10 seed 112와 같습니다: mmBERT-small 원본에서 시작, 학습률 3e-5, 배치 4, 최대 8 epoch, patience 3, class weight [1, 2, 2], seed 112.
+  - 다른 것은 데이터와 `shared_key_kinds`입니다. 값에 더해 텍스트와 템플릿 키도 split 사이 공유를 허용합니다.
+- **실행**: Colab T4, commit `5984057`. epoch당 약 88분 걸렸습니다(validation 포함).
+- **학습 기록**:
+  - 첫 학습은 epoch 5 도중 Colab 런타임이 끝나면서 모두 잃었습니다. 결과를 런타임 디스크에만 두었기 때문입니다.
+  - 다시 학습할 때는 epoch마다 기록과 가장 좋은 가중치를 Drive에 올렸습니다. epoch 1~4의 결과가 첫 학습과 똑같아 재현성이 확인됐습니다.
+  - 다시 학습한 run도 epoch 5를 마친 직후 런타임이 끝났습니다. epoch 6은 학습하지 못했습니다.
+  - epoch 4와 5가 epoch 3보다 낮았으므로, epoch 6도 0.857을 넘지 못했다면 epoch 6 뒤에 멈추고 epoch 3을 골랐을 것입니다. epoch 6이 epoch 3을 넘었을 가능성은 확인하지 못했습니다.
+  - bundle은 `scripts/finish_interrupted_run.py`로 만들었고, 끊긴 run(8 epoch 중 5 완료)이라고 표시해 두었습니다.
+
+| epoch | loss | cutoff | 맞힘 / 오탐 / 놓침 | precision | recall | F2 |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 0.0221 | 0.80 | 1,555 / 312 / 260 | 0.833 | 0.857 | 0.852 |
+| 2 | 0.0059 | 0.99 | 1,562 / 375 / 253 | 0.806 | 0.861 | 0.849 |
+| **3 (선택)** | 0.0041 | **0.95** | **1,574 / 349 / 241** | **0.819** | **0.867** | **0.857** |
+| 4 | 0.0028 | 0.95 | 1,571 / 407 / 244 | 0.794 | 0.866 | 0.850 |
+| 5 | 0.0019 | 0.80 | 1,562 / 381 / 253 | 0.804 | 0.861 | 0.849 |
+
+합친 validation(정답 1,815) 기준입니다. loss는 계속 떨어졌지만 F2는 epoch 3 뒤로 오르지 않았습니다.
+
+- **validation, 출처별**:
+  - `scripts/score_span_sources.py`로 맥 GPU(MPS)에서 쟀습니다.
+  - 합친 셋의 개수는 학습 때(Colab T4)와 같습니다. B+CredData는 1,574 / 349 / 241, B+v10은 730 / 71 / 77입니다.
+
+| 셋 (정답 수) | B+CredData · 112 | B+v10 · 112 | 참고 |
+|---|---:|---:|---|
+| 팀 B val (615) | 547 / 56 / 68 · P 0.907 · F2 0.893 | 550 / 59 / 65 · P 0.903 · F2 0.896 | B · 112: 552 / 59 / 63 · P 0.903 · F2 0.899 |
+| CredData-trajectory validation (1,200) | 1,027 / 293 / 173 · P 0.778 · F2 **0.839** | 773 / 408 / 427 · P 0.655 · F2 0.646 | CredData만 학습한 mmBERT-small: 996 / 268 / 204 · P 0.788 · F2 0.821, mmBERT-base: F2 0.832 |
+| (개발셋) 팀 A val (435) | 388 / 47 / 47 · P 0.892 · F2 0.892 | 389 / 46 / 46 · P 0.894 · F2 0.894 | |
+| (개발셋) v10 validation (192) | 114 / 107 / 78 · P 0.516 · F2 0.576 | 180 / 12 / 12 · P 0.938 · F2 0.938 | |
+
+칸은 맞힘 / 오탐 / 놓침 · precision · F2이고, 따옴표 정리는 끈 숫자입니다. B+CredData는 팀 B val과 CredData-trajectory validation을 합친 셋에서, B+v10은 팀 B val과 v10 validation을 합친 셋에서 epoch과 cutoff를 골랐습니다.
+
+- **팀 B val은 그대로입니다.**
+  - B+CredData의 F2는 B보다 0.006, B+v10보다 0.003 낮고, precision은 오히려 조금 높습니다(0.907).
+  - 맞힘이 3~5개 적은 차이입니다. 두 seed의 B끼리 차이(0.002 이하)보다는 조금 크지만, seed 하나로는 데이터 탓인지 가를 수 없는 크기입니다.
+- **CredData-trajectory validation에서 CredData 전용 모델과 같은 수준입니다.**
+  - F2 0.839로, CredData만으로 학습한 mmBERT-small(0.821)과 mmBERT-base(0.832)보다 조금 높습니다. 같은 행과 정답으로 잰 exact-span 숫자입니다.
+  - 다만 학습·채점 코드가 다릅니다(`ml_span`과 `token_span`). cutoff를 고르는 방법도 다릅니다: 여기는 정해진 후보 7개 중 합친 셋에서 고르고, 전용 모델은 관측된 모든 점수 중 CredData validation에서 고릅니다. 그래서 순위보다는 "같은 수준"으로 읽어야 합니다.
+  - B+v10은 이 셋에서 놓침이 427개로 B+CredData의 2.5배입니다. CredData 형식은 더해야 배운다는 뜻입니다.
+- **더하지 않은 출처는 배우지 못합니다.**
+  - B+CredData는 v10 validation에서 F2 0.576입니다(B+v10은 0.938). 놓침 78개, 오탐 107개입니다.
+  - B·B+HN·B+v10에서 본 것과 같은 결론입니다: 모델은 train에 있는 형식을 배우고, 다른 형식으로 일반화하는 폭은 작습니다.
+- **합친 validation의 precision이 B+v10보다 낮은 이유**(0.819 대 0.911)는 CredData-trajectory 쪽이 어렵기 때문입니다(precision 0.778). 팀 B val의 precision은 같습니다.
+- **개발셋**(여러 번 본 셋, 참고, `scripts/verify_span_delimiters.py`의 정리 전 숫자):
+
+| 셋 (정답 수) | B · 112 | B+v10 · 112 | B+CredData · 112 |
+|---|---:|---:|---:|
+| fresh_test (192) | 176 / 197 / 16 · 0.771 | 189 / 3 / 3 · 0.984 | 117 / 105 / 75 · 0.591 |
+| v4 (192) | 123 / 150 / 69 · 0.591 | 177 / 18 / 15 · 0.919 | 87 / 39 / 105 · 0.487 |
+| v6 (96) | 39 / 123 / 57 · 0.357 | 86 / 10 / 10 · 0.896 | 44 / 65 / 52 · 0.446 |
+| v7 (160) | 55 / 239 / 105 · 0.294 | 134 / 19 / 26 · 0.845 | 51 / 94 / 109 · 0.325 |
+| qwen_v2 (78) | 74 / 43 / 4 · 0.862 | 76 / 12 / 2 · 0.950 | 74 / 17 / 4 · 0.918 |
+| hold-out v11 (276) | 229 / 178 / 47 · 0.758 | 241 / 55 / 35 · 0.861 | 182 / 124 / 94 · 0.645 |
+| negative_challenge (0) | 오탐 12 | 오탐 8 | 오탐 0 |
+
+칸은 맞힘 / 오탐 / 놓침 · F2입니다.
+
+  - **우리 형식의 셋에서는 B+CredData가 B보다도 많이 놓칩니다.** fresh_test는 16개에서 75개로, hold-out v11은 47개에서 94개로 늘었습니다. 대신 모든 셋에서 오탐은 B보다 적습니다. F2로는 v6·v7·qwen_v2에서 B보다 높고, fresh_test·v4·hold-out v11에서 낮습니다.
+  - 원인은 확인하지 않았습니다. 가능한 설명은 두 가지입니다. 하나는 cutoff 0.95가 정답의 2/3가 CredData-trajectory인 합친 셋에서 골라졌다는 점이고, 다른 하나는 CredData 형식을 배우면서 우리 형식에 대한 반응이 줄었다는 점입니다.
+  - B+v10은 negative_challenge(오탐 8개, B+CredData는 0개)를 빼면 모든 개발셋에서 가장 좋습니다. 다만 이 셋들은 v10과 같은 생성기에서 만들었거나 형식이 가까워 B+v10에 유리합니다.
+- **따옴표 정리**(참고): 정리 v1은 합친 validation의 F2를 0.857에서 0.892로 올렸고(고친 정답 65개, 망가뜨린 정답 0개), 팀 B val은 0.893에서 0.966, CredData-trajectory validation은 0.839에서 0.855가 됐습니다. 정리 v2는 합친 validation 0.896(고친 정답 71개, 망가뜨린 정답 0개), 팀 B val 0.976입니다. CredData-trajectory validation은 v1과 같습니다(0.855). 다만 v2는 이번에 검사한 저장소 안 정답 span 90,647개 중 12개의 경계를 바꿉니다(v1은 0개). B+v10 때 검사한 53,270개에서는 0개였으므로, 새로 더한 CredData-trajectory 파일의 정답으로 보입니다. 정리 규칙은 validation 오류를 보고 만든 것이라 이 숫자들은 낙관적입니다.
+- **주의**:
+  - 개발셋은 여러 번 본 셋이라 참고용입니다. fresh_test는 v10 train과 같은 생성기에서 만든 셋이라 B+v10에 유리합니다.
+  - 팀 test는 열지 않았습니다. 학습 스크립트가 끝에 팀 B test를 채점하는데, 이번 run은 그 전에 끊겨 그 파일이 없습니다.
+  - CredData-trajectory test도 채점하지 않았습니다. 이 test는 이미 CredData span 모델 세 개를 채점할 때 열렸습니다.
+- **가중치**: [`models/span-pilot-step0-bcred-seed112/`](../../models/span-pilot-step0-bcred-seed112/README.md)(Git LFS)에 있습니다. Drive `span-mmbert-pilot-step0-bcred-seed112-backup/`에는 같은 가중치와 epoch 1~5 기록, 학습 설정이 있습니다.
+
 ## 전달물
 
 **GitHub**: 아래 모델은 이 저장소의 `models/`에 들어 있습니다. 가중치는 Git LFS로 저장했습니다.
@@ -263,6 +349,7 @@ loss 곡선 원자료는 `reports/ml_span/pilot-step0-loss.csv`에 있습니다.
 | A, seed 112 | [`models/span-pilot-step0-a-seed112/`](../../models/span-pilot-step0-a-seed112/README.md) | 3 · 0.98 | seed 비교용 |
 | B, seed 112 | [`models/span-pilot-step0-b-seed112/`](../../models/span-pilot-step0-b-seed112/README.md) | 7 · 0.70 | seed 비교용 |
 | B+v10, seed 112 | [`models/span-pilot-step0-bv10-seed112/`](../../models/span-pilot-step0-bv10-seed112/README.md) | 4 · 0.70 | 후속 실험(우리 v10 train 추가) |
+| B+CredData, seed 112 | [`models/span-pilot-step0-bcred-seed112/`](../../models/span-pilot-step0-bcred-seed112/README.md) | 3 · 0.95 | 후속 실험(CredData-trajectory v1 train 추가). 8 epoch 중 5에서 끊긴 run |
 
 - 불러오기: `MLSpanDetector('models/<폴더 이름>')`
 
@@ -314,7 +401,7 @@ loss 곡선 원자료는 `reports/ml_span/pilot-step0-loss.csv`에 있습니다.
   - 2,000자가 넘는 텍스트는 자격증명 단서가 있는 줄 앞뒤 2줄만 봅니다.
   - 그렇게 해도 6,000자가 넘으면 ML은 건너뛰고 다른 탐지기에 맡깁니다.
   - 4초 시간 제한이 있습니다.
-- seed 112(`models/span-pilot-step0-{a,b}-seed112`)와 B+v10(`models/span-pilot-step0-bv10-seed112`)도 checkpoint만 바꿔 같은 방법으로 평가할 수 있습니다. seed 차이가 큰 셋이 있으므로(아래 "seed 변동"), 가능하면 두 seed를 모두 평가합니다.
+- seed 112(`models/span-pilot-step0-{a,b}-seed112`), B+v10(`models/span-pilot-step0-bv10-seed112`), B+CredData(`models/span-pilot-step0-bcred-seed112`)도 checkpoint만 바꿔 같은 방법으로 평가할 수 있습니다. seed 차이가 큰 셋이 있으므로(아래 "seed 변동"), 가능하면 두 seed를 모두 평가합니다.
 
 ## seed 변동
 
@@ -364,4 +451,19 @@ bash scripts/colab_verify_pilot.sh span-mmbert-pilot-step0-a-seed112 span-mmbert
 bash scripts/colab_verify_pilot.sh span-mmbert-pilot-step0-bv10-seed112                                   # B+v10도 같은 방법
 bash scripts/colab_diag_pilot.sh span-mmbert-pilot-step0-bv10-seed112                                     # B val 오탐 내역(한 줄 JSON)
 python scripts/run_summary.py import summary-a-seed112.json runs                                          # 로컬
+# B+CredData: CredData-trajectory v1(scripts/colab_prepare_creddata_traj.sh)을 만든 뒤
+PYTHONPATH=src python scripts/prepare_pilot_plus_ours.py bcred                                             # fingerprint 95fa9c2d…
+#   Colab: configs/span-pilot-step0-bcred.yaml에 seed=112, device=cuda를 넣어 scripts/span_pipeline.py train (끊긴 run)
+PYTHONPATH=src python scripts/finish_interrupted_run.py runs/span-mmbert-pilot-step0-bcred-seed112          # bundle
+for policy in quote-delimiters-v1 quote-delimiters-v2; do                                                  # 따옴표 정리와 개발셋
+  PYTHONPATH=src python scripts/verify_span_delimiters.py --checkpoint runs/span-mmbert-pilot-step0-bcred-seed112/model \
+    --validation runs/data/span-pilot-step0-bcred/validation.jsonl --device mps --policy $policy \
+    --development pilot_a_val=… pilot_b_val=… creddata_val=… v10_val=… <colab_verify_pilot.sh의 DEV> \
+    --output runs/pilot-reports/delimiters$([ $policy = quote-delimiters-v2 ] && echo -v2)-pilot-bcred-seed112.json
+done
+PYTHONPATH=src python scripts/score_span_sources.py --device mps --output runs/pilot-reports/bcred-vs-bv10-validation.json \
+  --model bcred-seed112=runs/span-mmbert-pilot-step0-bcred-seed112/model:b_val+creddata_val \
+          bv10-seed112=models/span-pilot-step0-bv10-seed112:b_val+v10_val \
+  --set b_val=runs/data/span-pilot-step0-b/validation.jsonl creddata_val=runs/data/span-creddata-traj-v1/validation.jsonl \
+        a_val=runs/data/span-pilot-step0-a/validation.jsonl v10_val=data/span-context-v10/validation.jsonl
 ```
