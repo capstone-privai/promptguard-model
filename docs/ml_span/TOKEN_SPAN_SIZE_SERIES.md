@@ -82,6 +82,28 @@ python scripts/token_span.py train --config configs/token-span-creddata-mmbert-b
 - Windows는 GPU 메모리가 모자랄 때 오류 대신 시스템 메모리를 빌려 쓰면서 매우 느려질 수 있습니다. epoch이 비정상적으로 오래 걸리면 위 옵션을 켭니다.
 - Windows에서 `pip install torch`로 받는 기본 torch는 CPU 전용입니다. pytorch.org의 설치 안내에서 CUDA 버전을 골라 설치합니다. 설치 뒤 `python -c "import torch; print(torch.cuda.get_device_name())"`가 RTX 4060을 출력해야 합니다.
 
+### 학습 결과를 span bundle로 내보내기
+
+학습 폴더에는 epoch마다 가중치(Qwen은 LoRA adapter와 head, mmBERT는 모델 전체)와 `selection.json`이 남습니다. `MLSpanDetector`가 바로 읽는 bundle로 바꾸려면 다음을 실행합니다. 채점할 때마다 손으로 merge하지 않아도 됩니다.
+
+```bash
+PYTHONPATH=src python scripts/export_token_span_bundle.py \
+    --run <학습 폴더> --out <bundle 폴더> --check-validation --device cuda
+```
+
+- **epoch과 cutoff는 `selection.json`에서만 가져옵니다.** validation에서 고른 값이고, 다른 값을 고르는 옵션은 없습니다.
+- LoRA는 기본 모델에 merge해서 모델 하나로 저장합니다. 정밀도는 학습할 때의 기본 모델 정밀도를 따릅니다(7B, 14B는 bfloat16). `--dtype float32`로 바꿀 수 있습니다.
+- `span_bundle.json`에 다음을 남깁니다.
+  - 고른 epoch(`best_epoch`)과 cutoff(`threshold`)
+  - `bidirectional`, `torch_dtype`
+  - 기본 모델과 Hub commit(`revision`: `run.json`의 `revision_resolved`)
+  - 학습 방식(4-bit 여부, autocast, LoRA 설정, seed, GPU)과 학습 때의 validation 개수
+- `--set key=value`로 학습 폴더의 `config.json` 값을 덮어씁니다. 예: 다른 PC의 데이터 위치는 `data_dir=...`, 미리 받아 둔 기본 모델은 `model_name=...`.
+- `MLSpanDetector`는 `bidirectional: true`인 bundle을 sdpa attention으로 올리고 양방향 mask를 켭니다. 이 값이 없는 기존 bundle(v9, v10)은 전과 같이 eager와 float32로 올립니다.
+- bfloat16을 빠르게 못 돌리는 CPU에서는 `MLSpanDetector(bundle, dtype='float32')`로 정밀도만 바꿔 올립니다. bundle 파일은 그대로 둡니다.
+
+**merge하면 숫자가 조금 바뀝니다.** LoRA 차이가 bfloat16 가중치에 반올림되어 들어가고, 4-bit(QLoRA)로 학습한 14B는 학습 때의 4-bit 모델이 아니라 bfloat16 기본 모델에 merge됩니다. 그래서 `--check-validation`으로 bundle을 validation에 다시 돌려, 학습 때 개수(TP/FP/FN)와 같은지를 `span_bundle.json`의 `export_check`에 남깁니다. 다르면 bundle의 개수를 결과로 씁니다.
+
 ## 주의
 
 - **CredData-trajectory test는 깨끗한 hold-out이 아닙니다.** 이미 span 모델 세 개를 채점할 때 열었습니다. 크기 비교는 validation으로만 판단하고, 최종 비교는 새 독립 hold-out으로 해야 합니다.

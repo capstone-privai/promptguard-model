@@ -229,3 +229,87 @@ def test_bidirectional_also_covers_qwen3_dense_models():
     assert torch.allclose(logits(causal, [[5, 6, 7, 8]])[0, 0], logits(causal, [[5, 6, 7, 9]])[0, 0])
     both = bidirectional(Qwen3ForTokenClassification(cfg).eval())
     assert not torch.allclose(logits(both, [[5, 6, 7, 8]])[0, 0], logits(both, [[5, 6, 7, 9]])[0, 0])
+
+
+def trained_run(tmp_path, **extra):
+    """A one-epoch bidirectional LoRA run on tiny data, as scripts/token_span.py train leaves it."""
+    from privai_model.io import write_jsonl
+    from privai_model.token_span.train import train
+    data = tmp_path / 'data'
+    data.mkdir()
+    write_jsonl(data / 'train.jsonl', span_rows(12, 't'))
+    write_jsonl(data / 'validation.jsonl', span_rows(6, 'v'))
+    config = lora_config(tiny_checkpoint(tmp_path), data_dir=str(data), output_dir=str(tmp_path / 'run'), device='cpu',
+                         seed=1, epochs=1, patience=1, batch_size=4, learning_rate=1e-2, class_weights=[1.0, 2.0, 2.0],
+                         max_length=16, stride=4, eval_batch_size=8, log_every=1000, **extra)
+    train(config, log=lambda _: None)
+    return config
+
+
+def test_exported_bundle_scores_like_the_run_and_needs_the_bidirectional_flag(tmp_path):
+    pytest.importorskip('peft')
+    import json
+    from privai_model.ml_span.runtime import MLSpanDetector
+    from privai_model.ml_span.schema import load
+    from privai_model.token_span.export import export
+    from privai_model.token_span.train import load_model, load_tokenizer, predict
+    config = trained_run(tmp_path)
+    selection = json.loads((tmp_path / 'run' / 'selection.json').read_text())
+    meta = export(tmp_path / 'run', tmp_path / 'bundle', log=lambda _: None)
+    assert (meta['best_epoch'], meta['threshold']) == (selection['selected']['epoch'], selection['selected']['threshold'])
+    assert meta['bidirectional'] is True and meta['torch_dtype'] == 'float32' and meta['weights'] == 'lora-merged'
+    assert not (tmp_path / 'bundle' / 'adapter_config.json').exists()
+    rows = load(tmp_path / 'data' / 'validation.jsonl')
+    model = load_model(dict(config, gradient_checkpointing=False), adapter=str(tmp_path / 'run' / 'epoch-1'))
+    expected = predict(model, load_tokenizer(config), rows, 16, 4, torch.device('cpu'))
+
+    def same(detector):
+        for row in rows:
+            got, want = detector.scan_text(row['text'], threshold=0.0), expected[row['id']]
+            if [(s['start'], s['end']) for s in got] != [(s['start'], s['end']) for s in want]:
+                return False
+            if any(abs(a['score'] - b['score']) > 1e-4 for a, b in zip(got, want)):
+                return False
+        return True
+
+    def early_sees_late(detector):
+        return not torch.allclose(logits(detector.model, [[2, 3, 10, 9]])[0, 0], logits(detector.model, [[2, 3, 10, 8]])[0, 0])
+
+    detector = MLSpanDetector(tmp_path / 'bundle')
+    assert detector.threshold == meta['threshold'] and same(detector) and early_sees_late(detector)
+    # Without the flag the same weights load with eager attention and run causally.
+    meta.pop('bidirectional')
+    (tmp_path / 'bundle' / 'span_bundle.json').write_text(json.dumps(meta))
+    assert not early_sees_late(MLSpanDetector(tmp_path / 'bundle'))
+
+
+def test_bfloat16_export_loads_in_bfloat16_unless_the_caller_asks_otherwise(tmp_path):
+    pytest.importorskip('peft')
+    from privai_model.ml_span.runtime import MLSpanDetector
+    from privai_model.token_span.export import check_validation, export
+    trained_run(tmp_path, torch_dtype='bfloat16', bf16=True)
+    meta = export(tmp_path / 'run', tmp_path / 'bundle', log=lambda _: None)
+    assert meta['torch_dtype'] == 'bfloat16' and meta['training']['autocast'] == 'bfloat16'
+    detector = MLSpanDetector(tmp_path / 'bundle')
+    assert {p.dtype for p in detector.model.parameters()} == {torch.bfloat16}
+    assert all(isinstance(s['score'], float) for s in detector.scan_text('user name = value password = Zx81Qv', 0.0))
+    wide = MLSpanDetector(tmp_path / 'bundle', dtype='float32')
+    assert {p.dtype for p in wide.model.parameters()} == {torch.float32}
+    with pytest.raises(RuntimeError, match='initialization failed'):
+        MLSpanDetector(tmp_path / 'bundle', dtype='int8')
+    check = check_validation(tmp_path / 'bundle', tmp_path / 'data', log=lambda _: None)
+    assert check['rows'] == 6 and check['dtype'] == 'bfloat16' and set(check['matches_training']) == {'tp', 'fp', 'fn'}
+    with pytest.raises(FileExistsError):
+        export(tmp_path / 'run', tmp_path / 'bundle', log=lambda _: None)
+
+
+def test_runtime_keeps_older_bundles_eager_and_float32():
+    from privai_model.ml_span.runtime import MLSpanDetector
+    bundle = ROOT / 'models' / 'span-pilot-step0-bv10-seed112'
+    if not (bundle / 'model.safetensors').exists():
+        pytest.skip('published pilot bundle weights unavailable')
+    detector = MLSpanDetector(bundle)
+    assert detector.model.config._attn_implementation == 'eager'
+    assert {p.dtype for p in detector.model.parameters()} == {torch.float32}
+    with pytest.raises(RuntimeError, match='initialization failed'):
+        MLSpanDetector(tokenizer=detector.tokenizer, model=detector.model, dtype='bfloat16')
