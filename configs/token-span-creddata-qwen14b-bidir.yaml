@@ -6,7 +6,7 @@
 # larger. On a 24 GB GPU use --set load_in_4bit=true (QLoRA, needs bitsandbytes); that changes the comparison,
 # so record it with the result.
 model_name: Qwen/Qwen2.5-Coder-14B-Instruct
-revision: null  # resolved commit is written to run.json; pin it here after the first run
+revision: aedcc2d42b622764e023cf882b6652e646b95671  # resolved by the first run (Colab A100, 2026-11-21)
 local_files_only: false
 data_dir: runs/data/span-creddata-traj-v1
 output_dir: runs/token-span/creddata-qwen14b-bidir
