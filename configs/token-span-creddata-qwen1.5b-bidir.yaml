@@ -3,7 +3,7 @@
 # rate, schedule, epochs, selection and bidirectional attention are the same, so the runs differ in model size.
 # Precision is also the 0.5B run's (float32 base, float16 autocast), so a T4 (16 GB) is enough.
 model_name: Qwen/Qwen2.5-Coder-1.5B-Instruct
-revision: null  # resolved commit is written to run.json; pin it here after the first run
+revision: 2e1fd397ee46e1388853d2af2c993145b0f1098a  # resolved by the first run (Colab L4, 2026-11-20)
 local_files_only: false
 data_dir: runs/data/span-creddata-traj-v1
 output_dir: runs/token-span/creddata-qwen1.5b-bidir

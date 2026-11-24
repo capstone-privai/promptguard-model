@@ -10,7 +10,7 @@
 
 **epoch과 cutoff는 validation에서만 골랐습니다. test는 각 모델을 고정한 뒤 한 번만 채점했습니다.** test 결과를 보고 바꾼 설정은 없습니다.
 
-이후 같은 조건으로 mmBERT-base(307M)를 학습해 validation으로만 비교했습니다([아래](#크기-비교-mmbert-base-validation만)).
+이후 같은 조건으로 mmBERT-base(307M)를 학습해 validation으로만 비교했습니다([아래](#크기-비교-mmbert-base-validation만)). 양방향 Qwen을 1.5B와 7B로 키운 비교까지 모은 결과는 [TOKEN_SPAN_SIZE_SERIES.md](TOKEN_SPAN_SIZE_SERIES.md)에 있습니다.
 
 | 모델 | 선택 epoch | cutoff | validation F2 (precision) | test 맞힘 / 오탐 / 놓침 | test precision | test recall | test F2 |
 |---|---:|---:|---:|---:|---:|---:|---:|

@@ -4,7 +4,7 @@
 # Except precision: a float32 base (~30 GB) does not fit, so the frozen base is bfloat16 (~15 GB) with bfloat16
 # autocast. Needs a bfloat16 GPU with 24 GB or more (L4, A100).
 model_name: Qwen/Qwen2.5-Coder-7B-Instruct
-revision: null  # resolved commit is written to run.json; pin it here after the first run
+revision: c03e6d358207e414f1eca0bb1891e29f1db0e242  # resolved by the first run (Colab L4, 2026-11-20)
 local_files_only: false
 data_dir: runs/data/span-creddata-traj-v1
 output_dir: runs/token-span/creddata-qwen7b-bidir
