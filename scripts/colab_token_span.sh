@@ -13,6 +13,11 @@
 #   qwen14b-bidir                                         LoRA, bfloat16 (A100 40 GB or larger)
 #   qwen14b-bidir --set load_in_4bit=true                 QLoRA on a 24 GB GPU; results go to ...-4bit, test it as
 #                                                         `test qwen14b-bidir-4bit`
+#   np-mmbert, np-mmbert-base, np-qwen-bidir, np-qwen1.5b-bidir
+#                                                         the same models on CredData-trajectory plus NoseyParker-
+#                                                         trajectory train (also needs NP_TRAJ_ZIP or the zip on
+#                                                         Drive). Validation only: `test` refuses them, since the NP
+#                                                         test is the team's hold-out.
 #
 # Run from the repository folder after the package is installed. Prints counts only.
 # Colab: mount Drive first; results go to Drive (DRIVE_DIR, default /content/drive/MyDrive/promptguard-runs).
@@ -32,6 +37,7 @@ python -c "import torch, sys; sys.exit(0 if torch.cuda.is_available() else 'no G
 python -c "import peft" 2>/dev/null || pip install -q "peft>=0.13,<1"
 if [ -d /content ]; then pip uninstall -q -y torchao 2>/dev/null || true; fi  # peft rejects Colab's torchao (quantization only)
 bash scripts/colab_prepare_creddata_traj.sh
+case $m in np-*) bash scripts/colab_prepare_creddata_np_traj.sh ;; esac
 free_gb() { python -c "import shutil; print(round(shutil.disk_usage('$DRIVE').free / 2**30, 2))"; }
 need() { python -c "import sys; sys.exit(0 if $(free_gb) >= $1 else 'Drive has under $1 GB free: stop')"; }
 config_of() { echo "configs/token-span-creddata-${1%-4bit}.yaml"; }
@@ -41,6 +47,7 @@ case $m in
   test)
     models=("${@:2}"); [ ${#models[@]} -gt 0 ] || models=(mmbert qwen)
     for model in "${models[@]}"; do
+      case $model in np-*) echo "$model: NP models are scored on validation only; the NP test is the team's hold-out" >&2; exit 2 ;; esac
       OUT=$DRIVE/token-span-creddata-$model
       read e t < <(python -c "import json; s = json.load(open('$OUT/selection.json'))['selected']; print(s['epoch'], repr(s['threshold']))")
       # shellcheck disable=SC2046
@@ -49,7 +56,7 @@ case $m in
     done
     exit 0
     ;;
-  qwen*)
+  qwen*|np-qwen*)
     CONFIG=$(config_of "$m"); test -f "$CONFIG" || { echo "no $CONFIG" >&2; exit 2; }
     extra=("${@:2}")
     name=$m
@@ -64,11 +71,11 @@ case $m in
       | grep --line-buffered -v -i warn | tee -a "$OUT.log"
     test -f "$OUT/selection.json"
     ;;
-  mmbert*)
+  mmbert*|np-mmbert*)
     CONFIG=$(config_of "$m"); test -f "$CONFIG" || { echo "no $CONFIG" >&2; exit 2; }
     LOCAL=$LOCAL_ROOT/token-span/creddata-$m
     OUT=$DRIVE/token-span-creddata-$m
-    case $m in mmbert-base) need 1.5 ;; *) need 0.7 ;; esac
+    case $m in mmbert-base|np-mmbert-base) need 1.5 ;; *) need 0.7 ;; esac
     rm -rf "$LOCAL"
     python scripts/token_span.py train --config "$CONFIG" --set output_dir="$LOCAL" "${@:2}" 2>&1 \
       | grep --line-buffered -v -i warn | tee -a "$DRIVE/token-span-creddata-$m.log"

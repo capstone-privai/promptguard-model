@@ -10,6 +10,12 @@
 #   bash scripts/colab_verifier.sh system MODEL          # validation: union vs strong-only vs strong+verifier
 #   bash scripts/colab_verifier.sh test MODEL            # once, after the run is frozen: candidate and system level
 #
+# CredData-trajectory plus NoseyParker-trajectory train (validation only; `test` refuses, the NP test is the team's):
+#   bash scripts/colab_verifier.sh prepare np            # the same detector as the CredData build, pinned: commit
+#                                                        # 668c2c1, CredSweeper 1.19.0, gitleaks 8.30.1; stops unless
+#                                                        # the CredData candidates come out as in that build
+#   bash scripts/colab_verifier.sh train np-mmbert-small # (or np-mmbert-base), then: system np-mmbert-small
+#
 # DRIVE_DIR (default /content/drive/MyDrive/promptguard-runs) keeps results; DETECTOR_DIR (default
 # ../promptguard-claude-demoV0) is the PromptGuard checkout whose detector makes the candidates (cloned if missing).
 # The candidate data holds values: it stays under runs/ and in DRIVE_DIR, like the source zip, and is never committed.
@@ -23,6 +29,12 @@ LOCAL_ROOT=${LOCAL_RUNS:-runs}
 DETECTOR=${DETECTOR_DIR:-../promptguard-claude-demoV0}
 DATA=runs/data/verifier-creddata-traj-v1
 SAVED=$DRIVE/data-verifier-creddata-traj-v1
+case $m in np|np-*)
+  DATA=runs/data/verifier-creddata-np-traj-v1
+  SAVED=$DRIVE/data-verifier-creddata-np-traj-v1 ;;
+esac
+DETECTOR_COMMIT=668c2c1e107aff596c07f3dd5e520ba76b0fbdf0  # the detector the CredData-trajectory candidates came from
+GITLEAKS_VERSION=8.30.1
 export PYTHONPATH=src USE_TF=0
 mkdir -p "$DRIVE"
 threshold() { python -c "import json; b = json.load(open('$1/model/bundle.json')); print(b['thresholds'][str(b['deployment_recall_target'])])"; }
@@ -31,6 +43,46 @@ case $cmd in
   prepare)
     if [ -d "$DATA" ]; then echo "$DATA exists"
     elif [ -d "$SAVED" ]; then mkdir -p runs/data && cp -r "$SAVED" "$DATA" && echo "restored $DATA from $SAVED"
+    elif [ "$m" = np ]; then
+      bash scripts/colab_prepare_creddata_np_traj.sh
+      DET=${DETECTOR_DIR:-runs/detector-668c2c1}
+      if [ ! -d "$DET" ]; then
+        git clone -q https://github.com/capstone-privai/promptguard-claude-demoV0 "$DET"
+        git -C "$DET" checkout -q "$DETECTOR_COMMIT"
+      fi
+      [ "$(git -C "$DET" rev-parse HEAD)" = "$DETECTOR_COMMIT" ] || { echo "$DET is not at $DETECTOR_COMMIT" >&2; exit 2; }
+      python -c "import credsweeper, sys; sys.exit(credsweeper.__version__ != '1.19.0')" 2>/dev/null || pip install -q credsweeper==1.19.0
+      if ! gitleaks version 2>/dev/null | grep -qxE "v?$GITLEAKS_VERSION"; then  # the official release, checked against its checksums
+        case "$(uname -s)-$(uname -m)" in
+          Linux-x86_64) asset=linux_x64 ;; Darwin-arm64) asset=darwin_arm64 ;; Darwin-x86_64) asset=darwin_x64 ;;
+          *) echo "no gitleaks $GITLEAKS_VERSION build for this machine" >&2; exit 2 ;;
+        esac
+        tgz=gitleaks_${GITLEAKS_VERSION}_$asset.tar.gz
+        url=https://github.com/gitleaks/gitleaks/releases/download/v$GITLEAKS_VERSION
+        mkdir -p runs/bin/gitleaks-dl && (cd runs/bin/gitleaks-dl \
+          && curl -fsSLO "$url/$tgz" && curl -fsSLO "$url/gitleaks_${GITLEAKS_VERSION}_checksums.txt" \
+          && grep " $tgz\$" "gitleaks_${GITLEAKS_VERSION}_checksums.txt" | { command -v sha256sum >/dev/null && sha256sum -c - || shasum -a 256 -c -; } \
+          && tar -xzf "$tgz" gitleaks && mv gitleaks ..)
+        export PATH=$PWD/runs/bin:$PATH
+      fi
+      gitleaks version
+      python scripts/prepare_verifier_candidates.py --detector "$DET" --data runs/data/span-creddata-np-traj-v1 --out "$DATA"
+      # The CredData rows are unchanged, so their train and validation candidates must be the earlier build's.
+      python - "$DATA" <<'EOF'
+import gzip, json, sys
+from collections import Counter
+seen = Counter()
+with gzip.open(f'{sys.argv[1]}/all/candidates.jsonl.gz', 'rt', encoding='utf-8') as f:
+    for r in map(json.loads, f):
+        if r['source']['row_id'].startswith('creddata_traj:') and r['source']['split'] != 'test':
+            seen[f"{r['source']['split']}/{r['detector']['strength']}/{r['label']['action']}"] += 1
+earlier = {'train/strong/MASK': 5911, 'train/strong/KEEP': 2174, 'train/ambiguous/MASK': 2157, 'train/ambiguous/KEEP': 2750,
+           'validation/strong/MASK': 601, 'validation/strong/KEEP': 456, 'validation/ambiguous/MASK': 395,
+           'validation/ambiguous/KEEP': 809}
+print('CredData candidates', dict(seen))
+sys.exit(0 if dict(seen) == earlier else 'CredData candidates differ from the earlier build: the detector setup differs, stop')
+EOF
+      cp -r "$DATA" "$SAVED"
     else
       bash scripts/colab_prepare_creddata_traj.sh
       [ -d "$DETECTOR" ] || git clone --depth 1 https://github.com/capstone-privai/promptguard-claude-demoV0 "$DETECTOR"
@@ -74,6 +126,7 @@ case $cmd in
       --threshold "$(threshold "$OUT")" --split validation | tee "$OUT/system_validation.json"
     ;;
   test)
+    case $m in np-*) echo "$m: NP models are scored on validation only; the NP test is the team's hold-out" >&2; exit 2 ;; esac
     OUT=$DRIVE/verifier-creddata-$m
     [ -e "$OUT/final" ] && { echo "$OUT/final exists: test was already scored" >&2; exit 2; }
     python scripts/final_evaluate.py --data "$DATA/ambiguous/candidates.jsonl.gz" --run "$OUT" --output "$OUT/final"

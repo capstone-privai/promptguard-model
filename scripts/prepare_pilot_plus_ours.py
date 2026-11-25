@@ -5,6 +5,8 @@
                                     validation = B val + v10 validation
   prepare_pilot_plus_ours.py bcred  B train + all of CredData-trajectory v1 train (runs/data/span-creddata-traj-v1,
                                     built by scripts/colab_prepare_creddata_traj.sh); validation = B val + its validation
+  prepare_pilot_plus_ours.py bcrednp  as bcred with NoseyParker-trajectory v1 added (runs/data/span-creddata-np-traj-v1,
+                                      built by scripts/colab_prepare_creddata_np_traj.sh)
 
 Models trained on the team step-0 data fire on secret-like strings our sets mark as not secret (hashes,
 request IDs, redaction marks, values a context calls examples). B+HN adds only our hard negatives, and the
@@ -36,6 +38,11 @@ VARIANTS = {
                   filter='all rows', leakage='span rows',
                   notice='B train plus all of CredData-trajectory v1 train; validation is B val plus '
                   'CredData-trajectory validation; B test unchanged, CredData-trajectory test not added.'),
+    'bcrednp': dict(model='B+CredData+NP', source='runs/data/span-creddata-np-traj-v1', train=lambda r: True,
+                    validation=True, filter='all rows', leakage='span rows',
+                    notice='B train plus all of CredData-trajectory v1 train and the NoseyParker-trajectory v1 train '
+                    'rule files; validation is B val plus CredData-trajectory validation plus the NP validation rule '
+                    'files; B test unchanged, CredData-trajectory test not added, the NP test is the team\'s hold-out.'),
 }
 
 

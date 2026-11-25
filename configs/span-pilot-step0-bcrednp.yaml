@@ -1,0 +1,29 @@
+# Pilot follow-up, model B+CredData+NP: configs/span-pilot-step0-bcred.yaml with NoseyParker-trajectory v1 train
+# added (scripts/prepare_pilot_plus_ours.py bcrednp on runs/data/span-creddata-np-traj-v1). Validation is B val plus
+# CredData-trajectory validation plus the NP validation rule files. Every other line matches B+CredData, so the two
+# differ only in the NP rows. Run as B+CredData was: --set seed=112 device=cuda, output on Drive so history.json and
+# the best epoch's weights survive a runtime reset (this trainer cannot resume).
+model_name: runs/backbones/mmbert-small
+backbone_id: jhu-clsp/mmBERT-small (team step-0 pilot, model B plus CredData-trajectory v1 and NoseyParker-trajectory v1 train, from base)
+backbone_revision: abc32620dd4f6ab06f5fbe905dc25f310618e09f
+local_files_only: true
+data_dir: runs/data/span-pilot-step0-bcrednp
+output_dir: runs/span-mmbert-pilot-step0-bcrednp
+# text and canonical_template too: CredData-trajectory was split by session, and 234 such keys of secret-free rows
+# recur in its train and validation. prepare_pilot_plus_ours.py bcred checked that no row with a span shares any key
+# with another split; the trainer still checks family_id, template_id, origin and value_family for every row.
+shared_key_kinds: [value, text, canonical_template]
+seed: 110
+epochs: 8
+patience: 3
+batch_size: 4
+length_grouped_batches: true
+progress_every_batches: 200
+learning_rate: 0.00003
+weight_decay: 0.01
+class_weights: [1.0, 2.0, 2.0]
+max_length: 512
+stride: 128
+thresholds: [0.5, 0.7, 0.8, 0.9, 0.95, 0.98, 0.99]
+device: mps
+threads: 4

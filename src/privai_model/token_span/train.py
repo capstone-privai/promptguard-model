@@ -267,6 +267,22 @@ def select_cutoff(rows, predictions):
     return raw, best or raw, len({s for s, _ in scored})
 
 
+def source_of(row_id):
+    return row_id.split(':', 1)[0]
+
+
+def by_source(rows, predictions, threshold):
+    """Exact-span counts for each data source (the row ID prefix) at one cutoff, or None when validation holds
+    one source. Reported beside the combined counts; selection uses the combined counts only."""
+    names = sorted({source_of(r['id']) for r in rows})
+    if len(names) < 2:
+        return None
+    gold = gold_keys(rows)
+    kept = {(rid, s['start'], s['end']) for rid, spans in predictions.items() for s in spans if s['score'] >= threshold}
+    return {n: measures({k for k in gold if source_of(k[0]) == n}, {k for k in kept if source_of(k[0]) == n})
+            for n in names}
+
+
 def resolved_revision(model):
     """The Hub commit the base weights came from, so a config with `revision: null` can be pinned afterwards."""
     base = model.get_base_model() if hasattr(model, 'get_base_model') else model
@@ -410,6 +426,9 @@ def train(config, resume=False, log=print):
         raw, selected, cutoffs = select_cutoff(val_rows, predictions)
         entry = dict(epoch=epoch + 1, loss=state['loss_sum'] / max(1, state['loss_batches']), raw=raw, selected=selected,
                      cutoffs_evaluated=cutoffs, seconds=round(time.perf_counter() - started, 1))
+        sources = by_source(val_rows, predictions, selected['threshold'])
+        if sources:
+            entry['by_source'] = sources
         state['history'].append(entry)
         log(json.dumps(entry))
         save_weights(model, tokenizer, out / f'epoch-{epoch + 1}')
