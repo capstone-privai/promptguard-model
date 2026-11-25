@@ -1,10 +1,11 @@
 """What fills the Drive: sizes of promptguard-runs entries and of every large file in My Drive, and which large files
 are byte-identical to a Git LFS object of this repository (so a copy already lives on GitHub).
 
-  python scripts/drive_inventory.py [--drive /content/drive/MyDrive] [--min-mb 50]
+  python scripts/drive_inventory.py [--drive /content/drive/MyDrive] [--min-mb 50] [--all]
 
 Run on Colab with Drive mounted, from a clone made with GIT_LFS_SKIP_SMUDGE=1 (models/ then holds LFS pointer files,
 which give each object's sha256 and size). A Drive file is hashed only when its size equals an LFS object's size.
+Large files are looked for in promptguard-runs (--all: the whole of My Drive, which is slow on DriveFS).
 Read-only: prints names, sizes and matches; deletes nothing and reads no file contents beyond hashing.
 """
 import argparse
@@ -54,6 +55,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--drive', default='/content/drive/MyDrive')
     p.add_argument('--min-mb', type=float, default=50)
+    p.add_argument('--all', action='store_true', help='look for large files in the whole of My Drive')
     args = p.parse_args()
     drive, runs = Path(args.drive), Path(args.drive) / 'promptguard-runs'
     objects = lfs_objects()
@@ -64,9 +66,10 @@ def main():
     for size, name in entries:
         print(f'{size / 2**30:7.2f}  {name}')
     print(f'{sum(s for s, _ in entries) / 2**30:7.2f}  (total)')
-    print(f'\n== files over {args.min_mb:g} MB in My Drive (MB, path, copy on GitHub LFS)')
+    where = drive if args.all else runs
+    print(f'\n== files over {args.min_mb:g} MB in {where.name} (MB, path, copy on GitHub LFS)')
     large = []
-    for directory, _, files in os.walk(drive):
+    for directory, _, files in os.walk(where):
         for name in files:
             path = Path(directory) / name
             try:
