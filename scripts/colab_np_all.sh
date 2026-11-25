@@ -84,11 +84,54 @@ run() {
   esac
 }
 
+# Publishing: each finished mmBERT model (span, verifier, pilot) becomes a models/ bundle with its weights stored in
+# bfloat16 (scripts/half_bundle.py, validation rescored with both copies), packed as $PUB/<name>.tar for Git LFS.
+# The Qwen runs stay on Drive as they are.
+PUB=$DRIVE/publish-np
+publish() {
+  local name src check
+  case $1 in
+    np-mmbert) name=span-creddata-np-mmbert-small ;;
+    np-mmbert-base) name=span-creddata-np-mmbert-base ;;
+    verifier-np-mmbert-small|verifier-np-mmbert-base) name=${1#verifier-np-}; name=verifier-creddata-np-$name ;;
+    pilot-bcrednp) name=span-pilot-step0-bcrednp-seed112 ;;
+    *) return 0 ;;
+  esac
+  [ -f "$PUB/$name.tar" ] && return 0
+  case $1 in  # the validation data the check needs (a fresh runtime after a reset has none)
+    np-mmbert*) bash scripts/colab_prepare_creddata_np_traj.sh > /dev/null || return ;;
+    verifier-*) bash scripts/colab_verifier.sh prepare np > /dev/null || return ;;
+    pilot-bcrednp)
+      [ -d runs/data/span-pilot-step0-bcrednp ] || { bash scripts/colab_prepare_pilot_step0.sh > /dev/null \
+        && bash scripts/colab_prepare_creddata_np_traj.sh > /dev/null \
+        && python scripts/prepare_pilot_plus_ours.py bcrednp > /dev/null; } || return ;;
+  esac
+  case $1 in
+    np-mmbert*)
+      src=/content/full-$1; rm -rf "$src"
+      python scripts/export_token_span_bundle.py --run "$DRIVE/token-span-creddata-$1" --out "$src" || return
+      check=(--check-span runs/data/span-creddata-np-traj-v1/validation.jsonl) ;;
+    verifier-*)
+      src=$DRIVE/verifier-creddata-${1#verifier-}/model
+      check=(--check-verifier runs/data/verifier-creddata-np-traj-v1/ambiguous/candidates.jsonl.gz) ;;
+    pilot-bcrednp)
+      src=$PILOT/model
+      check=(--check-span runs/data/span-pilot-step0-bcrednp/validation.jsonl) ;;
+  esac
+  rm -rf "/content/pub/$name" && mkdir -p /content/pub "$PUB"
+  python scripts/half_bundle.py --src "$src" --out "/content/pub/$name" "${check[@]}" --device cuda || return
+  tar -cf "$PUB/$name.tar.tmp" -C /content/pub "$name" && mv "$PUB/$name.tar.tmp" "$PUB/$name.tar"
+  echo "published $PUB/$name.tar ($(du -h "$PUB/$name.tar" | cut -f1))"
+}
+
 failed=()
 for s in "${steps[@]}"; do
-  if finished "$s"; then echo "== $s: finished, skipped"; continue; fi
-  echo "== $s  ($(date -u +%FT%TZ))"
-  run "$s" || { failed+=("$s"); echo "!! $s failed" >&2; }
+  if finished "$s"; then echo "== $s: finished, skipped"
+  else
+    echo "== $s  ($(date -u +%FT%TZ))"
+    run "$s" || { failed+=("$s"); echo "!! $s failed" >&2; continue; }
+  fi
+  publish "$s" || { failed+=("publish $s"); echo "!! publishing $s failed" >&2; }
 done
 echo "failed steps: ${failed[*]:-none}"
 
