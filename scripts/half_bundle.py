@@ -1,9 +1,12 @@
-"""Store a finished bundle's weights in bfloat16 to halve its size, for publishing in models/ (Git LFS).
+"""Store a finished bundle's weights in half precision to halve its size, for publishing in models/ (Git LFS).
 
   PYTHONPATH=src python scripts/half_bundle.py --src BUNDLE --out OUT \
-      [--check-span VALIDATION.jsonl | --check-verifier CANDIDATES.jsonl.gz] [--device cuda]
+      [--check-span VALIDATION.jsonl | --check-verifier CANDIDATES.jsonl.gz] [--device cuda] [--dtype float16]
 
-Only model.safetensors changes: its floating tensors are rounded to bfloat16. Every other file is copied as it is.
+Only model.safetensors changes: its floating tensors are rounded to float16 (default) or bfloat16. Every other file
+is copied as it is. float16 keeps 3 more mantissa bits than bfloat16 (relative error about 5e-4 instead of 4e-3);
+bfloat16 rounding alone moved verifier decisions at the recall-0.99 threshold, so float16 is the default. A weight
+outside the float16 range is refused rather than clipped.
 The loaders keep computing in float32: MLSpanDetector loads a span bundle in float32 unless span_bundle.json sets
 `torch_dtype`, and the verifier loader always loads float32. So the published bundle differs from the trained one
 only by that rounding. A span bundle that already sets a half `torch_dtype` is refused (it is half already).
@@ -44,8 +47,8 @@ def sha256(path):
     return h.hexdigest()
 
 
-def halve(src, out):
-    """Copy the bundle with its floating weights in bfloat16; return (json name, metadata dict)."""
+def halve(src, out, dtype='float16'):
+    """Copy the bundle with its floating weights in `dtype`; return (json name, metadata dict)."""
     src, out = Path(src), Path(out)
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f'{out} is not empty')
@@ -57,12 +60,17 @@ def halve(src, out):
     for f in src.iterdir():
         if f.is_file() and f.name != WEIGHTS:
             shutil.copy2(f, out / f.name)
+    target = {'float16': torch.float16, 'bfloat16': torch.bfloat16}[dtype]
     tensors = load_file(str(src / WEIGHTS))
-    halved = {k: (v.to(torch.bfloat16) if v.is_floating_point() else v).contiguous() for k, v in tensors.items()}
+    if target == torch.float16:
+        top = max((v.abs().max().item() for v in tensors.values() if v.is_floating_point() and v.numel()), default=0.0)
+        if top > torch.finfo(torch.float16).max:
+            raise ValueError(f'a weight of magnitude {top} does not fit float16')
+    halved = {k: (v.to(target) if v.is_floating_point() else v).contiguous() for k, v in tensors.items()}
     save_file(halved, str(out / WEIGHTS), metadata={'format': 'pt'})
     meta['half_storage'] = dict(
-        dtype='bfloat16', computed_in='float32 (the loaders upcast)', source_weights_sha256=sha256(src / WEIGHTS),
-        note='model.safetensors floating tensors rounded to bfloat16 to halve the size; everything else as trained')
+        dtype=dtype, computed_in='float32 (the loaders upcast)', source_weights_sha256=sha256(src / WEIGHTS),
+        note=f'model.safetensors floating tensors rounded to {dtype} to halve the size; everything else as trained')
     (out / name).write_text(json.dumps(meta, indent=2, ensure_ascii=False) + '\n')
     return name, meta
 
@@ -110,10 +118,11 @@ def main():
     check.add_argument('--check-span', help='validation rows (jsonl) of the span model')
     check.add_argument('--check-verifier', help='candidates.jsonl.gz of the verifier (its validation split is used)')
     p.add_argument('--device', default='cpu')
+    p.add_argument('--dtype', choices=['float16', 'bfloat16'], default='float16')
     args = p.parse_args()
     if args.device == 'cuda' and not torch.cuda.is_available():
         raise SystemExit('CUDA not available: stop (no CPU fallback)')
-    name, meta = halve(args.src, args.out)
+    name, meta = halve(args.src, args.out, args.dtype)
     if args.check_span:
         meta['half_storage']['check'] = check_span(args.src, args.out, args.check_span, args.device)
     elif args.check_verifier:
