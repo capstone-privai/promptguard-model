@@ -1,0 +1,67 @@
+{
+  "schema_version": "ml-span-bundle-v1",
+  "max_length": 512,
+  "stride": 128,
+  "threshold": 0.6695004834031049,
+  "threshold_source": "token-span selection.json: exact-span F2 on validation at every observed span score, precision tie-break, earlier epoch on ties",
+  "best_epoch": 2,
+  "bidirectional": false,
+  "torch_dtype": "float32",
+  "backbone": "jhu-clsp/mmBERT-small",
+  "revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "label_mapping": {
+    "0": "O",
+    "1": "B-SECRET",
+    "2": "I-SECRET"
+  },
+  "weights": "full-fine-tune",
+  "training": {
+    "torch_dtype": "float32",
+    "load_in_4bit": false,
+    "autocast": "float16",
+    "lora": null,
+    "seed": 110,
+    "epochs_run": 4,
+    "gpu": "Tesla T4",
+    "torch": "2.14.1+cu130"
+  },
+  "validation": {
+    "rows": 5870,
+    "tp": 1123,
+    "fp": 324,
+    "fn": 200,
+    "precision": 0.7760884588804423,
+    "recall": 0.8488284202569917,
+    "f2": 0.8332096750259682
+  },
+  "source_run": "token-span-creddata-np-mmbert",
+  "production_ready": false,
+  "half_storage": {
+    "dtype": "float16",
+    "computed_in": "float32 (the loaders upcast)",
+    "source_weights_sha256": "9a44c3bf10aa7fa9fd9aa1d284afd919de11a15984594a86994dfe76197020a9",
+    "note": "model.safetensors floating tensors rounded to float16 to halve the size; everything else as trained",
+    "check": {
+      "kind": "span",
+      "validation": "runs/data/span-creddata-np-traj-v1/validation.jsonl",
+      "rows": 5870,
+      "source": {
+        "tp": 1123,
+        "fp": 324,
+        "fn": 200,
+        "precision": 0.7760884588804423,
+        "recall": 0.8488284202569917,
+        "f2": 0.8332096750259682
+      },
+      "threshold": 0.6695004834031049,
+      "halved": {
+        "tp": 1123,
+        "fp": 324,
+        "fn": 200,
+        "precision": 0.7760884588804423,
+        "recall": 0.8488284202569917,
+        "f2": 0.8332096750259682
+      }
+    }
+  }
+}
