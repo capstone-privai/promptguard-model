@@ -37,11 +37,20 @@ def main():
     ambiguous = {r['candidate_id'] for r in records if r['detector']['strength'] == 'ambiguous'}
     if not ambiguous <= set(scores):
         raise SystemExit(f'{len(ambiguous - set(scores))} ambiguous candidates have no verifier score')
-    print(json.dumps(dict(
-        split=args.split, threshold=args.threshold, candidates=len(records), ambiguous=len(ambiguous),
-        union=system_metrics(records, gold),
-        strong_only=system_metrics(records, gold, scores={}, threshold=2.0),
-        strong_verifier=system_metrics(records, gold, scores=scores, threshold=args.threshold)), ensure_ascii=False))
+    def policies(records, gold):
+        return dict(union=system_metrics(records, gold),
+                    strong_only=system_metrics(records, gold, scores={}, threshold=2.0),
+                    strong_verifier=system_metrics(records, gold, scores=scores, threshold=args.threshold))
+
+    report = dict(split=args.split, threshold=args.threshold, candidates=len(records), ambiguous=len(ambiguous),
+                  **policies(records, gold))
+    # Data with several sources (row ID prefixes, e.g. CredData-trajectory plus NoseyParker-trajectory): each on its own.
+    source_of = lambda row_id: row_id.split(':', 1)[0]
+    names = sorted({source_of(rid) for rid in gold} | {source_of(r['source']['row_id']) for r in records})
+    if len(names) > 1:
+        report['by_source'] = {n: policies([r for r in records if source_of(r['source']['row_id']) == n],
+                                           {rid: s for rid, s in gold.items() if source_of(rid) == n}) for n in names}
+    print(json.dumps(report, ensure_ascii=False))
 
 
 if __name__ == '__main__':

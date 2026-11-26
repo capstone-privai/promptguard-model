@@ -1,0 +1,31 @@
+# CredData-trajectory v1 plus NoseyParker-trajectory v1 train (scripts/prepare_creddata_np_traj.py): configs/token-span-creddata-mmbert-base.yaml
+# with only data_dir and output_dir changed, so this run differs from that one only in the added NP rows.
+# Validation is CredData-trajectory validation (unchanged) plus the NP validation rule files; the trainer also
+# reports each source's counts at the selected cutoff (history by_source). Selection uses the combined counts.
+# CredData-trajectory v1, mmBERT-base (307M parameters, 110M without embeddings) as a BIO token classifier (full
+# fine-tune): the larger mmBERT, for the 1st-stage (local) comparison with mmBERT-small. There is no mmBERT-large.
+# Everything else is configs/token-span-creddata-mmbert.yaml (mmBERT-small), so the two runs differ in model size.
+model_name: jhu-clsp/mmBERT-base
+revision: c5955035435e2bf121cde7f3c8863ef52ff35d82  # resolved by the first run (RTX 4060, 2026-11-18)
+local_files_only: false
+data_dir: runs/data/span-creddata-np-traj-v1
+output_dir: runs/token-span/creddata-np-mmbert-base
+device: auto
+seed: 110
+epochs: 4
+patience: 2
+batch_size: 4
+learning_rate: 0.00003
+weight_decay: 0.01
+schedule: constant
+warmup_ratio: 0.0
+max_grad_norm: 1.0
+class_weights: [1.0, 2.0, 2.0]
+max_length: 512
+stride: 128
+fp16: true
+gradient_checkpointing: false
+lora: null
+save_every: 0           # a full checkpoint is ~3.7 GB; an epoch takes well under a Colab runtime, so no mid-epoch saves
+log_every: 500
+eval_batch_size: 32
