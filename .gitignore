@@ -54,3 +54,14 @@ data/span-code-refinement-*/
 !models/verifier-creddata-mmbert-small/**
 !models/verifier-creddata-mmbert-base/
 !models/verifier-creddata-mmbert-base/**
+# Models retrained with NoseyParker-trajectory v1 added (float16 bundles), published for the team's evaluation.
+!models/verifier-creddata-np-mmbert-small/
+!models/verifier-creddata-np-mmbert-small/**
+!models/verifier-creddata-np-mmbert-base/
+!models/verifier-creddata-np-mmbert-base/**
+!models/span-creddata-np-mmbert-small/
+!models/span-creddata-np-mmbert-small/**
+!models/span-creddata-np-mmbert-base/
+!models/span-creddata-np-mmbert-base/**
+!models/span-pilot-step0-bcrednp-seed112/
+!models/span-pilot-step0-bcrednp-seed112/**
