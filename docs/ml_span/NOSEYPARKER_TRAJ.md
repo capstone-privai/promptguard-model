@@ -46,7 +46,7 @@ Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_np_a
 | 순서 | 모델 | 상태 | 가중치 |
 |---:|---|---|---|
 | 1 | verifier mmBERT-small | 완료 | [`models/verifier-creddata-np-mmbert-small/`](../../models/verifier-creddata-np-mmbert-small/README.md) |
-| 2 | verifier mmBERT-base | 학습 완료, 업로드 대기 | |
+| 2 | verifier mmBERT-base | 완료 | [`models/verifier-creddata-np-mmbert-base/`](../../models/verifier-creddata-np-mmbert-base/README.md) |
 | 3 | span mmBERT-small | 대기 | |
 | 4 | span mmBERT-base | 대기 | |
 | 5 | pilot B+CredData+NP | 대기 | |
@@ -54,7 +54,7 @@ Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_np_a
 | 7 | span 양방향 Qwen 1.5B | 대기 | Drive만 |
 
 - **GitHub에 올리는 것**: mmBERT 계열 다섯 개의 bundle입니다. 가중치는 float16으로 저장해 크기를 반으로 줄였습니다([`scripts/half_bundle.py`](../../scripts/half_bundle.py)). 불러올 때는 float32로 계산하고, 올리기 전에 float32 원본과 float16 사본으로 validation을 각각 채점해 같은 결과인지 bundle json의 `half_storage`에 적습니다.
-  - 처음에는 bfloat16으로 줄였는데, verifier-small에서 배포 기준값(recall 0.99) 근처 후보 2개의 판정이 바뀌었습니다(놓친 MASK 4개 → 6개). 그래서 정밀도가 높은 float16으로 바꿨고, float16에서는 바뀐 판정이 없었습니다.
+  - 처음에는 bfloat16으로 줄였는데, verifier-small에서 배포 기준값(recall 0.99) 근처 후보 8개의 판정이 바뀌었습니다(놓친 MASK 4개 → 6개, 그래서 recall이 0.99 아래로). 그래서 정밀도가 높은 float16으로 바꿨고, float16에서는 두 verifier 모두 바뀐 판정이 없었습니다.
 - **Drive에만 두는 것**: Qwen 두 개는 float16으로도 1GB, 3GB라 GitHub LFS 한도(10GB, 7.7GB 사용 중)에 넣지 않습니다. 학습 run은 Drive `promptguard-runs/token-span-creddata-np-qwen-bidir/`, `token-span-creddata-np-qwen1.5b-bidir/`에 있습니다.
 - **맥 MPS로 학습해 본 것**: Colab GPU가 막혀 있던 동안 span mmBERT-small을 이 맥(Apple M3, MPS, float32)에서 학습해 봤습니다. epoch 1의 합친 validation F2가 0.706으로 낮았고, epoch 2에서 프로세스 메모리가 21GB까지 늘어 멈췄습니다. 같은 맥에서 기존 CredData mmBERT-base bundle을 채점하면 Colab과 똑같은 숫자가 나오므로 추론은 정상입니다. 이 run은 쓰지 않고, 같은 설정을 Colab CUDA로 다시 학습합니다.
 
@@ -68,15 +68,18 @@ Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_np_a
 |---|---:|---:|---:|---:|---:|---:|
 | 전부 가림 (union) | 2,376 | 1,274 | 1,102 | 0.464 | 0.833 | 0.719 |
 | strong만 가림 | 1,154 | 456 | 698 | 0.605 | 0.528 | 0.541 |
-| strong + mmBERT-small (NP 포함 학습) | 1,628 | 530 | 1,098 | 0.674 | 0.830 | **0.793** |
+| strong + mmBERT-small (NP 포함 학습) | 1,628 | **530** | 1,098 | **0.674** | 0.830 | **0.793** |
+| strong + mmBERT-base (NP 포함 학습) | 1,637 | 539 | 1,098 | 0.671 | 0.830 | 0.792 |
 
 출처별(strong + 검증기):
 
-| 셋 (정답 수) | mmBERT-small, NP 포함 | (참고) mmBERT-small, CredData만 |
-|---|---|---|
-| CredData-trajectory validation (1,200) | 992 닿음 / 오탐 521 · P 0.656 · F2 0.786 | 993 닿음 / 오탐 524 · P 0.655 · F2 0.786 |
-| NoseyParker-trajectory validation (123) | 106 닿음 / 오탐 9 · P 0.922 · F2 0.873 | — |
+| 셋 (정답 수) | 검증기 | NP 포함 학습 | (참고) CredData만 학습 |
+|---|---|---|---|
+| CredData-trajectory validation (1,200) | mmBERT-small | 992 닿음 / 오탐 521 · P 0.656 · F2 0.786 | 993 닿음 / 오탐 524 · P 0.655 · F2 0.786 |
+| CredData-trajectory validation (1,200) | mmBERT-base | 992 닿음 / 오탐 530 · P 0.652 · F2 0.785 | 993 닿음 / 오탐 750 · P 0.570 · F2 0.759 |
+| NoseyParker-trajectory validation (123) | 둘 다 | 106 닿음 / 오탐 9 · P 0.922 · F2 0.873 | — |
 
-- **CredData 쪽은 이전 검증기와 같습니다.** NP 후보를 더해도 CredData 성능은 달라지지 않았습니다.
+- **mmBERT-small은 CredData 쪽에서 이전 검증기와 같습니다.** NP 후보를 더해도 CredData 성능은 달라지지 않았습니다.
+- **mmBERT-base는 이전보다 오탐이 220개 적습니다**(750 → 530). 이전 base는 validation loss가 epoch 1부터 높았는데(0.673), 이번에는 0.589입니다. 데이터 차이는 ambiguous 후보 81개뿐이라, 차이의 대부분은 seed 하나로 한 번씩 학습한 변동으로 봅니다. 그래도 small과 같은 수준이 됐으므로 기본 검증기는 계속 mmBERT-small입니다.
 - **NP 쪽은 검증기가 할 일이 거의 없습니다.** NP의 ambiguous 후보 18개를 모두 가렸고(union과 같음), 오탐 9개는 그 안에 있습니다. NP 후보는 대부분 strong이라 탐지기 규칙이 이미 잡습니다.
-- 선택: validation loss가 가장 낮은 epoch 1(0.682). 기준값은 recall 0.99에서 0.9808, recall 0.95에서 0.9980입니다.
+- 선택: 두 모델 모두 validation loss가 가장 낮은 epoch 1입니다(small 0.682, base 0.589). recall 0.99 기준값은 small 0.9808, base 0.0400입니다.
