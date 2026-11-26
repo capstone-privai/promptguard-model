@@ -47,8 +47,8 @@ Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_np_a
 |---:|---|---|---|
 | 1 | verifier mmBERT-small | 완료 | [`models/verifier-creddata-np-mmbert-small/`](../../models/verifier-creddata-np-mmbert-small/README.md) |
 | 2 | verifier mmBERT-base | 완료 | [`models/verifier-creddata-np-mmbert-base/`](../../models/verifier-creddata-np-mmbert-base/README.md) |
-| 3 | span mmBERT-small | 대기 | |
-| 4 | span mmBERT-base | 대기 | |
+| 3 | span mmBERT-small | 완료 | [`models/span-creddata-np-mmbert-small/`](../../models/span-creddata-np-mmbert-small/README.md) |
+| 4 | span mmBERT-base | 학습 중 | |
 | 5 | pilot B+CredData+NP | 대기 | |
 | 6 | span 양방향 Qwen 0.5B | 대기 | Drive만 |
 | 7 | span 양방향 Qwen 1.5B | 대기 | Drive만 |
@@ -83,3 +83,28 @@ Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_np_a
 - **mmBERT-base는 이전보다 오탐이 220개 적습니다**(750 → 530). 이전 base는 validation loss가 epoch 1부터 높았는데(0.673), 이번에는 0.589입니다. 데이터 차이는 ambiguous 후보 81개뿐이라, 차이의 대부분은 seed 하나로 한 번씩 학습한 변동으로 봅니다. 그래도 small과 같은 수준이 됐으므로 기본 검증기는 계속 mmBERT-small입니다.
 - **NP 쪽은 검증기가 할 일이 거의 없습니다.** NP의 ambiguous 후보 18개를 모두 가렸고(union과 같음), 오탐 9개는 그 안에 있습니다. NP 후보는 대부분 strong이라 탐지기 규칙이 이미 잡습니다.
 - 선택: 두 모델 모두 validation loss가 가장 낮은 epoch 1입니다(small 0.682, base 0.589). recall 0.99 기준값은 small 0.9808, base 0.0400입니다.
+
+## 결과: span 모델 (validation)
+
+exact-span 기준입니다(예측 span의 시작과 끝이 정답과 정확히 같아야 맞힘). cutoff는 합친 validation에서 골랐고, 출처별 숫자는 그 cutoff에서 센 것입니다.
+
+| 모델 | epoch · cutoff | 합친 셋 (1,323) | CredData 부분 (1,200) | NP 부분 (123) |
+|---|---|---|---|---|
+| mmBERT-small, NP 포함 | 2 · 0.670 | 1,123 / 324 / 200 · P 0.776 · F2 **0.833** | 1,014 / 317 / 186 · P 0.762 · F2 **0.827** | 109 / 7 / 14 · P 0.940 · F2 0.896 |
+| (참고) mmBERT-small, CredData만 | 1 · 0.720 | — | 996 / 268 / 204 · P 0.788 · F2 0.821 | — |
+
+칸은 맞힘 / 오탐 / 놓침입니다.
+
+- **CredData 부분은 이전보다 조금 좋습니다**(F2 0.827 대 0.821). 정답을 18개 더 찾고 오탐이 49개 늘었습니다. recall에 무게를 두는 F2로는 0.006 높습니다. seed 하나로 한 번씩 학습한 결과라 이 정도 차이는 변동 범위 안일 수 있습니다.
+- **NP 부분은 높습니다**(F2 0.896). NP validation은 정답 123개라 몇 개 차이로 크게 움직입니다.
+- **epoch 2를 골랐습니다.** CredData만으로 학습했을 때는 epoch 1이 가장 좋았습니다.
+
+| epoch | loss | cutoff | 맞힘 / 오탐 / 놓침 (합친 셋) | F2 |
+|---:|---:|---:|---:|---:|
+| 1 | 0.0211 | 0.573 | 1,083 / 330 / 240 | 0.808 |
+| **2 (선택)** | 0.0071 | **0.670** | **1,123 / 324 / 200** | **0.833** |
+| 3 | 0.0036 | 0.766 | 1,059 / 336 / 264 | 0.792 |
+| 4 | 0.0027 | 0.800 | 1,061 / 265 / 262 | 0.802 |
+
+- **run마다 조금씩 다릅니다.** 같은 설정의 첫 CUDA run은 epoch 2 도중 런타임이 끊겨 잃었는데, 그 run의 epoch 1은 F2 0.822(1,107 / 332 / 216)였습니다. 위 run의 epoch 1은 0.808입니다. seed는 같지만 GPU 연산이 결정적이지 않아 결과가 달라집니다.
+- float16 bundle로 validation을 다시 채점한 결과는 float32와 같았고, 학습 때 숫자와도 같습니다(1,123 / 324 / 200).
