@@ -95,4 +95,22 @@ def test_a_run_resumed_on_a_new_runtime_matches_an_uninterrupted_run(tmp_path):
     strip = lambda s: [{k: h[k] for k in ('epoch', 'loss', 'selected')} for h in s['history']]
     assert strip(resumed) == strip(whole) and resumed['selected'] == whole['selected']
     assert sorted(p.name for p in (tmp_path / 'runtime2').glob('epoch-*')) == ['epoch-3']
-    assert json.loads((drive / 'best' / 'epoch.json').read_text())['epoch'] == resumed['selected']['epoch']
+    # best_dir holds the chosen epoch unless the last epoch was chosen: a finished run writes nothing more to Drive,
+    # and its last epoch stays in output_dir.
+    chosen = resumed['selected']['epoch']
+    expected = chosen if chosen < 3 else ts.chosen_epoch(resumed['history'][:2])['epoch']
+    assert json.loads((drive / 'best' / 'epoch.json').read_text())['epoch'] == expected
+
+
+def test_a_save_that_does_not_fit_is_skipped_and_the_old_copy_kept(tmp_path, monkeypatch):
+    """On the Drive mount a replaced copy stays in the trash and counts, so a new copy needs room beside the old one."""
+    model, optimizer, scheduler, scaler = parts()
+    drive, staging = tmp_path / 'drive' / 'last', tmp_path / 'stage'
+    assert ts.save_checkpoint(drive, model, optimizer, scheduler, scaler, dict(epoch=1), staging)
+    ts.save_best(Saves('model1'), Saves('tok'), tmp_path / 'drive' / 'best', 1)
+    full = type('Usage', (), dict(total=10, used=10, free=0))()
+    monkeypatch.setattr(ts.shutil, 'disk_usage', lambda _: full)
+    assert ts.save_checkpoint(drive, model, optimizer, scheduler, scaler, dict(epoch=2), staging) is False
+    assert json.loads((drive / 'state.json').read_text()) == dict(epoch=1) and not staging.exists()
+    assert ts.save_best(Saves('model2'), Saves('tok'), tmp_path / 'drive' / 'best', 2, nbytes=100) is False
+    assert json.loads((tmp_path / 'drive' / 'best' / 'epoch.json').read_text()) == dict(epoch=1)

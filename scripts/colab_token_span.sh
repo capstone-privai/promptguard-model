@@ -92,10 +92,17 @@ case $m in
           --set checkpoint_staging="$LOCAL_ROOT/ckpt-staging/$(run_name "$m")" --set best_dir="$OUT/best" \
           "${resume[@]}" "${@:2}" 2>&1 | grep --line-buffered -v -i warn | tee -a "$DRIVE/token-span-$(run_name "$m").log"
         e=$(python -c "import json; print(json.load(open('$LOCAL/selection.json'))['selected']['epoch'])")
-        b=$(python -c "import json; print(json.load(open('$OUT/best/epoch.json'))['epoch'])")
-        [ "$b" = "$e" ] || { echo "best epoch on Drive is $b, selection chose $e" >&2; exit 1; }
         cp "$LOCAL"/{history.json,run.json,config.json,progress.jsonl} "$OUT/"
-        rm -rf "$OUT/last" "$OUT/epoch-$e" && mv "$OUT/best" "$OUT/epoch-$e" && rm "$OUT/epoch-$e/epoch.json"
+        rm -rf "$OUT/last"
+        if [ -d "$LOCAL/epoch-$e" ]; then
+          # Trained on this runtime: it stays in $LOCAL (Drive has no room for another copy, since a deleted file
+          # stays in the Drive trash and still counts); colab_tc_all.sh publishes the bundle from $LOCAL.
+          rm -rf "$OUT/best"
+        else
+          b=$(python -c "import json; print(json.load(open('$OUT/best/epoch.json'))['epoch'])")
+          [ "$b" = "$e" ] || { echo "best epoch on Drive is $b, selection chose $e" >&2; exit 1; }
+          rm -rf "$OUT/epoch-$e" && mv "$OUT/best" "$OUT/epoch-$e" && rm "$OUT/epoch-$e/epoch.json"
+        fi
         cp "$LOCAL/selection.json" "$OUT/"  # last: selection.json marks the step finished
         ;;
       *)

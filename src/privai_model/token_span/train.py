@@ -301,10 +301,19 @@ def trainable_state(model):
     return {n: p.detach().cpu() for n, p in model.named_parameters() if p.requires_grad}
 
 
+def room_for(directory, nbytes):
+    """Whether the file system holding `directory` has room for `nbytes` more. On the Colab Drive mount a removed file
+    goes to the Drive trash and still counts against the quota, so a replacement needs room beside the old copy."""
+    parent = Path(directory).parent
+    parent.mkdir(parents=True, exist_ok=True)
+    return shutil.disk_usage(parent).free > nbytes * 1.05 + 2**26
+
+
 def save_checkpoint(directory, model, optimizer, scheduler, scaler, state, staging=None):
     """Write the checkpoint next to `directory` and swap it in. With `staging` (a local folder) it is written there,
     the old checkpoint is removed, and the new one is copied in: `directory` never holds two checkpoints, but a crash
-    between the removal and the copy leaves none (training then starts over)."""
+    between the removal and the copy leaves none (training then starts over). With `staging`, a checkpoint that does
+    not fit is skipped and the old one kept; returns False then."""
     directory = Path(directory)
     tmp = Path(staging) if staging else directory.with_name(directory.name + '.tmp')
     if staging and tmp.exists():
@@ -318,6 +327,9 @@ def save_checkpoint(directory, model, optimizer, scheduler, scaler, state, stagi
     for p in tmp.iterdir():
         if p.stat().st_size == 0:
             raise OSError(f'{p} was written empty (disk full?)')
+    if staging and not room_for(directory, sum(p.stat().st_size for p in tmp.iterdir())):
+        shutil.rmtree(tmp)
+        return False
     if directory.exists():
         for p in directory.iterdir():
             p.unlink()
@@ -331,6 +343,7 @@ def save_checkpoint(directory, model, optimizer, scheduler, scaler, state, stagi
         shutil.rmtree(tmp)
     else:
         tmp.rename(directory)
+    return True
 
 
 def save_weights(model, tokenizer, directory):
@@ -343,9 +356,12 @@ def chosen_epoch(history):
     return max(history, key=lambda h: ((h['selected']['f2'] or 0), (h['selected']['precision'] or 0), -h['epoch']))
 
 
-def save_best(model, tokenizer, directory, epoch):
-    """Replace `directory` with this epoch's weights (removed first, so it never holds two copies) and its number."""
+def save_best(model, tokenizer, directory, epoch, nbytes=None):
+    """Replace `directory` with this epoch's weights (removed first, so it never holds two copies) and its number.
+    With `nbytes` (the size of the weights), weights that do not fit are skipped and the old ones kept; returns False."""
     directory = Path(directory)
+    if nbytes is not None and not room_for(directory, nbytes):
+        return False
     part = directory.with_name(directory.name + '.part')
     for d in (directory, part):
         if d.exists():
@@ -353,6 +369,7 @@ def save_best(model, tokenizer, directory, epoch):
     save_weights(model, tokenizer, part)
     write_json(part / 'epoch.json', dict(epoch=epoch))
     part.rename(directory)
+    return True
 
 
 def schedule(config, total_steps):
@@ -461,7 +478,8 @@ def train(config, resume=False, log=print):
             if config.get('save_every_minutes') and time.perf_counter() - last_save >= 60 * config['save_every_minutes']:
                 due = True
             if due:
-                save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state, staging)
+                if not save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state, staging):
+                    log(json.dumps(dict(event='checkpoint_not_saved', step=state['step'], reason='no room')))
                 last_save = time.perf_counter()
         predictions = predict(model, tokenizer, val_rows, config['max_length'], config['stride'], device, amp,
                               config.get('eval_batch_size', 16))
@@ -474,8 +492,6 @@ def train(config, resume=False, log=print):
         state['history'].append(entry)
         log(json.dumps(entry))
         save_weights(model, tokenizer, out / f'epoch-{epoch + 1}')
-        if config.get('best_dir') and chosen_epoch(state['history'])['epoch'] == epoch + 1:
-            save_best(model, tokenizer, config['best_dir'], epoch + 1)
         state.update(epoch=epoch + 1, batch=0, loss_sum=0.0, loss_batches=0)
         write_json(out / 'history.json', state['history'])
         if (selected['f2'] or 0) > best:
@@ -483,10 +499,15 @@ def train(config, resume=False, log=print):
         else:
             stale += 1
         done = state['epoch'] >= config['epochs'] or stale >= config.get('patience', config['epochs'])
-        # With a staged (Drive) checkpoint, a finished run saves none: there is nothing to resume, and on Drive a
-        # replaced checkpoint goes to the trash, where it still counts against the quota.
+        # With a staged (Drive) checkpoint, a finished run writes neither: there is nothing to resume, its last epoch
+        # stays in output_dir, and on Drive a replaced copy goes to the trash, where it still counts against the quota.
+        if config.get('best_dir') and chosen_epoch(state['history'])['epoch'] == epoch + 1 and not (done and staging):
+            size = sum(f.stat().st_size for f in (out / f'epoch-{epoch + 1}').iterdir()) if staging else None
+            if not save_best(model, tokenizer, config['best_dir'], epoch + 1, size):
+                log(json.dumps(dict(event='best_not_saved', epoch=epoch + 1, reason='no room in best_dir')))
         if not (done and staging):
-            save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state, staging)
+            if not save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state, staging):
+                log(json.dumps(dict(event='checkpoint_not_saved', epoch=epoch + 1, reason='no room in checkpoint_dir')))
         if stale >= config.get('patience', config['epochs']):
             break
     progress.close()
