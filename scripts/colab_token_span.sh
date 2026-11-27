@@ -80,14 +80,35 @@ case $m in
     CONFIG=$(config_of "$m"); test -f "$CONFIG" || { echo "no $CONFIG" >&2; exit 2; }
     LOCAL=$LOCAL_ROOT/token-span/$(run_name "$m")
     OUT=$DRIVE/token-span-$(run_name "$m")
-    case $m in *mmbert-base) need 1.5 ;; *) need 0.7 ;; esac
-    rm -rf "$LOCAL"
-    python scripts/token_span.py train --config "$CONFIG" --set output_dir="$LOCAL" "${@:2}" 2>&1 \
-      | grep --line-buffered -v -i warn | tee -a "$DRIVE/token-span-$(run_name "$m").log"
-    e=$(python -c "import json; print(json.load(open('$LOCAL/selection.json'))['selected']['epoch'])")
-    mkdir -p "$OUT"
-    cp "$LOCAL"/{selection.json,history.json,run.json,config.json,progress.jsonl} "$OUT/"
-    cp -r "$LOCAL/epoch-$e" "$OUT/"
+    case $m in
+      tc-*)
+        # Resumable across runtimes: Colab reclaims a runtime after about 8 hours, and 4 epochs of mmBERT-base on the
+        # third training set take about 9.5 hours on a T4. The checkpoint (~3.7 GB) and the best epoch so far
+        # (~1.2 GB) sit on Drive; the same command resumes from the last finished epoch on a new runtime.
+        resume=()
+        if [ -f "$OUT/last/state.json" ]; then resume=(--resume); else need 4.8; rm -rf "$LOCAL" "$OUT/best"; fi
+        mkdir -p "$OUT"
+        python scripts/token_span.py train --config "$CONFIG" --set output_dir="$LOCAL" --set checkpoint_dir="$OUT/last" \
+          --set checkpoint_staging="$LOCAL_ROOT/ckpt-staging/$(run_name "$m")" --set best_dir="$OUT/best" \
+          "${resume[@]}" "${@:2}" 2>&1 | grep --line-buffered -v -i warn | tee -a "$DRIVE/token-span-$(run_name "$m").log"
+        e=$(python -c "import json; print(json.load(open('$LOCAL/selection.json'))['selected']['epoch'])")
+        b=$(python -c "import json; print(json.load(open('$OUT/best/epoch.json'))['epoch'])")
+        [ "$b" = "$e" ] || { echo "best epoch on Drive is $b, selection chose $e" >&2; exit 1; }
+        cp "$LOCAL"/{history.json,run.json,config.json,progress.jsonl} "$OUT/"
+        rm -rf "$OUT/last" "$OUT/epoch-$e" && mv "$OUT/best" "$OUT/epoch-$e" && rm "$OUT/epoch-$e/epoch.json"
+        cp "$LOCAL/selection.json" "$OUT/"  # last: selection.json marks the step finished
+        ;;
+      *)
+        case $m in *mmbert-base) need 1.5 ;; *) need 0.7 ;; esac
+        rm -rf "$LOCAL"
+        python scripts/token_span.py train --config "$CONFIG" --set output_dir="$LOCAL" "${@:2}" 2>&1 \
+          | grep --line-buffered -v -i warn | tee -a "$DRIVE/token-span-$(run_name "$m").log"
+        e=$(python -c "import json; print(json.load(open('$LOCAL/selection.json'))['selected']['epoch'])")
+        mkdir -p "$OUT"
+        cp "$LOCAL"/{selection.json,history.json,run.json,config.json,progress.jsonl} "$OUT/"
+        cp -r "$LOCAL/epoch-$e" "$OUT/"
+        ;;
+    esac
     ;;
   *) echo "usage: $0 MODEL [--set key=value ...] | test [MODEL ...]  (MODEL: configs/token-span-creddata-MODEL.yaml)" >&2; exit 2 ;;
 esac

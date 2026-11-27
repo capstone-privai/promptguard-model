@@ -44,10 +44,42 @@ Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_tc_a
 | 순서 | 모델 | 상태 | 가중치 |
 |---:|---|---|---|
 | 1 | verifier mmBERT-small | 완료 | [`models/verifier-traj-combined-mmbert-small/`](../../models/verifier-traj-combined-mmbert-small/README.md) |
-| 2 | span mmBERT-base | 학습 중(11:40 시작) | |
+| 2 | span mmBERT-base | 두 번째로 학습 중(첫 run은 런타임이 회수되며 잃음) | |
+
+- **첫 span mmBERT-base run을 잃었습니다.** 11:40에 시작한 run이 epoch 4 도중(18:50쯤) 런타임과 함께 사라졌습니다. 이 계정의 Colab 런타임은 약 8시간이면 회수되는데(오늘 새벽 run도 8.5시간), T4에서 4 epoch은 약 9.5시간 걸립니다. 그 run의 validation은 epoch 1·2·3에서 F2 0.847, 0.856, 0.844였고, 가중치는 런타임 디스크에만 있어 남지 않았습니다. 이 숫자는 참고로만 적고, 결과로는 두 번째 run을 씁니다.
+- **두 번째 run은 런타임을 넘어 이어집니다.** 학습 상태(가중치, optimizer, 위치, ~3.7GB)를 epoch마다 Drive에 저장하고, 지금까지 가장 좋은 epoch의 가중치(~1.2GB)도 Drive에 둡니다([`train.py`](../../src/privai_model/token_span/train.py)의 `checkpoint_staging`, `best_dir`). 런타임이 회수되면 새 런타임에서 같은 명령이 마지막으로 끝난 epoch부터 이어 갑니다. 설정(데이터, seed, 학습률, epoch 수)은 바꾸지 않았습니다. 작은 모델로 두 epoch 뒤 끊고 이어 간 학습이 끊지 않은 학습과 같은 기록을 내는지 테스트했습니다([`tests/token_span/test_resumable_checkpoint.py`](../../tests/token_span/test_resumable_checkpoint.py)).
+- **Drive 공간**: 저장할 자리를 만들려고 휴지통에 있던 NP publish tar 4개(1.9GB, GitHub LFS 사본과 md5가 같은 파일)를 영구 삭제했습니다.
 
 - **가중치**: float16으로 저장해 크기를 반으로 줄였습니다([`scripts/half_bundle.py`](../../scripts/half_bundle.py)). 불러올 때는 float32로 계산합니다. 올리기 전에 float32 원본과 float16 사본으로 validation을 각각 채점해 bundle json의 `half_storage`에 적습니다.
 - **Colab에서 돌리는 방법**: 체인을 노트북 셀 안에서 돌리면 커널이 계속 바빠서, 페이지 연결이 한 번 끊기면 다시 붙지 못합니다(11:11에 맥 네트워크가 바뀌며 그렇게 됐습니다). 그래서 verifier 학습 뒤의 단계는 Colab 터미널에서 커널과 떨어진 백그라운드 프로세스로 돌립니다(`setsid nohup bash scripts/colab_tc_all.sh >> tc-all.log`).
+
+## span mmBERT-base 직접 마무리하기
+
+두 번째 run은 2026-11-27 22:19에 시작했습니다. 이 런타임은 28일 06시쯤 회수되고, 그때까지 epoch 3까지 끝나 Drive에 저장됩니다. 그다음은 아래 순서로 마무리합니다.
+
+1. **epoch 4 이어 돌리기**:
+   - Colab에서 `Untitled1.ipynb`를 열고 오른쪽 위의 **연결(T4)** 을 누릅니다.
+   - 맨 위 셀(`# Trajectory-train-combined v1: span mmBERT-base, resumable ...`)을 실행합니다.
+   - 'Google Drive에 연결' 창이 뜨면 허용합니다. 약 2분 안에 눌러야 합니다.
+   - 셀은 바로 끝나고(`chain started (detached)`), 학습은 뒤에서 Drive에 저장된 마지막 epoch부터 이어 갑니다.
+   - 끝나면 가장 좋은 epoch을 골라 float16 bundle까지 만듭니다. 2.5~3시간쯤 걸립니다.
+   - epoch 2와 3이 둘 다 epoch 1보다 낮았다면 조기 종료로 epoch 3에서 이미 끝났으니, 이 단계는 건너뜁니다.
+2. **끝났는지 확인**: Drive `promptguard-runs/` 아래에 두 파일이 있으면 끝난 것입니다.
+   - `token-span-traj-combined-mmbert-base/selection.json`
+   - `publish-tc/span-traj-combined-mmbert-base.tar`
+   - 진행 로그는 `promptguard-runs/tc-all.log`의 마지막 줄에 있습니다.
+   - Colab 페이지가 '연결이 끊어짐'을 보여도 학습은 런타임에서 계속됩니다. 둘째 셀(status)을 실행하면 진행 상황이 나오고, 페이지도 활동 중으로 남습니다.
+3. **GitHub에 올리기**: `publish-tc/span-traj-combined-mmbert-base.tar`를 맥으로 내려받은 뒤, 저장소 폴더에서 실행합니다.
+   ```bash
+   git switch claude/traj-combined && git pull
+   tar -xf ~/Downloads/span-traj-combined-mmbert-base.tar -C models/
+   git add models/span-traj-combined-mmbert-base && git commit -m "Span mmBERT-base on Trajectory-train-combined v1: float16 bundle"
+   git push && gh pr create --base main --head claude/traj-combined --fill && gh pr merge --merge
+   ```
+   - 가중치는 Git LFS로 올라갑니다(`.gitattributes`에 이미 등록되어 있음).
+   - `span_bundle.json`에 고른 epoch(`best_epoch`), cutoff(`threshold`), float16 확인 결과(`half_storage`)가 들어 있습니다.
+   - epoch별 validation 숫자는 Drive `token-span-traj-combined-mmbert-base/history.json`에 있습니다.
+4. **Drive 정리**: 학습이 끝나면 `token-span-traj-combined-mmbert-base/last/`(학습 상태 ~3.7GB)는 스크립트가 지웁니다.
 
 ## 결과: verifier mmBERT-small (validation)
 
