@@ -1,6 +1,8 @@
 # NoseyParker-trajectory를 더해 다시 학습한 모델
 
-팀이 준 NoseyParker-trajectory v1 train을 CredData-trajectory v1에 더해, 지금 쓰는 모델을 모두 다시 학습합니다. 모델이 하나 끝날 때마다 bundle을 `models/`에 올리고 이 문서에 결과를 더합니다.
+팀이 준 NoseyParker-trajectory v1 train을 CredData-trajectory v1에 더해 모델을 다시 학습했습니다. 모델이 하나 끝날 때마다 bundle을 `models/`에 올리고 이 문서에 결과를 더했습니다.
+
+**2026-11-27에 대상을 verifier mmBERT-small과 span mmBERT-base로 줄였습니다.** 두 모델 모두 학습을 마쳤고 bundle이 올라가 있습니다. 그 전에 끝난 verifier mmBERT-base와 span mmBERT-small의 bundle도 그대로 둡니다. pilot B+CredData+NP와 양방향 Qwen 0.5B·1.5B는 학습하지 않았습니다(아래 진행 상황). 아래 표의 설정 파일은 남아 있습니다.
 
 | 모델 | 이전 학습 데이터 | 설정 |
 |---|---|---|
@@ -41,22 +43,25 @@
 
 ## 진행 상황
 
-Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_np_all.sh`, 2026-11-26 19:30 KST 시작).
+Colab T4 한 대에서 아래 순서로 학습했습니다(`bash scripts/colab_np_all.sh`, 2026-11-26 19:30 KST 시작, 2026-11-27 10:44 KST에 멈춤).
 
 | 순서 | 모델 | 상태 | 가중치 |
 |---:|---|---|---|
-| 1 | verifier mmBERT-small | 완료 | [`models/verifier-creddata-np-mmbert-small/`](../../models/verifier-creddata-np-mmbert-small/README.md) |
+| 1 | **verifier mmBERT-small** | 완료 | [`models/verifier-creddata-np-mmbert-small/`](../../models/verifier-creddata-np-mmbert-small/README.md) |
 | 2 | verifier mmBERT-base | 완료 | [`models/verifier-creddata-np-mmbert-base/`](../../models/verifier-creddata-np-mmbert-base/README.md) |
 | 3 | span mmBERT-small | 완료 | [`models/span-creddata-np-mmbert-small/`](../../models/span-creddata-np-mmbert-small/README.md) |
-| 4 | span mmBERT-base | 완료 | [`models/span-creddata-np-mmbert-base/`](../../models/span-creddata-np-mmbert-base/README.md) |
-| 5 | pilot B+CredData+NP | 학습 중 | |
-| 6 | span 양방향 Qwen 0.5B | 대기 | Drive만 |
-| 7 | span 양방향 Qwen 1.5B | 대기 | Drive만 |
+| 4 | **span mmBERT-base** | 완료 | [`models/span-creddata-np-mmbert-base/`](../../models/span-creddata-np-mmbert-base/README.md) |
+| 5 | pilot B+CredData+NP | 하지 않음 | 없음 |
+| 6 | span 양방향 Qwen 0.5B | 하지 않음 | 없음 |
+| 7 | span 양방향 Qwen 1.5B | 하지 않음 | 없음 |
 
-- **GitHub에 올리는 것**: mmBERT 계열 다섯 개의 bundle입니다. 가중치는 float16으로 저장해 크기를 반으로 줄였습니다([`scripts/half_bundle.py`](../../scripts/half_bundle.py)). 불러올 때는 float32로 계산하고, 올리기 전에 float32 원본과 float16 사본으로 validation을 각각 채점해 같은 결과인지 bundle json의 `half_storage`에 적습니다.
+- **멈춘 run**: 결과가 없으니 쓰지 않습니다.
+  - pilot: 11-27 10:00 무렵 Colab runtime이 사라지면서 끊겼습니다. epoch 1을 마치기 전이었습니다. Drive `promptguard-runs/span-mmbert-pilot-step0-bcrednp-seed112/`에는 설정 파일 두 개만 남았습니다.
+  - Qwen 0.5B: 대상을 줄이면서 첫 epoch 도중에 멈췄습니다. Drive `token-span-creddata-np-qwen-bidir/`에 그 run이 남아 있습니다.
+  - Qwen 1.5B: 시작하지 않았습니다.
+- **GitHub에 올린 것**: mmBERT 계열 네 개의 bundle입니다. 가중치는 float16으로 저장해 크기를 반으로 줄였습니다([`scripts/half_bundle.py`](../../scripts/half_bundle.py)). 불러올 때는 float32로 계산하고, 올리기 전에 float32 원본과 float16 사본으로 validation을 각각 채점해 같은 결과인지 bundle json의 `half_storage`에 적습니다.
   - 처음에는 bfloat16으로 줄였는데, verifier-small에서 배포 기준값(recall 0.99) 근처 후보 8개의 판정이 바뀌었습니다(놓친 MASK 4개 → 6개, 그래서 recall이 0.99 아래로). 그래서 정밀도가 높은 float16으로 바꿨고, float16에서는 두 verifier 모두 바뀐 판정이 없었습니다.
-- **Drive에만 두는 것**: Qwen 두 개는 float16으로도 1GB, 3GB라 GitHub LFS 한도(10GB, 7.7GB 사용 중)에 넣지 않습니다. 학습 run은 Drive `promptguard-runs/token-span-creddata-np-qwen-bidir/`, `token-span-creddata-np-qwen1.5b-bidir/`에 있습니다.
-- **맥 MPS로 학습해 본 것**: Colab GPU가 막혀 있던 동안 span mmBERT-small을 이 맥(Apple M3, MPS, float32)에서 학습해 봤습니다. epoch 1의 합친 validation F2가 0.706으로 낮았고, epoch 2에서 프로세스 메모리가 21GB까지 늘어 멈췄습니다. 같은 맥에서 기존 CredData mmBERT-base bundle을 채점하면 Colab과 똑같은 숫자가 나오므로 추론은 정상입니다. 이 run은 쓰지 않고, 같은 설정을 Colab CUDA로 다시 학습합니다.
+- **맥 MPS로 학습해 본 것**: Colab GPU가 막혀 있던 동안 span mmBERT-small을 이 맥(Apple M3, MPS, float32)에서 학습해 봤습니다. epoch 1의 합친 validation F2가 0.706으로 낮았고, epoch 2에서 프로세스 메모리가 21GB까지 늘어 멈췄습니다. 같은 맥에서 기존 CredData mmBERT-base bundle을 채점하면 Colab과 똑같은 숫자가 나오므로 추론은 정상입니다. 이 run은 쓰지 않고, 같은 설정을 Colab CUDA로 다시 학습했습니다.
 
 ## 결과: verifier (validation)
 
