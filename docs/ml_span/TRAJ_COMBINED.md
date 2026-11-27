@@ -44,7 +44,11 @@ Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_tc_a
 | 순서 | 모델 | 상태 | 가중치 |
 |---:|---|---|---|
 | 1 | verifier mmBERT-small | 완료 | [`models/verifier-traj-combined-mmbert-small/`](../../models/verifier-traj-combined-mmbert-small/README.md) |
-| 2 | span mmBERT-base | 학습 중(11:40 시작) | |
+| 2 | span mmBERT-base | 두 번째로 학습 중(첫 run은 런타임이 회수되며 잃음) | |
+
+- **첫 span mmBERT-base run을 잃었습니다.** 11:40에 시작한 run이 epoch 4 도중(18:50쯤) 런타임과 함께 사라졌습니다. 이 계정의 Colab 런타임은 약 8시간이면 회수되는데(오늘 새벽 run도 8.5시간), T4에서 4 epoch은 약 9.5시간 걸립니다. 그 run의 validation은 epoch 1·2·3에서 F2 0.847, 0.856, 0.844였고, 가중치는 런타임 디스크에만 있어 남지 않았습니다. 이 숫자는 참고로만 적고, 결과로는 두 번째 run을 씁니다.
+- **두 번째 run은 런타임을 넘어 이어집니다.** 학습 상태(가중치, optimizer, 위치, ~3.7GB)를 epoch마다 Drive에 저장하고, 지금까지 가장 좋은 epoch의 가중치(~1.2GB)도 Drive에 둡니다([`train.py`](../../src/privai_model/token_span/train.py)의 `checkpoint_staging`, `best_dir`). 런타임이 회수되면 새 런타임에서 같은 명령이 마지막으로 끝난 epoch부터 이어 갑니다. 설정(데이터, seed, 학습률, epoch 수)은 바꾸지 않았습니다. 작은 모델로 두 epoch 뒤 끊고 이어 간 학습이 끊지 않은 학습과 같은 기록을 내는지 테스트했습니다([`tests/token_span/test_resumable_checkpoint.py`](../../tests/token_span/test_resumable_checkpoint.py)).
+- **Drive 공간**: 저장할 자리를 만들려고 휴지통에 있던 NP publish tar 4개(1.9GB, GitHub LFS 사본과 md5가 같은 파일)를 영구 삭제했습니다.
 
 - **가중치**: float16으로 저장해 크기를 반으로 줄였습니다([`scripts/half_bundle.py`](../../scripts/half_bundle.py)). 불러올 때는 float32로 계산합니다. 올리기 전에 float32 원본과 float16 사본으로 validation을 각각 채점해 bundle json의 `half_storage`에 적습니다.
 - **Colab에서 돌리는 방법**: 체인을 노트북 셀 안에서 돌리면 커널이 계속 바빠서, 페이지 연결이 한 번 끊기면 다시 붙지 못합니다(11:11에 맥 네트워크가 바뀌며 그렇게 됐습니다). 그래서 verifier 학습 뒤의 단계는 Colab 터미널에서 커널과 떨어진 백그라운드 프로세스로 돌립니다(`setsid nohup bash scripts/colab_tc_all.sh >> tc-all.log`).

@@ -17,10 +17,18 @@ Larger Qwen models (7B, 14B) do not fit in float32: `torch_dtype: bfloat16` load
 (QLoRA, needs bitsandbytes). Trainable weights (LoRA, head) are float32 in every case.
 `checkpoint_dir` keeps a resumable checkpoint (trainable weights, optimizer, scheduler, scaler, position in the
 epoch) so a Colab runtime reset loses at most `save_every` steps.
+
+For a full fine-tune that outlives a runtime, `checkpoint_dir` and `best_dir` can sit on Google Drive while
+`output_dir` stays on the runtime's disk:
+- `checkpoint_staging` (a local folder): the checkpoint is written there first, then swapped into `checkpoint_dir`, so
+  Drive never holds two checkpoints at once.
+- `best_dir`: the weights of the best epoch so far (the epoch `selection.json` would choose), replaced when a later
+  epoch becomes best, so the chosen epoch survives the runtime that trained it.
 """
 import json
 import math
 import random
+import shutil
 import time
 from pathlib import Path
 
@@ -293,9 +301,14 @@ def trainable_state(model):
     return {n: p.detach().cpu() for n, p in model.named_parameters() if p.requires_grad}
 
 
-def save_checkpoint(directory, model, optimizer, scheduler, scaler, state):
+def save_checkpoint(directory, model, optimizer, scheduler, scaler, state, staging=None):
+    """Write the checkpoint next to `directory` and swap it in. With `staging` (a local folder) it is written there,
+    the old checkpoint is removed, and the new one is copied in: `directory` never holds two checkpoints, but a crash
+    between the removal and the copy leaves none (training then starts over)."""
     directory = Path(directory)
-    tmp = directory.with_name(directory.name + '.tmp')
+    tmp = Path(staging) if staging else directory.with_name(directory.name + '.tmp')
+    if staging and tmp.exists():
+        shutil.rmtree(tmp)
     tmp.mkdir(parents=True, exist_ok=True)
     rng = dict(python=random.getstate(), numpy=np.random.get_state(), torch=torch.get_rng_state(),
                cuda=torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None)
@@ -309,12 +322,37 @@ def save_checkpoint(directory, model, optimizer, scheduler, scaler, state):
         for p in directory.iterdir():
             p.unlink()
         directory.rmdir()
-    tmp.rename(directory)
+    if staging:
+        part = directory.with_name(directory.name + '.part')
+        if part.exists():
+            shutil.rmtree(part)
+        shutil.copytree(tmp, part)
+        part.rename(directory)
+        shutil.rmtree(tmp)
+    else:
+        tmp.rename(directory)
 
 
 def save_weights(model, tokenizer, directory):
     model.save_pretrained(directory)
     tokenizer.save_pretrained(directory)
+
+
+def chosen_epoch(history):
+    """The epoch selection.json chooses: best exact-span F2, then precision, then the earlier epoch."""
+    return max(history, key=lambda h: ((h['selected']['f2'] or 0), (h['selected']['precision'] or 0), -h['epoch']))
+
+
+def save_best(model, tokenizer, directory, epoch):
+    """Replace `directory` with this epoch's weights (removed first, so it never holds two copies) and its number."""
+    directory = Path(directory)
+    part = directory.with_name(directory.name + '.part')
+    for d in (directory, part):
+        if d.exists():
+            shutil.rmtree(d)
+    save_weights(model, tokenizer, part)
+    write_json(part / 'epoch.json', dict(epoch=epoch))
+    part.rename(directory)
 
 
 def schedule(config, total_steps):
@@ -369,6 +407,8 @@ def train(config, resume=False, log=print):
             torch.cuda.set_rng_state_all(saved['rng']['cuda'])
         state = json.loads((ckpt / 'state.json').read_text())
         log(json.dumps(dict(event='resumed', epoch=state['epoch'], batch=state['batch'], step=state['step'])))
+    elif config.get('best_dir') and Path(config['best_dir']).exists():
+        shutil.rmtree(config['best_dir'])  # a fresh start: a best epoch from an earlier attempt does not belong to it
     write_json(out / 'run.json', dict(total_parameters=total_params, trainable_parameters=trainable_params, windows=len(ids),
                                       tokens=int(sum(lengths)), steps_per_epoch=steps_per_epoch, device=str(device), fp16=fp16,
                                       amp=str(amp).replace('torch.', '') if amp else None, torch=torch.__version__,
@@ -382,7 +422,9 @@ def train(config, resume=False, log=print):
             stale += 1
     progress = open(out / 'progress.jsonl', 'a')
     last_save = time.perf_counter()
-    while state['epoch'] < config['epochs']:
+    staging = config.get('checkpoint_staging')
+    # The patience check also covers a resume from the checkpoint saved just before an early stop.
+    while state['epoch'] < config['epochs'] and stale < config.get('patience', config['epochs']):
         epoch = state['epoch']
         batches = epoch_batches(lengths, config['batch_size'], config['seed'], epoch)
         model.train()
@@ -419,7 +461,7 @@ def train(config, resume=False, log=print):
             if config.get('save_every_minutes') and time.perf_counter() - last_save >= 60 * config['save_every_minutes']:
                 due = True
             if due:
-                save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state)
+                save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state, staging)
                 last_save = time.perf_counter()
         predictions = predict(model, tokenizer, val_rows, config['max_length'], config['stride'], device, amp,
                               config.get('eval_batch_size', 16))
@@ -432,17 +474,19 @@ def train(config, resume=False, log=print):
         state['history'].append(entry)
         log(json.dumps(entry))
         save_weights(model, tokenizer, out / f'epoch-{epoch + 1}')
+        if config.get('best_dir') and chosen_epoch(state['history'])['epoch'] == epoch + 1:
+            save_best(model, tokenizer, config['best_dir'], epoch + 1)
         state.update(epoch=epoch + 1, batch=0, loss_sum=0.0, loss_batches=0)
         write_json(out / 'history.json', state['history'])
         if (selected['f2'] or 0) > best:
             best, stale = selected['f2'] or 0, 0
         else:
             stale += 1
-        save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state)
+        save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state, staging)
         if stale >= config.get('patience', config['epochs']):
             break
     progress.close()
-    chosen = max(state['history'], key=lambda h: ((h['selected']['f2'] or 0), (h['selected']['precision'] or 0), -h['epoch']))
+    chosen = chosen_epoch(state['history'])
     selection = dict(policy='Validation only: exact-span F2 at every observed span score, precision tie-break; the epoch '
                             'with the best such F2 (earlier epoch on ties). Test not read.',
                      selected=dict(epoch=chosen['epoch'], threshold=chosen['selected']['threshold']),
