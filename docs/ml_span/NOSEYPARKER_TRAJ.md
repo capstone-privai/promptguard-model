@@ -48,8 +48,8 @@ Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_np_a
 | 1 | verifier mmBERT-small | 완료 | [`models/verifier-creddata-np-mmbert-small/`](../../models/verifier-creddata-np-mmbert-small/README.md) |
 | 2 | verifier mmBERT-base | 완료 | [`models/verifier-creddata-np-mmbert-base/`](../../models/verifier-creddata-np-mmbert-base/README.md) |
 | 3 | span mmBERT-small | 완료 | [`models/span-creddata-np-mmbert-small/`](../../models/span-creddata-np-mmbert-small/README.md) |
-| 4 | span mmBERT-base | 학습 중 | |
-| 5 | pilot B+CredData+NP | 대기 | |
+| 4 | span mmBERT-base | 완료 | [`models/span-creddata-np-mmbert-base/`](../../models/span-creddata-np-mmbert-base/README.md) |
+| 5 | pilot B+CredData+NP | 학습 중 | |
 | 6 | span 양방향 Qwen 0.5B | 대기 | Drive만 |
 | 7 | span 양방향 Qwen 1.5B | 대기 | Drive만 |
 
@@ -90,12 +90,16 @@ exact-span 기준입니다(예측 span의 시작과 끝이 정답과 정확히 �
 
 | 모델 | epoch · cutoff | 합친 셋 (1,323) | CredData 부분 (1,200) | NP 부분 (123) |
 |---|---|---|---|---|
-| mmBERT-small, NP 포함 | 2 · 0.670 | 1,123 / 324 / 200 · P 0.776 · F2 **0.833** | 1,014 / 317 / 186 · P 0.762 · F2 **0.827** | 109 / 7 / 14 · P 0.940 · F2 0.896 |
-| (참고) mmBERT-small, CredData만 | 1 · 0.720 | — | 996 / 268 / 204 · P 0.788 · F2 0.821 | — |
+| mmBERT-small, NP 포함 | 2 · 0.670 | 1,123 / 324 / 200 · P 0.776 · R 0.849 · F2 0.833 | 1,014 / 317 / 186 · P 0.762 · R 0.845 · F2 0.827 | 109 / 7 / 14 · P 0.940 · R 0.886 · F2 0.896 |
+| mmBERT-base, NP 포함 | 3 · 0.833 | 1,146 / 301 / 177 · P 0.792 · R 0.866 · F2 **0.850** | 1,033 / 292 / 167 · P 0.780 · R 0.861 · F2 **0.843** | 113 / 9 / 10 · P 0.926 · R 0.919 · F2 **0.920** |
+| (참고) mmBERT-small, CredData만 | 1 · 0.720 | — | 996 / 268 / 204 · P 0.788 · R 0.830 · F2 0.821 | — |
+| (참고) mmBERT-base, CredData만 | 1 · 0.752 | — | 1,029 / 353 / 171 · P 0.745 · R 0.858 · F2 0.832 | — |
 
 칸은 맞힘 / 오탐 / 놓침입니다.
 
-- **CredData 부분은 이전보다 조금 좋습니다**(F2 0.827 대 0.821). 정답을 18개 더 찾고 오탐이 49개 늘었습니다. recall에 무게를 두는 F2로는 0.006 높습니다. seed 하나로 한 번씩 학습한 결과라 이 정도 차이는 변동 범위 안일 수 있습니다.
+- **base가 small보다 precision과 recall 모두 조금 높습니다.** 합친 셋에서 정답을 23개 더 찾고 오탐은 23개 적습니다(F2 0.850 대 0.833). CredData만으로 학습했을 때도 base가 높았습니다(0.832 대 0.821). 다만 base는 epoch 1·2에서 small보다 낮다가 epoch 3에서 크게 올랐고, seed 하나로 한 번씩 학습한 결과입니다.
+- **base는 CredData 부분에서도 이전 base보다 오탐이 61개 적습니다**(292 대 353, F2 0.843 대 0.832).
+- **small도 CredData 부분은 이전보다 조금 좋습니다**(F2 0.827 대 0.821). 정답을 18개 더 찾고 오탐이 49개 늘었습니다. recall에 무게를 두는 F2로는 0.006 높습니다. seed 하나로 한 번씩 학습한 결과라 이 정도 차이는 변동 범위 안일 수 있습니다.
 - **NP 부분은 높습니다**(F2 0.896). NP validation은 정답 123개라 몇 개 차이로 크게 움직입니다.
 - **epoch 2를 골랐습니다.** CredData만으로 학습했을 때는 epoch 1이 가장 좋았습니다.
 
@@ -108,3 +112,14 @@ exact-span 기준입니다(예측 span의 시작과 끝이 정답과 정확히 �
 
 - **run마다 조금씩 다릅니다.** 같은 설정의 첫 CUDA run은 epoch 2 도중 런타임이 끊겨 잃었는데, 그 run의 epoch 1은 F2 0.822(1,107 / 332 / 216)였습니다. 위 run의 epoch 1은 0.808입니다. seed는 같지만 GPU 연산이 결정적이지 않아 결과가 달라집니다.
 - float16 bundle로 validation을 다시 채점한 결과는 float32와 같았고, 학습 때 숫자와도 같습니다(1,123 / 324 / 200).
+
+**span mmBERT-base, epoch별** (합친 셋)
+
+| epoch | cutoff | 맞힘 / 오탐 / 놓침 | F2 |
+|---:|---:|---:|---:|
+| 1 | 0.508 | 1,010 / 251 / 313 | 0.771 |
+| 2 | 0.638 | 1,026 / 303 / 297 | 0.775 |
+| **3 (선택)** | **0.833** | **1,146 / 301 / 177** | **0.850** |
+| 4 | 0.975 | 1,122 / 270 / 201 | 0.839 |
+
+- epoch당 약 76분(T4, validation 포함)으로 small의 약 2배입니다. float16 bundle로 다시 채점한 결과는 학습 때와 같았습니다(1,146 / 301 / 177).
