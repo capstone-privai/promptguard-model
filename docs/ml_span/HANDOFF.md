@@ -1,4 +1,4 @@
-# 인계: NoseyParker·세 번째 학습 데이터 재학습 (2026-11-27 23시 기준)
+# 인계: NoseyParker·세 번째 학습 데이터 재학습 (2026-11-28 05시 기준)
 
 새 세션이 이 문서만 읽고 이어 갈 수 있도록 정리했습니다. 자세한 결과는 [NOSEYPARKER_TRAJ.md](NOSEYPARKER_TRAJ.md), [TRAJ_COMBINED.md](TRAJ_COMBINED.md)에 있습니다.
 
@@ -9,7 +9,7 @@
 | NP 데이터로 재학습: verifier mmBERT-small·base, span mmBERT-small·base | 완료, main에 머지 (#36–#39) | `models/*-creddata-np-mmbert-*` |
 | NP pilot B+CredData+NP, 양방향 Qwen 0.5B·1.5B | 하지 않음(사용자가 대상을 줄임, #40) | — |
 | 세 번째 데이터 verifier mmBERT-small | 완료, main에 머지 (#41) | `models/verifier-traj-combined-mmbert-small` |
-| 세 번째 데이터 span mmBERT-base | **학습 중**(두 번째 run, 11-27 22:19 시작) | Colab → Drive |
+| 세 번째 데이터 span mmBERT-base | **epoch 3까지 끝남, epoch 4 남음**(두 번째 run) | Drive `token-span-traj-combined-mmbert-base/` |
 | 런타임을 넘어 이어 학습하는 코드 | 완료, main에 머지 (#42) | `src/privai_model/token_span/train.py` |
 
 **앞으로 학습하는 모델은 verifier mmBERT-small과 span mmBERT-base 두 개뿐입니다**(사용자 지시, 11-27).
@@ -35,6 +35,27 @@
   | 1 | 1,787 / 393 / 304 | 0.820 | 0.855 | 0.847 |
   | 2 | 1,803 / 364 / 288 | 0.832 | 0.862 | 0.856 |
   | 3 | 1,778 / 395 / 313 | 0.818 | 0.850 | 0.844 |
+
+### 지금 상태 (11-28 05시)
+
+**Drive에는 epoch 3까지 끝난 상태가 있습니다.** 그래서 다음 런타임에서는 epoch 4만 돌면 됩니다.
+
+- `last/`: epoch 3 학습 상태입니다(`checkpoint.pt` 3,690MB).
+- `best/`: epoch 3 가중치입니다.
+- 두 폴더 모두 04:57에 Drive API로 올렸고, 파일마다 md5를 확인했습니다. Drive 여유는 0.71GiB입니다.
+
+두 번째 run의 validation(exact-span, 합친 셋 정답 2,091):
+
+| epoch | 맞힘 / 오탐 / 놓침 | precision | recall | F2 |
+|---:|---:|---:|---:|---:|
+| 1 | 1,793 / 458 / 298 | 0.797 | 0.857 | 0.845 |
+| 2 | 1,838 / 449 / 253 | 0.804 | 0.879 | 0.863 |
+| **3** | **1,833 / 379 / 258** | **0.829** | **0.877** | **0.867** |
+
+- **사용자 일정**: Drive 연결은 11-28 12시쯤 누를 수 있다고 했습니다. 그 뒤 epoch 4에 약 2.3시간, bundle에 15분이 걸려 15시쯤 끝납니다.
+- **Colab 마운트의 Drive 동기화는 믿지 않습니다**: 02:49에 마운트로 옛 epoch 1 사본을 지웠는데, 그 삭제가 클라우드에 끝까지 반영되지 않았습니다.
+  - 그래서 사본 교체는 Drive API로 했습니다(`auth.authenticate_user()`, `files().delete`는 영구 삭제, `MediaFileUpload`로 올리기).
+  - API로 지운 직후 1분쯤은 할당량에 반영되지 않아, 올리기가 403으로 실패합니다. 할당량이 갱신된 것을 확인하고 다시 올립니다.
 
 ### Drive 용량 문제와 오늘 밤 조치 (11-28 01시)
 
