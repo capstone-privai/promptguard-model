@@ -53,6 +53,34 @@ Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_tc_a
 - **가중치**: float16으로 저장해 크기를 반으로 줄였습니다([`scripts/half_bundle.py`](../../scripts/half_bundle.py)). 불러올 때는 float32로 계산합니다. 올리기 전에 float32 원본과 float16 사본으로 validation을 각각 채점해 bundle json의 `half_storage`에 적습니다.
 - **Colab에서 돌리는 방법**: 체인을 노트북 셀 안에서 돌리면 커널이 계속 바빠서, 페이지 연결이 한 번 끊기면 다시 붙지 못합니다(11:11에 맥 네트워크가 바뀌며 그렇게 됐습니다). 그래서 verifier 학습 뒤의 단계는 Colab 터미널에서 커널과 떨어진 백그라운드 프로세스로 돌립니다(`setsid nohup bash scripts/colab_tc_all.sh >> tc-all.log`).
 
+## span mmBERT-base 직접 마무리하기
+
+두 번째 run은 2026-11-27 22:19에 시작했습니다. 이 런타임은 28일 06시쯤 회수되고, 그때까지 epoch 3까지 끝나 Drive에 저장됩니다. 그다음은 아래 순서로 마무리합니다.
+
+1. **epoch 4 이어 돌리기**:
+   - Colab에서 `Untitled1.ipynb`를 열고 오른쪽 위의 **연결(T4)** 을 누릅니다.
+   - 맨 위 셀(`# Trajectory-train-combined v1: span mmBERT-base, resumable ...`)을 실행합니다.
+   - 'Google Drive에 연결' 창이 뜨면 허용합니다. 약 2분 안에 눌러야 합니다.
+   - 셀은 바로 끝나고(`chain started (detached)`), 학습은 뒤에서 Drive에 저장된 마지막 epoch부터 이어 갑니다.
+   - 끝나면 가장 좋은 epoch을 골라 float16 bundle까지 만듭니다. 2.5~3시간쯤 걸립니다.
+   - epoch 2와 3이 둘 다 epoch 1보다 낮았다면 조기 종료로 epoch 3에서 이미 끝났으니, 이 단계는 건너뜁니다.
+2. **끝났는지 확인**: Drive `promptguard-runs/` 아래에 두 파일이 있으면 끝난 것입니다.
+   - `token-span-traj-combined-mmbert-base/selection.json`
+   - `publish-tc/span-traj-combined-mmbert-base.tar`
+   - 진행 로그는 `promptguard-runs/tc-all.log`의 마지막 줄에 있습니다.
+   - Colab 페이지가 '연결이 끊어짐'을 보여도 학습은 런타임에서 계속됩니다. 둘째 셀(status)을 실행하면 진행 상황이 나오고, 페이지도 활동 중으로 남습니다.
+3. **GitHub에 올리기**: `publish-tc/span-traj-combined-mmbert-base.tar`를 맥으로 내려받은 뒤, 저장소 폴더에서 실행합니다.
+   ```bash
+   git switch claude/traj-combined && git pull
+   tar -xf ~/Downloads/span-traj-combined-mmbert-base.tar -C models/
+   git add models/span-traj-combined-mmbert-base && git commit -m "Span mmBERT-base on Trajectory-train-combined v1: float16 bundle"
+   git push && gh pr create --base main --head claude/traj-combined --fill && gh pr merge --merge
+   ```
+   - 가중치는 Git LFS로 올라갑니다(`.gitattributes`에 이미 등록되어 있음).
+   - `span_bundle.json`에 고른 epoch(`best_epoch`), cutoff(`threshold`), float16 확인 결과(`half_storage`)가 들어 있습니다.
+   - epoch별 validation 숫자는 Drive `token-span-traj-combined-mmbert-base/history.json`에 있습니다.
+4. **Drive 정리**: 학습이 끝나면 `token-span-traj-combined-mmbert-base/last/`(학습 상태 ~3.7GB)는 스크립트가 지웁니다.
+
 ## 결과: verifier mmBERT-small (validation)
 
 검증기는 ambiguous 후보만 다시 판정하고, 기준값은 배포 기본인 recall 0.99입니다. 지표는 후보 단위입니다. precision은 가린 후보 중 정답과 겹친 비율이고, recall은 정답 중 가린 후보가 닿은 비율입니다. exact-span으로 세는 span 모델의 F2와는 직접 비교할 수 없습니다.
