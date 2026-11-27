@@ -1,0 +1,53 @@
+{
+  "schema_version": "model-bundle-v1",
+  "model_version": "verifier-traj-combined-mmbert-small-v0",
+  "backbone": "jhu-clsp/mmBERT-small",
+  "revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "resolved_revision": "abc32620dd4f6ab06f5fbe905dc25f310618e09f",
+  "window_size": 256,
+  "seed": 42,
+  "best_epoch": 1,
+  "thresholds": {
+    "0.95": 0.9896260499954224,
+    "0.99": 0.001143957837484777
+  },
+  "deployment_recall_target": 0.99,
+  "dataset_fingerprint": "0d75521cfc75024781246494322ab1c1b86b8abc2cacab1efea89a4562fdf6c1",
+  "provisional_records": 0,
+  "torch_version": "2.14.1+cu130",
+  "transformers_version": "4.57.6",
+  "python": "3.13.16",
+  "device": "cuda",
+  "candidate_truncation_counts": {
+    "train": 46,
+    "validation": 0
+  },
+  "character_features": false,
+  "feature_dimension": 0,
+  "feature_spec": null,
+  "threshold_status": "validation_selected",
+  "half_storage": {
+    "dtype": "float16",
+    "computed_in": "float32 (the loaders upcast)",
+    "source_weights_sha256": "05ff535e9957d40b6a22df4c299bd5b8b05ebe1cc44e10e47bea114f475610b3",
+    "note": "model.safetensors floating tensors rounded to float16 to halve the size; everything else as trained",
+    "check": {
+      "kind": "verifier",
+      "candidates": "runs/data/verifier-traj-combined-v1/ambiguous/candidates.jsonl.gz",
+      "validation_candidates": 1346,
+      "threshold": 0.001143957837484777,
+      "source": {
+        "masked": 559,
+        "true_masks": 475,
+        "missed_masks": 5
+      },
+      "halved": {
+        "masked": 562,
+        "true_masks": 476,
+        "missed_masks": 4
+      },
+      "decisions_changed": 3,
+      "max_abs_p_mask_change": 0.006654083728790283
+    }
+  }
+}
