@@ -16,6 +16,11 @@
 #                                                        # the CredData candidates come out as in that build
 #   bash scripts/colab_verifier.sh train np-mmbert-small # (or np-mmbert-base), then: system np-mmbert-small
 #
+# Trajectory-train-combined v1, the third training set (validation only; `test` refuses, as for NP):
+#   bash scripts/colab_verifier.sh prepare tc            # the same pinned detector on runs/data/span-traj-combined-v1
+#   bash scripts/colab_verifier.sh train tc-mmbert-small # configs/verifier-traj-combined-mmbert-small.yaml, then:
+#                                                        # system tc-mmbert-small (results in verifier-traj-combined-...)
+#
 # DRIVE_DIR (default /content/drive/MyDrive/promptguard-runs) keeps results; DETECTOR_DIR (default
 # ../promptguard-claude-demoV0) is the PromptGuard checkout whose detector makes the candidates (cloned if missing).
 # The candidate data holds values: it stays under runs/ and in DRIVE_DIR, like the source zip, and is never committed.
@@ -29,9 +34,15 @@ LOCAL_ROOT=${LOCAL_RUNS:-runs}
 DETECTOR=${DETECTOR_DIR:-../promptguard-claude-demoV0}
 DATA=runs/data/verifier-creddata-traj-v1
 SAVED=$DRIVE/data-verifier-creddata-traj-v1
-case $m in np|np-*)
-  DATA=runs/data/verifier-creddata-np-traj-v1
-  SAVED=$DRIVE/data-verifier-creddata-np-traj-v1 ;;
+NAME=creddata-$m  # configs/verifier-$NAME.yaml, results in $DRIVE/verifier-$NAME
+case $m in
+  np|np-*)
+    DATA=runs/data/verifier-creddata-np-traj-v1
+    SAVED=$DRIVE/data-verifier-creddata-np-traj-v1 ;;
+  tc|tc-*)
+    DATA=runs/data/verifier-traj-combined-v1
+    SAVED=$DRIVE/data-verifier-traj-combined-v1
+    NAME=traj-combined-${m#tc-} ;;
 esac
 DETECTOR_COMMIT=668c2c1e107aff596c07f3dd5e520ba76b0fbdf0  # the detector the CredData-trajectory candidates came from
 GITLEAKS_VERSION=8.30.1
@@ -43,8 +54,12 @@ case $cmd in
   prepare)
     if [ -d "$DATA" ]; then echo "$DATA exists"
     elif [ -d "$SAVED" ]; then mkdir -p runs/data && cp -r "$SAVED" "$DATA" && echo "restored $DATA from $SAVED"
-    elif [ "$m" = np ]; then
-      bash scripts/colab_prepare_creddata_np_traj.sh
+    elif [ "$m" = np ] || [ "$m" = tc ]; then
+      if [ "$m" = np ]; then
+        bash scripts/colab_prepare_creddata_np_traj.sh; SPAN=runs/data/span-creddata-np-traj-v1
+      else
+        bash scripts/colab_prepare_traj_combined.sh; SPAN=runs/data/span-traj-combined-v1
+      fi
       DET=${DETECTOR_DIR:-runs/detector-668c2c1}
       if [ ! -d "$DET" ]; then
         git clone -q https://github.com/capstone-privai/promptguard-claude-demoV0 "$DET"
@@ -66,9 +81,10 @@ case $cmd in
         export PATH=$PWD/runs/bin:$PATH
       fi
       gitleaks version
-      python scripts/prepare_verifier_candidates.py --detector "$DET" --data runs/data/span-creddata-np-traj-v1 --out "$DATA"
-      # The CredData rows are unchanged, so their train and validation candidates must be the earlier build's.
-      python - "$DATA" <<'EOF'
+      python scripts/prepare_verifier_candidates.py --detector "$DET" --data "$SPAN" --out "$DATA"
+      # NP: the CredData rows are unchanged, so their train and validation candidates must be the earlier build's.
+      # (tc relabels the CredData rows, so their candidates' labels may differ; the detector is the same pinned one.)
+      [ "$m" = tc ] || python - "$DATA" <<'EOF'
 import gzip, json, sys
 from collections import Counter
 seen = Counter()
@@ -93,9 +109,9 @@ EOF
     python -c "import json; a = json.load(open('$DATA/analysis.json')); print(json.dumps({s: dict(gold=v['gold_spans'], candidates=v['candidates'], by_tier=v['by_tier'], gold_reached=v['gold_reached']) for s, v in a.items()}, ensure_ascii=False))"
     ;;
   train)
-    test -f "configs/verifier-creddata-$m.yaml" || { echo "no configs/verifier-creddata-$m.yaml" >&2; exit 2; }
+    test -f "configs/verifier-$NAME.yaml" || { echo "no configs/verifier-$NAME.yaml" >&2; exit 2; }
     test -d "$DATA" || { echo "run: bash $0 prepare" >&2; exit 2; }
-    OUT=$DRIVE/verifier-creddata-$m
+    OUT=$DRIVE/verifier-$NAME
     case $m in
       qwen*)
         python -c "import torch, sys; sys.exit(0 if torch.cuda.is_available() else 'no GPU: stop here, do not train on CPU')"
@@ -105,29 +121,29 @@ EOF
         if [ -d /content ]; then pip uninstall -q -y torchao 2>/dev/null || true; fi  # peft rejects Colab's torchao
         [ -f "$OUT/model/bundle.json" ] && { echo "$OUT is finished"; exit 0; }
         resume=(); [ -d "$OUT" ] && resume=(--resume)  # starts fresh if no checkpoint was saved yet
-        PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True python scripts/train.py --config "configs/verifier-creddata-$m.yaml" \
+        PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True python scripts/train.py --config "configs/verifier-$NAME.yaml" \
           --set output_dir="$OUT" "${resume[@]}" 2>&1 | grep --line-buffered -v -i warn | tee -a "$OUT.log"
         test -f "$OUT/model/bundle.json"
         ;;
       *)
         python -c "import torch; print('GPU' if torch.cuda.is_available() else 'no GPU: training on CPU (slow)')"
-        LOCAL=$LOCAL_ROOT/verifier/creddata-$m
+        LOCAL=$LOCAL_ROOT/verifier/$NAME
         [ -e "$OUT" ] && { echo "$OUT exists: the trainer never overwrites a run" >&2; exit 2; }
         rm -rf "$LOCAL"
-        python scripts/train.py --config "configs/verifier-creddata-$m.yaml" --set output_dir="$(realpath -m "$LOCAL")" 2>&1 \
-          | grep --line-buffered -v -i warn | tee "$DRIVE/verifier-creddata-$m.log"
+        python scripts/train.py --config "configs/verifier-$NAME.yaml" --set output_dir="$(realpath -m "$LOCAL")" 2>&1 \
+          | grep --line-buffered -v -i warn | tee "$DRIVE/verifier-$NAME.log"
         cp -r "$LOCAL" "$OUT"
         ;;
     esac
     ;;
   system)
-    OUT=$DRIVE/verifier-creddata-$m
+    OUT=$DRIVE/verifier-$NAME
     python scripts/evaluate_verifier_system.py --data "$DATA" --predictions "$OUT/validation_predictions.jsonl" \
       --threshold "$(threshold "$OUT")" --split validation | tee "$OUT/system_validation.json"
     ;;
   test)
-    case $m in np-*) echo "$m: NP models are scored on validation only; the NP test is the team's hold-out" >&2; exit 2 ;; esac
-    OUT=$DRIVE/verifier-creddata-$m
+    case $m in np-*|tc-*) echo "$m: NP models are scored on validation only; the NP test is the team's hold-out" >&2; exit 2 ;; esac
+    OUT=$DRIVE/verifier-$NAME
     [ -e "$OUT/final" ] && { echo "$OUT/final exists: test was already scored" >&2; exit 2; }
     python scripts/final_evaluate.py --data "$DATA/ambiguous/candidates.jsonl.gz" --run "$OUT" --output "$OUT/final"
     python scripts/evaluate_verifier_system.py --data "$DATA" --predictions "$OUT/final/test_predictions.jsonl" \

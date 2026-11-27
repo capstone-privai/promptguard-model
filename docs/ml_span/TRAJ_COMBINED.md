@@ -1,0 +1,47 @@
+# 세 번째 학습 데이터(Trajectory-train-combined)로 학습한 모델
+
+팀이 준 세 번째 학습 데이터 `Trajectory-train-combined` v1으로 두 모델만 다시 학습합니다. 모델이 하나 끝날 때마다 bundle을 `models/`에 올리고 이 문서에 결과를 더합니다.
+
+| 모델 | 설정 | 올릴 곳 |
+|---|---|---|
+| verifier mmBERT-small | [`verifier-traj-combined-mmbert-small.yaml`](../../configs/verifier-traj-combined-mmbert-small.yaml) | `models/verifier-traj-combined-mmbert-small/` |
+| span mmBERT-base | [`token-span-traj-combined-mmbert-base.yaml`](../../configs/token-span-traj-combined-mmbert-base.yaml) | `models/span-traj-combined-mmbert-base/` |
+
+각 설정은 CredData-trajectory 때의 설정에서 데이터와 저장 위치만 바꾼 것입니다(테스트로 고정: [`tests/token_span/test_traj_combined.py`](../../tests/token_span/test_traj_combined.py)).
+
+**epoch과 cutoff는 validation에서만 고릅니다. test는 채점하지 않습니다.** NoseyParker와 infra-config의 test는 팀이 갖고 있는 hold-out이고, CredData test 그룹은 닫아 둡니다.
+
+## 데이터
+
+- **원본**: 팀이 준 `Trajectory-train-combined.zip`(Git에 없음, sha256 `aa1d3a1d…`). 세 인계 데이터의 train을 이어 붙였습니다.
+  - CredData-trajectory v2: 207 그룹(v1과 같은 그룹).
+  - NoseyParker-trajectory v2: rule 파일 62개(v1과 같음).
+  - infra-config-trajectory v1 train: 594 그룹. 새로 더해졌습니다.
+  - 라벨 규칙은 세 원본 모두 2026-11-27 v2입니다. 16자 이상 조각, 인코딩·디코딩한 값, 개인키에서 나온 값도 정답입니다. 그래서 CredData와 NP의 정답이 v1과 조금 다릅니다.
+  - 안에 든 다섯 파일의 sha256은 [`scripts/colab_prepare_traj_combined.sh`](../../scripts/colab_prepare_traj_combined.sh)에 고정했습니다.
+- **행**: 이전과 같이 prompt·instructions·tool_output 항목 하나가 한 행입니다. tool_input은 검사 대상이 아니라 넣지 않았습니다. 행을 자르거나 빼지 않았습니다. 정답 유형(`span.type`)은 원본마다 이름이 다르지만, 모델은 비밀값 하나의 유형(SECRET)으로 학습하므로 맞추지 않았습니다.
+- **분할** ([`scripts/prepare_traj_combined.py`](../../scripts/prepare_traj_combined.py), fingerprint `13796746…`):
+  - CredData와 NP 그룹은 NP 학습 때의 분할(`c7d0de5d…`)을 그대로 따릅니다. 바뀐 것은 라벨뿐입니다. 그래서 validation은 이전과 같은 그룹이고, CredData test 그룹은 어느 모델도 학습하지 않은 hold-out으로 남습니다.
+  - infra-config는 train과 validation으로만 나눕니다. test는 팀이 갖고 있습니다.
+  - 정답이 있는 행의 텍스트나 템플릿(값을 자리표시로 바꾼 텍스트)이 같은 그룹은 원본을 가리지 않고 하나로 묶었습니다.
+    - CredData나 NP 그룹과 묶인 infra-config 그룹은 그 그룹의 분할을 따릅니다. infra-config 4개 그룹이 NP train 그룹과 묶여 train으로 갔습니다.
+    - 나머지 infra-config 단위는 seed 해시 순서로 놓습니다. infra-config 정답의 3%가 넘는 단위는 train에 두고, validation이 infra-config 정답의 10%에 이를 때까지 채웁니다.
+
+| split | 행 | 정답 span | CredData 정답 | NP 정답 | infra-config 정답 |
+|---|---:|---:|---:|---:|---:|
+| train | 81,316 | 16,194 | 8,821 | 507 | 6,866 |
+| validation | 10,587 | 2,091 | 1,196 | 129 | 766 |
+| test (채점 안 함) | 4,074 | 1,091 | 1,091 | 0 | 0 |
+
+- **split 사이의 겹침**: 정답이 있는 원문은 split 사이에 겹치지 않습니다. 같은 비밀값이 두 split에 나오는 경우는 CredData 쪽의 이전과 같은 수뿐입니다(train–validation 16, train–test 6, validation–test 4).
+- **이전 모델과 바로 비교할 수 없습니다**: 라벨 규칙이 바뀌어 CredData validation 정답이 1,200개에서 1,196개가 됐고, 그 안의 정답 위치도 일부 다릅니다. NP validation도 123개에서 129개가 됐습니다.
+- **학습량**: train이 NP 때의 약 2.2배입니다. span mmBERT-base는 T4에서 epoch당 2시간 반쯤 걸릴 것으로 봅니다.
+
+## 진행 상황
+
+Colab T4 한 대에서 아래 순서로 학습합니다(`bash scripts/colab_tc_all.sh`).
+
+| 순서 | 모델 | 상태 | 가중치 |
+|---:|---|---|---|
+| 1 | verifier mmBERT-small | 대기 | |
+| 2 | span mmBERT-base | 대기 | |
