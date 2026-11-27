@@ -1,0 +1,34 @@
+# Trajectory-train-combined v1, the team's third training set (CredData, NoseyParker and infra-config trajectories,
+# v2 labels; scripts/prepare_traj_combined.py): configs/verifier-creddata-mmbert-small.yaml with only the data, the
+# output and the model version changed. Candidates come from runs/data/span-traj-combined-v1 through the same detector
+# (promptguard-claude-demoV0 668c2c1, CredSweeper 1.19.0, gitleaks 8.30.1: scripts/colab_verifier.sh prepare tc).
+# Back-end verifier, 1st stage (local): mmBERT-small as the candidate-v1 classifier (src/privai_model/training) on the
+# detector's ambiguous candidates in CredData-trajectory v1 (scripts/prepare_verifier_candidates.py). P(MASK) per
+# candidate; strong candidates are masked without it. Split: the span rows' split by group (split_manifest), so the
+# verifier never trains on a group the token-span models were tested on. Epoch by validation loss, thresholds at
+# recall 0.95 / 0.99 on validation. Test stays closed here (evaluate_test: false); scripts/final_evaluate.py scores it
+# once after the run is frozen.
+model_name: jhu-clsp/mmBERT-small
+revision_model_name: jhu-clsp/mmBERT-small
+revision: abc32620dd4f6ab06f5fbe905dc25f310618e09f
+model_version: verifier-traj-combined-mmbert-small-v0
+data_path: runs/data/verifier-traj-combined-v1/ambiguous/candidates.jsonl.gz
+split_manifest: runs/data/verifier-traj-combined-v1/ambiguous/split_manifest.json
+output_dir: runs/verifier/traj-combined-mmbert-small
+seed: 42
+split_ratios: [0.8, 0.1, 0.1]  # unused: split_manifest fixes the split
+window_size: 256
+batch_size: 8
+epochs: 3
+learning_rate: 2.0e-05
+weight_decay: 0.01
+device: auto
+attention_implementation: eager
+local_files_only: false
+deterministic: false  # CUDA NLLLoss (cross entropy) has no deterministic kernel: deterministic mode stops GPU training. Seeds stay fixed.
+class_weights: null
+sampling: none
+character_features: false
+recall_targets: [0.95, 0.99]
+deployment_recall_target: 0.99
+evaluate_test: false

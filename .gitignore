@@ -65,3 +65,8 @@ data/span-code-refinement-*/
 !models/span-creddata-np-mmbert-base/**
 !models/span-pilot-step0-bcrednp-seed112/
 !models/span-pilot-step0-bcrednp-seed112/**
+# Models retrained on Trajectory-train-combined v1, the third training set (float16 bundles), for the team's evaluation.
+!models/verifier-traj-combined-mmbert-small/
+!models/verifier-traj-combined-mmbert-small/**
+!models/span-traj-combined-mmbert-base/
+!models/span-traj-combined-mmbert-base/**
