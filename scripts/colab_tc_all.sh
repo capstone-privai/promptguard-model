@@ -60,7 +60,12 @@ publish() {
   case $1 in  # the validation data the check needs (a fresh runtime after a reset has none)
     tc-*) bash scripts/colab_prepare_traj_combined.sh > /dev/null || return
       src=/content/full-$1; rm -rf "$src"
-      python scripts/export_token_span_bundle.py --run "$DRIVE/token-span-traj-combined-${1#tc-}" --out "$src" || return
+      # The chosen epoch is on Drive, or, when this runtime trained it, still on the runtime's disk.
+      run=$DRIVE/token-span-traj-combined-${1#tc-}
+      e=$(python -c "import json; print(json.load(open('$run/selection.json'))['selected']['epoch'])") || return
+      local_run=${LOCAL_RUNS:-/content/runs}/token-span/traj-combined-${1#tc-}
+      [ -d "$run/epoch-$e" ] || run=$local_run
+      python scripts/export_token_span_bundle.py --run "$run" --out "$src" || return
       check=(--check-span runs/data/span-traj-combined-v1/validation.jsonl) ;;
     verifier-*) bash scripts/colab_verifier.sh prepare tc > /dev/null || return
       src=$DRIVE/verifier-traj-combined-mmbert-small/model

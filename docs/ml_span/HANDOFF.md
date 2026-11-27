@@ -36,6 +36,22 @@
   | 2 | 1,803 / 364 / 288 | 0.832 | 0.862 | 0.856 |
   | 3 | 1,778 / 395 / 313 | 0.818 | 0.850 | 0.844 |
 
+### Drive 용량 문제와 오늘 밤 조치 (11-28 01시)
+
+- **Drive 마운트로 지운 파일은 Drive 휴지통으로 가고, 거기서도 용량을 차지합니다.** `last/`(3.7GB)를 새것으로 바꾸려면 옛것과 새것을 합친 자리가 필요합니다. epoch 1을 저장한 뒤 Drive 여유는 0.71GiB뿐이라, epoch 2에서 저장이 실패했을 것입니다.
+- **오늘 밤 조치**:
+  - 런타임에서 `token-span-traj-combined-mmbert-base/`를 로컬 디스크(`/content/ckpt-local`)로 bind mount 했습니다. 그래서 epoch 2·3은 로컬에 저장됩니다. Drive에는 epoch 1 상태가 그대로 있습니다.
+  - Claude가 깨어 있으면 epoch이 끝날 때마다 Drive 사본을 바꿉니다. 옛 사본을 휴지통으로 보내고, Drive 웹 휴지통에서 완전삭제한 뒤, 로컬 사본을 복사합니다.
+  - Drive의 실제 내용은 `/content/runs-raw`(promptguard-runs의 두 번째 bind)로 봅니다.
+  - 그래서 아침에 이어 갈 지점은 Drive `last/state.json`의 epoch이고, 1~3 중 하나입니다.
+- **코드 수정 (main)**: 아침 run은 저장 자리가 모자라도 실패하지 않습니다.
+  - Drive에 자리가 없으면 그 저장은 건너뛰고 옛 사본을 둡니다. 로그에 `checkpoint_not_saved`·`best_not_saved`가 남고, 학습은 계속됩니다.
+  - 끝난 run은 Drive에 체크포인트와 best를 더 쓰지 않습니다.
+  - 고른 epoch이 그 런타임에서 학습된 것이면, bundle은 런타임 디스크(`/content/runs/...`)에서 바로 만듭니다.
+  - 그래서 마지막에 Drive에 새로 쓰는 큰 파일은 bundle tar(약 0.6GB)뿐입니다.
+- **아침에 Drive 여유가 0.7GB보다 적으면**: 휴지통에서 이 run이 버린 폴더(`PURGE-…`로 시작하는 이름, 또는 오늘 지운 `last`·`best`)만 골라 완전삭제합니다. 휴지통에는 팀 파일도 있으니 통째로 비우지 않습니다.
+- **아침 run 시간**: Drive의 epoch이 1이면 남은 epoch 3개(약 7시간)를 한 런타임(약 8시간) 안에 돕니다. 2이면 약 4.6시간, 3이면 약 2.3시간입니다.
+
 ## 3. 해야 할 일 (순서대로)
 
 ### 3-1. epoch 4 이어 돌리기 (11-28 아침, 런타임이 회수된 뒤)
@@ -84,7 +100,7 @@ Drive `promptguard-runs/` 아래에 두 파일이 있으면 끝난 것입니다.
    - 숫자는 Drive `token-span-traj-combined-mmbert-base/history.json`과 `selection.json`에서 가져옵니다. 이 파일들에는 집계만 있습니다.
    - [TRAJ_COMBINED.md](TRAJ_COMBINED.md)의 진행 상황 표를 '완료'로 바꾸고, "결과: span mmBERT-base" 절을 더합니다.
 4. **PR과 머지**: `git push`, `gh pr create --base main --head claude/traj-combined`, `gh pr merge --merge`.
-5. **확인**: 가중치가 LFS로 올라갔는지 `git lfs ls-files | grep traj-combined`로 확인하고, `pytest -q`도 돌립니다(지금 379개 통과).
+5. **확인**: 가중치가 LFS로 올라갔는지 `git lfs ls-files | grep traj-combined`로 확인하고, `pytest -q`도 돌립니다(지금 380개 통과).
 
 ### 3-4. 정리 (선택, 사용자 확인 필요)
 
