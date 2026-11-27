@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 
+import pytest
 import torch
 
 from privai_model.token_span import train as ts
@@ -60,8 +61,9 @@ def test_the_best_epoch_follows_the_selection_rule():
 
 
 def test_a_run_resumed_on_a_new_runtime_matches_an_uninterrupted_run(tmp_path):
-    """Two epochs, then a 'new runtime' (empty output_dir) resumes from the Drive checkpoint for the third. The history
-    equals a three-epoch run without the break, and best_dir holds the chosen epoch."""
+    """The runtime is reclaimed during the third epoch; a 'new runtime' (empty output_dir) resumes from the Drive
+    checkpoint saved after the second. The history equals a three-epoch run without the break, best_dir holds the
+    chosen epoch, and the finished run leaves the checkpoint as it was."""
     from privai_model.io import write_jsonl
     from tests.token_span.test_token_span import span_rows, tiny_checkpoint
     data = tmp_path / 'data'
@@ -76,8 +78,20 @@ def test_a_run_resumed_on_a_new_runtime_matches_an_uninterrupted_run(tmp_path):
     drive = tmp_path / 'drive'
     resumable = dict(base, checkpoint_dir=str(drive / 'last'), checkpoint_staging=str(tmp_path / 'stage'),
                      best_dir=str(drive / 'best'))
-    ts.train(dict(resumable, epochs=2, output_dir=str(tmp_path / 'runtime1')), log=lambda _: None)
+    class Reclaimed(Exception):
+        pass
+
+    def reclaim_in_third_epoch(message):  # the runtime disappears once the third epoch has started
+        record = json.loads(message)
+        if 'batch' in record and record['epoch'] == 2:
+            raise Reclaimed
+
+    with pytest.raises(Reclaimed):
+        ts.train(dict(resumable, epochs=3, log_every=1, output_dir=str(tmp_path / 'runtime1')), log=reclaim_in_third_epoch)
+    assert json.loads((drive / 'last' / 'state.json').read_text())['epoch'] == 2
     resumed = ts.train(dict(resumable, epochs=3, output_dir=str(tmp_path / 'runtime2')), resume=True, log=lambda _: None)
+    assert not (drive / 'last').with_name('last.part').exists()
+    assert json.loads((drive / 'last' / 'state.json').read_text())['epoch'] == 2  # a finished run saves no checkpoint
     strip = lambda s: [{k: h[k] for k in ('epoch', 'loss', 'selected')} for h in s['history']]
     assert strip(resumed) == strip(whole) and resumed['selected'] == whole['selected']
     assert sorted(p.name for p in (tmp_path / 'runtime2').glob('epoch-*')) == ['epoch-3']

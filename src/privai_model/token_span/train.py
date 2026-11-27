@@ -482,7 +482,11 @@ def train(config, resume=False, log=print):
             best, stale = selected['f2'] or 0, 0
         else:
             stale += 1
-        save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state, staging)
+        done = state['epoch'] >= config['epochs'] or stale >= config.get('patience', config['epochs'])
+        # With a staged (Drive) checkpoint, a finished run saves none: there is nothing to resume, and on Drive a
+        # replaced checkpoint goes to the trash, where it still counts against the quota.
+        if not (done and staging):
+            save_checkpoint(ckpt, model, optimizer, scheduler, scaler, state, staging)
         if stale >= config.get('patience', config['epochs']):
             break
     progress.close()
