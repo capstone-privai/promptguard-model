@@ -1,6 +1,6 @@
 # 세 번째 학습 데이터(Trajectory-train-combined)로 학습한 모델
 
-팀이 준 세 번째 학습 데이터 `Trajectory-train-combined` v1으로 두 모델만 다시 학습합니다. 모델이 하나 끝날 때마다 bundle을 `models/`에 올리고 이 문서에 결과를 더합니다.
+팀이 준 세 번째 학습 데이터 `Trajectory-train-combined` v1으로 두 모델만 다시 학습합니다. 진행 상황과 남은 일은 [HANDOFF.md](HANDOFF.md)에 정리했습니다. 모델이 하나 끝날 때마다 bundle을 `models/`에 올리고 이 문서에 결과를 더합니다.
 
 | 모델 | 설정 | 올릴 곳 |
 |---|---|---|
